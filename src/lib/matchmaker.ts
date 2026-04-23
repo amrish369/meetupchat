@@ -20,11 +20,67 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
-const ICE_SERVERS: RTCIceServer[] = [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
-  { urls: "stun:stun.cloudflare.com:3478" },
-];
+/**
+ * ICE server configuration.
+ *
+ * STUN-only works for ~70-80% of users on home Wi-Fi, but fails for users
+ * behind symmetric NATs / strict carrier-grade NATs (very common on Indian
+ * mobile networks like Jio/Airtel). For those users a TURN relay server is
+ * required so media can be relayed when direct P2P fails.
+ *
+ * To enable TURN, set these env vars in your project (.env):
+ *
+ *   VITE_TURN_URLS=turn:turn.example.com:3478,turns:turn.example.com:5349
+ *   VITE_TURN_USERNAME=your-username
+ *   VITE_TURN_CREDENTIAL=your-password
+ *
+ * You can self-host with Coturn (open source) or use a managed provider like
+ * Metered.ca, Twilio, or Cloudflare Calls. Multiple URLs can be passed
+ * comma-separated to support both UDP (turn:) and TLS (turns:) transports —
+ * turns: on port 443 is critical to traverse restrictive corporate / public
+ * Wi-Fi firewalls.
+ *
+ * If no TURN env vars are configured we fall back to STUN-only.
+ */
+function buildIceServers(): RTCIceServer[] {
+  const servers: RTCIceServer[] = [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun.cloudflare.com:3478" },
+  ];
+
+  const turnUrlsRaw = import.meta.env.VITE_TURN_URLS as string | undefined;
+  const turnUsername = import.meta.env.VITE_TURN_USERNAME as string | undefined;
+  const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL as string | undefined;
+
+  if (turnUrlsRaw && turnUsername && turnCredential) {
+    const urls = turnUrlsRaw
+      .split(",")
+      .map((u) => u.trim())
+      .filter(Boolean);
+    if (urls.length > 0) {
+      servers.push({
+        urls,
+        username: turnUsername,
+        credential: turnCredential,
+      });
+    }
+  }
+
+  return servers;
+}
+
+const ICE_SERVERS: RTCIceServer[] = buildIceServers();
+
+/**
+ * When TURN is configured, prefer "all" so the browser can try host/srflx
+ * candidates first and only relay when needed. Set VITE_TURN_FORCE_RELAY=true
+ * to force all media through TURN (useful for testing TURN server health, or
+ * in privacy-strict deployments where you never want peers to learn each
+ * other's public IP).
+ */
+const ICE_TRANSPORT_POLICY: RTCIceTransportPolicy =
+  import.meta.env.VITE_TURN_FORCE_RELAY === "true" ? "relay" : "all";
 
 export type MatchStatus =
   | "idle"
