@@ -95,7 +95,7 @@ function PricingPage() {
                 ))}
               </ul>
               <Button asChild variant="hero" className="mt-7 w-full" size="lg">
-                <Link to="/#waitlist">Join waitlist</Link>
+                <Link to="/" hash="waitlist">Join waitlist</Link>
               </Button>
               <p className="mt-3 text-center text-xs text-cream/55">
                 Pay via Razorpay. Cancel anytime.

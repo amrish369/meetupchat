@@ -249,7 +249,10 @@ export class Matchmaker {
 
   private async ensurePc() {
     if (this.pc) return;
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    const pc = new RTCPeerConnection({
+      iceServers: ICE_SERVERS,
+      iceTransportPolicy: ICE_TRANSPORT_POLICY,
+    });
     this.pc = pc;
     this.remoteStream = new MediaStream();
     this.cb.onRemoteStream(this.remoteStream);
