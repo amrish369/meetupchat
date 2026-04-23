@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bans: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          reason: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          reason?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          reason?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_session: string
+          reporter_session: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_session: string
+          reporter_session: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_session?: string
+          reporter_session?: string
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          referral_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          referral_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          referral_source?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
