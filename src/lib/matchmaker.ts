@@ -13,74 +13,48 @@
  *      for in-call text). The data channel means text never goes through our
  *      server either — fully P2P.
  *   5. "Skip" tears the connection down and rejoins the lobby.
+ *   6. If the first ICE attempt fails (typical on strict mobile NATs), we
+ *      automatically retry with `iceTransportPolicy: "relay"` so all media
+ *      goes through TURN. This recovers carrier-grade NAT users who would
+ *      otherwise see a black screen.
  *
  * No video/audio data ever touches our servers. Only signaling.
  */
 
 import { supabase } from "@/integrations/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { getTurnCredentials, type TurnCredentialsResponse } from "@/lib/turn.functions";
 
 /**
- * ICE server configuration.
+ * ICE credentials are fetched from a server function that mints short-lived
+ * (default 1h) Coturn REST-style credentials. The browser never sees the
+ * shared secret, and credentials rotate automatically — even if a malicious
+ * peer scraped them, they'd expire within the hour and can't be reused on
+ * other Coturn realms.
  *
- * STUN-only works for ~70-80% of users on home Wi-Fi, but fails for users
- * behind symmetric NATs / strict carrier-grade NATs (very common on Indian
- * mobile networks like Jio/Airtel). For those users a TURN relay server is
- * required so media can be relayed when direct P2P fails.
- *
- * To enable TURN, set these env vars in your project (.env):
- *
- *   VITE_TURN_URLS=turn:turn.example.com:3478,turns:turn.example.com:5349
- *   VITE_TURN_USERNAME=your-username
- *   VITE_TURN_CREDENTIAL=your-password
- *
- * You can self-host with Coturn (open source) or use a managed provider like
- * Metered.ca, Twilio, or Cloudflare Calls. Multiple URLs can be passed
- * comma-separated to support both UDP (turn:) and TLS (turns:) transports —
- * turns: on port 443 is critical to traverse restrictive corporate / public
- * Wi-Fi firewalls.
- *
- * If no TURN env vars are configured we fall back to STUN-only.
+ * We cache the response in-memory and refresh ~5 minutes before expiry.
  */
-function buildIceServers(): RTCIceServer[] {
-  const servers: RTCIceServer[] = [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun.cloudflare.com:3478" },
-  ];
+let turnCache: { value: TurnCredentialsResponse; fetchedAt: number } | null = null;
+const REFRESH_BUFFER_SEC = 5 * 60;
 
-  const turnUrlsRaw = import.meta.env.VITE_TURN_URLS as string | undefined;
-  const turnUsername = import.meta.env.VITE_TURN_USERNAME as string | undefined;
-  const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL as string | undefined;
-
-  if (turnUrlsRaw && turnUsername && turnCredential) {
-    const urls = turnUrlsRaw
-      .split(",")
-      .map((u) => u.trim())
-      .filter(Boolean);
-    if (urls.length > 0) {
-      servers.push({
-        urls,
-        username: turnUsername,
-        credential: turnCredential,
-      });
-    }
+async function fetchIceServers(sessionId: string): Promise<RTCIceServer[]> {
+  const now = Math.floor(Date.now() / 1000);
+  if (turnCache && turnCache.value.expiresAt - REFRESH_BUFFER_SEC > now) {
+    return turnCache.value.iceServers;
   }
-
-  return servers;
+  try {
+    const value = await getTurnCredentials({ data: { sessionId } });
+    turnCache = { value, fetchedAt: now };
+    return value.iceServers;
+  } catch (err) {
+    console.warn("[turn] credential fetch failed, using STUN-only fallback", err);
+    return [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun.cloudflare.com:3478" },
+    ];
+  }
 }
-
-const ICE_SERVERS: RTCIceServer[] = buildIceServers();
-
-/**
- * When TURN is configured, prefer "all" so the browser can try host/srflx
- * candidates first and only relay when needed. Set VITE_TURN_FORCE_RELAY=true
- * to force all media through TURN (useful for testing TURN server health, or
- * in privacy-strict deployments where you never want peers to learn each
- * other's public IP).
- */
-const ICE_TRANSPORT_POLICY: RTCIceTransportPolicy =
-  import.meta.env.VITE_TURN_FORCE_RELAY === "true" ? "relay" : "all";
 
 export type MatchStatus =
   | "idle"
@@ -123,6 +97,12 @@ export class Matchmaker {
   private isCaller = false;
   private active = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
+  // Once we observe an ICE failure with the default policy, every subsequent
+  // connection in this session is forced through TURN relay.
+  private forceRelay = false;
+  // Per-pair retry state — we only auto-retry once with relay policy before
+  // giving up and skipping to the next stranger.
+  private pairRetried = false;
 
   constructor(sessionId: string, cb: Callbacks) {
     this.sessionId = sessionId;
@@ -154,8 +134,8 @@ export class Matchmaker {
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
     this.peerId = null;
+    this.pairRetried = false;
 
-    // Tear down any previous lobby
     if (this.lobby) {
       await supabase.removeChannel(this.lobby);
       this.lobby = null;
@@ -181,7 +161,6 @@ export class Matchmaker {
     const others = Object.keys(state).filter((k) => k !== this.sessionId);
     if (others.length === 0) return;
 
-    // Pick the "oldest waiting" peer (lowest sessionId for determinism).
     others.sort();
     const candidate = others[0];
 
@@ -190,10 +169,7 @@ export class Matchmaker {
     this.cb.onPeerSession(candidate);
     this.cb.onStatus("connecting");
 
-    // Stop accepting more matches by leaving the lobby
-    if (this.lobby) {
-      await this.lobby.untrack();
-    }
+    if (this.lobby) await this.lobby.untrack();
 
     await this.openSignaling(candidate);
   }
@@ -229,7 +205,7 @@ export class Matchmaker {
         try {
           await this.pc.addIceCandidate(candidate);
         } catch {
-          // ignore
+          /* ignore */
         }
       })
       .on("broadcast", { event: "bye" }, () => {
@@ -237,21 +213,26 @@ export class Matchmaker {
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED" && this.isCaller) {
-          await this.ensurePc();
-          this.dc = this.pc!.createDataChannel("chat");
-          this.wireDataChannel(this.dc);
-          const offer = await this.pc!.createOffer();
-          await this.pc!.setLocalDescription(offer);
-          this.signal?.send({ type: "broadcast", event: "offer", payload: { sdp: offer } });
+          await this.startCallerOffer();
         }
       });
   }
 
+  private async startCallerOffer() {
+    await this.ensurePc();
+    this.dc = this.pc!.createDataChannel("chat");
+    this.wireDataChannel(this.dc);
+    const offer = await this.pc!.createOffer();
+    await this.pc!.setLocalDescription(offer);
+    this.signal?.send({ type: "broadcast", event: "offer", payload: { sdp: offer } });
+  }
+
   private async ensurePc() {
     if (this.pc) return;
+    const iceServers = await fetchIceServers(this.sessionId);
     const pc = new RTCPeerConnection({
-      iceServers: ICE_SERVERS,
-      iceTransportPolicy: ICE_TRANSPORT_POLICY,
+      iceServers,
+      iceTransportPolicy: this.forceRelay ? "relay" : "all",
     });
     this.pc = pc;
     this.remoteStream = new MediaStream();
@@ -274,16 +255,81 @@ export class Matchmaker {
       }
     };
 
+    pc.oniceconnectionstatechange = () => {
+      const s = pc.iceConnectionState;
+      // "failed" means the browser has exhausted all candidate pairs. If we
+      // haven't yet tried forcing TURN relay, do so now — this is the canonical
+      // recovery path on strict carrier-grade NATs (Jio/Airtel).
+      if (s === "failed") this.handleIceFailure();
+    };
+
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
-      if (s === "connected") this.cb.onStatus("connected");
-      if (s === "failed" || s === "disconnected") this.handlePeerLeft();
+      if (s === "connected") {
+        this.cb.onStatus("connected");
+        this.pairRetried = false;
+      }
+      if (s === "failed") this.handleIceFailure();
+      if (s === "disconnected") {
+        // give the browser a few seconds to recover before tearing down
+        setTimeout(() => {
+          if (this.pc === pc && pc.connectionState === "disconnected") {
+            this.handlePeerLeft();
+          }
+        }, 4000);
+      }
     };
 
     pc.ondatachannel = (e) => {
       this.dc = e.channel;
       this.wireDataChannel(e.channel);
     };
+  }
+
+  /**
+   * ICE-failure recovery: first failure on this pair → tear down PC and
+   * retry with `iceTransportPolicy: "relay"` (forces TURN). Persist the
+   * forceRelay flag so subsequent matches in this session also use TURN
+   * directly without re-failing first.
+   */
+  private async handleIceFailure() {
+    if (this.pairRetried) {
+      // Already tried relay; give up and find a new stranger.
+      this.cb.onMessage({
+        id: crypto.randomUUID(),
+        from: "system",
+        text: "Connection failed. Searching for a new stranger…",
+        at: Date.now(),
+      });
+      this.handlePeerLeft();
+      return;
+    }
+    this.pairRetried = true;
+    this.forceRelay = true;
+    // Invalidate cached creds so we get a fresh TURN credential pair.
+    turnCache = null;
+
+    this.cb.onStatus("connecting", "Reconnecting via relay…");
+    this.cb.onMessage({
+      id: crypto.randomUUID(),
+      from: "system",
+      text: "Network is strict — switching to relay (TURN)…",
+      at: Date.now(),
+    });
+
+    // Tear down only the peer connection / data channel — keep the signaling
+    // channel open so the existing pair can re-negotiate.
+    if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
+    if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
+    this.pendingCandidates = [];
+    this.remoteStream = null;
+    this.cb.onRemoteStream(null);
+
+    if (this.isCaller) {
+      // Caller redrives the offer with the new (relay-only) PC.
+      await this.startCallerOffer();
+    }
+    // Callee waits for the new offer over the existing signaling channel.
   }
 
   private async flushCandidates() {
@@ -352,6 +398,7 @@ export class Matchmaker {
     this.cb.onPeerSession(null);
     this.peerId = null;
     this.pendingCandidates = [];
+    this.pairRetried = false;
   }
 
   async skip() {
