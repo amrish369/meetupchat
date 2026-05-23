@@ -8,6 +8,7 @@ const nav = [
   { to: "/safety", label: "Safety" },
   { to: "/about", label: "About" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/coturn-setup", label: "Self-host TURN" },
 ] as const;
 
 export function SiteHeader() {

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const SafetyRoute = SafetyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoturnSetupRoute = CoturnSetupRouteImport.update({
+  id: '/coturn-setup',
+  path: '/coturn-setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/coturn-setup': typeof CoturnSetupRoute
   '/pricing': typeof PricingRoute
   '/safety': typeof SafetyRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/coturn-setup': typeof CoturnSetupRoute
   '/pricing': typeof PricingRoute
   '/safety': typeof SafetyRoute
 }
@@ -60,21 +68,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/coturn-setup': typeof CoturnSetupRoute
   '/pricing': typeof PricingRoute
   '/safety': typeof SafetyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/chat' | '/pricing' | '/safety'
+  fullPaths: '/' | '/about' | '/chat' | '/coturn-setup' | '/pricing' | '/safety'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/chat' | '/pricing' | '/safety'
-  id: '__root__' | '/' | '/about' | '/chat' | '/pricing' | '/safety'
+  to: '/' | '/about' | '/chat' | '/coturn-setup' | '/pricing' | '/safety'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/chat'
+    | '/coturn-setup'
+    | '/pricing'
+    | '/safety'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ChatRoute: typeof ChatRoute
+  CoturnSetupRoute: typeof CoturnSetupRoute
   PricingRoute: typeof PricingRoute
   SafetyRoute: typeof SafetyRoute
 }
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coturn-setup': {
+      id: '/coturn-setup'
+      path: '/coturn-setup'
+      fullPath: '/coturn-setup'
+      preLoaderRoute: typeof CoturnSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -123,18 +147,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ChatRoute: ChatRoute,
+  CoturnSetupRoute: CoturnSetupRoute,
   PricingRoute: PricingRoute,
   SafetyRoute: SafetyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
