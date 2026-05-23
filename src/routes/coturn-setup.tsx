@@ -346,8 +346,8 @@ function Note({
   body: string;
 }) {
   return (
-    <div className="mb-6 flex gap-3 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm">
-      <Icon className="h-5 w-5 shrink-0 text-warning" />
+    <div className="mb-6 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
+      <Icon className="h-5 w-5 shrink-0 text-destructive" />
       <div>
         <p className="font-semibold">{title}</p>
         <p className="mt-1 text-muted-foreground">{body}</p>
