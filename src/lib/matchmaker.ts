@@ -460,6 +460,11 @@ export class Matchmaker {
       await supabase.removeChannel(this.lobby);
       this.lobby = null;
     }
+    if (this.online) {
+      await supabase.removeChannel(this.online);
+      this.online = null;
+      this.cb.onOnlineCount?.(0);
+    }
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
     this.cb.onLocalStream(null as unknown as MediaStream);
