@@ -275,7 +275,6 @@ function ChatRoom() {
       {timelineOpen && phases.length > 0 && (
         <PhaseTimeline phases={phases} now={now} onClose={() => setTimelineOpen(false)} />
       )}
-      </header>
 
       <main className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <section className="relative flex-1 min-h-0 bg-black">
