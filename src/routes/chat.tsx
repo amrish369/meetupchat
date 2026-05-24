@@ -309,6 +309,12 @@ function ChatRoom() {
             <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-deep/70 px-3 py-1 text-xs text-cream backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
               Connected · stranger #{peerSession.slice(0, 6)}
+              <span className="ml-1 tabular-nums text-cream/60">{formatElapsed(elapsed)}</span>
+              {relayActive && (
+                <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">
+                  <Shuffle className="h-2.5 w-2.5" /> relay
+                </span>
+              )}
             </div>
           )}
 
