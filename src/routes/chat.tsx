@@ -158,16 +158,26 @@ function ChatRoom() {
 
   return (
     <div className="flex h-[100dvh] flex-col bg-deep text-cream">
-      <header className="flex items-center justify-between border-b border-cream/10 bg-deep/80 px-4 py-3 backdrop-blur">
+      <header className="flex items-center justify-between gap-2 border-b border-cream/10 bg-deep/80 px-4 py-3 backdrop-blur">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-cream/75 hover:text-cream">
           <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Back to home</span>
+          <span className="hidden sm:inline">Back</span>
         </Link>
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 place-items-center rounded-lg bg-teal-grad text-white">
             <Shield className="h-3.5 w-3.5" />
           </span>
           <span className="font-display text-sm font-semibold">Meetup Live</span>
+          {onlineCount > 0 && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-medium text-success"
+              title="People online right now"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+              <Users className="h-3 w-3" />
+              {onlineCount.toLocaleString("en-IN")} online
+            </span>
+          )}
         </div>
         <StatusPill status={status} />
       </header>
