@@ -234,6 +234,11 @@ function ChatRoom() {
     });
   };
 
+  const currentPhase = phases[phases.length - 1];
+  const relayActive = useMemo(() => phases.some((p) => p.phase === "relay"), [phases]);
+  const startedAt = phases[0]?.at;
+  const elapsed = startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
+
   return (
     <div className="flex h-[100dvh] flex-col bg-deep text-cream">
       <header className="flex items-center justify-between gap-2 border-b border-cream/10 bg-deep/80 px-4 py-3 backdrop-blur">
