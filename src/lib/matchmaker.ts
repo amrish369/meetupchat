@@ -372,6 +372,7 @@ export class Matchmaker {
 
     if (this.isCaller) {
       // Caller redrives the offer with the new (relay-only) PC.
+      this.offerSent = true;
       await this.startCallerOffer();
     }
     // Callee waits for the new offer over the existing signaling channel.
