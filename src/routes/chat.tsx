@@ -117,16 +117,55 @@ function ChatRoom() {
     };
   }, []);
 
+  // Tick a clock while connecting/connected so elapsed timers update live.
+  useEffect(() => {
+    if (status === "idle") return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [status]);
+
+  const pushPhase = useCallback(
+    (phase: PhaseKey, label: string, detail?: string) => {
+      if (lastPhaseRef.current === phase) return;
+      lastPhaseRef.current = phase;
+      setPhases((prev) => [
+        ...prev,
+        {
+          id: `${phase}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          phase,
+          label,
+          detail,
+          at: Date.now(),
+        },
+      ]);
+    },
+    [],
+  );
+
   const start = useCallback(async () => {
     if (!sessionId) return;
     if (matcherRef.current) await matcherRef.current.stop();
 
     setMessages([]);
+    setPhases([]);
+    lastPhaseRef.current = null;
     const m = new Matchmaker(sessionId, {
       onStatus: (s, info) => {
         setStatus(s);
         setStatusInfo(info);
         if (s === "error" && info) toast.error(info);
+        if (s === "requesting-media") pushPhase("media", "Requesting camera & mic", info);
+        else if (s === "searching") pushPhase("searching", "Searching for a partner", info);
+        else if (s === "connecting") {
+          if (info && /relay/i.test(info)) {
+            lastPhaseRef.current = null; // allow distinct relay event
+            pushPhase("relay", "Relay fallback (TURN)", info);
+          } else {
+            pushPhase("signaling", "Signaling & ICE negotiation", info);
+          }
+        } else if (s === "connected") pushPhase("connected", "Connected", info);
+        else if (s === "disconnected") pushPhase("disconnected", "Disconnected", info);
+        else if (s === "error") pushPhase("error", "Error", info);
       },
       onLocalStream: (s) => {
         if (localVideoRef.current) {
@@ -139,23 +178,33 @@ function ChatRoom() {
         }
       },
       onMessage: (msg) => setMessages((prev) => [...prev, msg]),
-      onPeerSession: (id) => setPeerSession(id),
+      onPeerSession: (id) => {
+        setPeerSession(id);
+        if (id) {
+          lastPhaseRef.current = null;
+          pushPhase("matched", "Matched with stranger", `#${id.slice(0, 6)}`);
+        }
+      },
       onOnlineCount: (n) => setOnlineCount(n),
     });
     matcherRef.current = m;
     await m.start();
-  }, [sessionId]);
+  }, [sessionId, pushPhase]);
 
   const stop = useCallback(async () => {
     await matcherRef.current?.stop();
     matcherRef.current = null;
     setMessages([]);
     setPeerSession(null);
+    setPhases([]);
+    lastPhaseRef.current = null;
   }, []);
 
   const skip = useCallback(async () => {
     if (!matcherRef.current) return;
     setMessages([]);
+    setPhases([]);
+    lastPhaseRef.current = null;
     await matcherRef.current.skip();
   }, []);
 
