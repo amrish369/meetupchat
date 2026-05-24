@@ -262,7 +262,19 @@ function ChatRoom() {
             </span>
           )}
         </div>
-        <StatusPill status={status} />
+        <PhaseChip
+          status={status}
+          currentPhase={currentPhase}
+          relayActive={relayActive}
+          elapsed={elapsed}
+          open={timelineOpen}
+          onToggle={() => setTimelineOpen((v) => !v)}
+        />
+      </header>
+
+      {timelineOpen && phases.length > 0 && (
+        <PhaseTimeline phases={phases} now={now} onClose={() => setTimelineOpen(false)} />
+      )}
       </header>
 
       <main className="flex flex-1 min-h-0 flex-col lg:flex-row">
