@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Mic,
   MicOff,
@@ -14,6 +14,13 @@ import {
   Shield,
   Wifi,
   Users,
+  Search,
+  Handshake,
+  Radio,
+  CheckCircle2,
+  Shuffle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +66,24 @@ export const Route = createFileRoute("/chat")({
   component: ChatRoom,
 });
 
+type PhaseKey =
+  | "media"
+  | "searching"
+  | "matched"
+  | "signaling"
+  | "connected"
+  | "relay"
+  | "disconnected"
+  | "error";
+
+interface PhaseEvent {
+  id: string;
+  phase: PhaseKey;
+  label: string;
+  detail?: string;
+  at: number;
+}
+
 function ChatRoom() {
   const [status, setStatus] = useState<MatchStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string | undefined>();
@@ -69,11 +94,15 @@ function ChatRoom() {
   const [peerSession, setPeerSession] = useState<string | null>(null);
   const [onlineCount, setOnlineCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
+  const [phases, setPhases] = useState<PhaseEvent[]>([]);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const matcherRef = useRef<Matchmaker | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastPhaseRef = useRef<PhaseKey | null>(null);
 
   const sessionId =
     typeof window !== "undefined" ? getSessionId() : "";
@@ -88,16 +117,55 @@ function ChatRoom() {
     };
   }, []);
 
+  // Tick a clock while connecting/connected so elapsed timers update live.
+  useEffect(() => {
+    if (status === "idle") return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [status]);
+
+  const pushPhase = useCallback(
+    (phase: PhaseKey, label: string, detail?: string) => {
+      if (lastPhaseRef.current === phase) return;
+      lastPhaseRef.current = phase;
+      setPhases((prev) => [
+        ...prev,
+        {
+          id: `${phase}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          phase,
+          label,
+          detail,
+          at: Date.now(),
+        },
+      ]);
+    },
+    [],
+  );
+
   const start = useCallback(async () => {
     if (!sessionId) return;
     if (matcherRef.current) await matcherRef.current.stop();
 
     setMessages([]);
+    setPhases([]);
+    lastPhaseRef.current = null;
     const m = new Matchmaker(sessionId, {
       onStatus: (s, info) => {
         setStatus(s);
         setStatusInfo(info);
         if (s === "error" && info) toast.error(info);
+        if (s === "requesting-media") pushPhase("media", "Requesting camera & mic", info);
+        else if (s === "searching") pushPhase("searching", "Searching for a partner", info);
+        else if (s === "connecting") {
+          if (info && /relay/i.test(info)) {
+            lastPhaseRef.current = null; // allow distinct relay event
+            pushPhase("relay", "Relay fallback (TURN)", info);
+          } else {
+            pushPhase("signaling", "Signaling & ICE negotiation", info);
+          }
+        } else if (s === "connected") pushPhase("connected", "Connected", info);
+        else if (s === "disconnected") pushPhase("disconnected", "Disconnected", info);
+        else if (s === "error") pushPhase("error", "Error", info);
       },
       onLocalStream: (s) => {
         if (localVideoRef.current) {
@@ -110,23 +178,33 @@ function ChatRoom() {
         }
       },
       onMessage: (msg) => setMessages((prev) => [...prev, msg]),
-      onPeerSession: (id) => setPeerSession(id),
+      onPeerSession: (id) => {
+        setPeerSession(id);
+        if (id) {
+          lastPhaseRef.current = null;
+          pushPhase("matched", "Matched with stranger", `#${id.slice(0, 6)}`);
+        }
+      },
       onOnlineCount: (n) => setOnlineCount(n),
     });
     matcherRef.current = m;
     await m.start();
-  }, [sessionId]);
+  }, [sessionId, pushPhase]);
 
   const stop = useCallback(async () => {
     await matcherRef.current?.stop();
     matcherRef.current = null;
     setMessages([]);
     setPeerSession(null);
+    setPhases([]);
+    lastPhaseRef.current = null;
   }, []);
 
   const skip = useCallback(async () => {
     if (!matcherRef.current) return;
     setMessages([]);
+    setPhases([]);
+    lastPhaseRef.current = null;
     await matcherRef.current.skip();
   }, []);
 
@@ -156,6 +234,11 @@ function ChatRoom() {
     });
   };
 
+  const currentPhase = phases[phases.length - 1];
+  const relayActive = useMemo(() => phases.some((p) => p.phase === "relay"), [phases]);
+  const startedAt = phases[0]?.at;
+  const elapsed = startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
+
   return (
     <div className="flex h-[100dvh] flex-col bg-deep text-cream">
       <header className="flex items-center justify-between gap-2 border-b border-cream/10 bg-deep/80 px-4 py-3 backdrop-blur">
@@ -179,8 +262,19 @@ function ChatRoom() {
             </span>
           )}
         </div>
-        <StatusPill status={status} />
+        <PhaseChip
+          status={status}
+          currentPhase={currentPhase}
+          relayActive={relayActive}
+          elapsed={elapsed}
+          open={timelineOpen}
+          onToggle={() => setTimelineOpen((v) => !v)}
+        />
       </header>
+
+      {timelineOpen && phases.length > 0 && (
+        <PhaseTimeline phases={phases} now={now} onClose={() => setTimelineOpen(false)} />
+      )}
 
       <main className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <section className="relative flex-1 min-h-0 bg-black">
@@ -215,6 +309,12 @@ function ChatRoom() {
             <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-deep/70 px-3 py-1 text-xs text-cream backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
               Connected · stranger #{peerSession.slice(0, 6)}
+              <span className="ml-1 tabular-nums text-cream/60">{formatElapsed(elapsed)}</span>
+              {relayActive && (
+                <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-200">
+                  <Shuffle className="h-2.5 w-2.5" /> relay
+                </span>
+              )}
             </div>
           )}
 
@@ -315,23 +415,137 @@ function ChatRoom() {
   );
 }
 
-function StatusPill({ status }: { status: MatchStatus }) {
-  const map: Record<MatchStatus, { label: string; color: string; icon?: typeof Wifi }> = {
-    idle: { label: "Ready", color: "bg-cream/10 text-cream/70" },
-    "requesting-media": { label: "Camera…", color: "bg-cream/10 text-cream/70", icon: Loader2 },
-    searching: { label: "Searching", color: "bg-teal/20 text-teal-soft", icon: Loader2 },
-    connecting: { label: "Connecting", color: "bg-teal/20 text-teal-soft", icon: Loader2 },
-    connected: { label: "Live", color: "bg-success/20 text-success" },
-    disconnected: { label: "Disconnected", color: "bg-destructive/20 text-destructive" },
-    error: { label: "Error", color: "bg-destructive/20 text-destructive" },
-  };
-  const it = map[status];
-  const Icon = it.icon;
+function formatElapsed(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+function formatTime(at: number) {
+  const d = new Date(at);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+}
+
+const PHASE_META: Record<
+  PhaseKey,
+  { label: string; color: string; icon: typeof Wifi; spin?: boolean }
+> = {
+  media: { label: "Camera", color: "bg-cream/10 text-cream/80", icon: VideoIcon },
+  searching: { label: "Searching", color: "bg-teal/20 text-teal-soft", icon: Search, spin: false },
+  matched: { label: "Matched", color: "bg-teal/25 text-teal-soft", icon: Handshake },
+  signaling: { label: "Signaling", color: "bg-teal/20 text-teal-soft", icon: Radio, spin: true },
+  relay: { label: "Relay (TURN)", color: "bg-amber-400/20 text-amber-200", icon: Shuffle },
+  connected: { label: "Connected", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  disconnected: { label: "Disconnected", color: "bg-destructive/20 text-destructive", icon: X },
+  error: { label: "Error", color: "bg-destructive/20 text-destructive", icon: X },
+};
+
+function PhaseChip({
+  status,
+  currentPhase,
+  relayActive,
+  elapsed,
+  open,
+  onToggle,
+}: {
+  status: MatchStatus;
+  currentPhase?: PhaseEvent;
+  relayActive: boolean;
+  elapsed: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  if (status === "idle" || !currentPhase) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-cream/10 px-3 py-1 text-xs font-medium text-cream/70">
+        Ready
+      </span>
+    );
+  }
+  const meta = PHASE_META[currentPhase.phase];
+  const Icon = meta.icon;
+  const isLoading = currentPhase.phase === "searching" || currentPhase.phase === "signaling" || currentPhase.phase === "media";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${it.color}`}>
-      {Icon && <Icon className="h-3 w-3 animate-spin" />}
-      {it.label}
-    </span>
+    <button
+      onClick={onToggle}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-90 ${meta.color}`}
+      title="Tap for connection timeline"
+      aria-expanded={open}
+    >
+      {isLoading ? (
+        <Loader2 className="h-3 w-3 animate-spin" />
+      ) : (
+        <Icon className="h-3 w-3" />
+      )}
+      <span>{meta.label}</span>
+      {relayActive && currentPhase.phase !== "relay" && (
+        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[10px] text-amber-200">
+          <Shuffle className="h-2.5 w-2.5" />
+        </span>
+      )}
+      <span className="tabular-nums text-[10px] opacity-70">{formatElapsed(elapsed)}</span>
+      {open ? <ChevronUp className="h-3 w-3 opacity-70" /> : <ChevronDown className="h-3 w-3 opacity-70" />}
+    </button>
+  );
+}
+
+function PhaseTimeline({
+  phases,
+  now,
+  onClose,
+}: {
+  phases: PhaseEvent[];
+  now: number;
+  onClose: () => void;
+}) {
+  const start = phases[0]?.at ?? now;
+  return (
+    <div className="border-b border-cream/10 bg-deep/95 px-4 py-3 backdrop-blur">
+      <div className="mx-auto flex max-w-3xl items-start gap-3">
+        <div className="flex-1">
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-cream/60">
+              Connection timeline
+            </h4>
+            <button
+              onClick={onClose}
+              aria-label="Close timeline"
+              className="rounded-full p-1 text-cream/60 hover:bg-cream/10 hover:text-cream"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <ol className="space-y-1.5">
+            {phases.map((p, i) => {
+              const meta = PHASE_META[p.phase];
+              const Icon = meta.icon;
+              const next = phases[i + 1]?.at ?? now;
+              const dur = Math.max(0, Math.round((next - p.at) / 100) / 10);
+              const offset = Math.max(0, Math.round((p.at - start) / 100) / 10);
+              return (
+                <li key={p.id} className="flex items-center gap-3 text-xs">
+                  <span className="w-16 shrink-0 tabular-nums text-cream/45">
+                    +{offset.toFixed(1)}s
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.color}`}
+                  >
+                    <Icon className="h-3 w-3" />
+                    {meta.label}
+                  </span>
+                  {p.detail && (
+                    <span className="truncate text-cream/65">{p.detail}</span>
+                  )}
+                  <span className="ml-auto tabular-nums text-cream/40">
+                    {formatTime(p.at)} · {dur.toFixed(1)}s
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </div>
   );
 }
 
