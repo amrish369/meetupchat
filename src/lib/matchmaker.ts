@@ -78,6 +78,7 @@ interface Callbacks {
   onRemoteStream: (s: MediaStream | null) => void;
   onMessage: (m: ChatMessage) => void;
   onPeerSession: (id: string | null) => void;
+  onOnlineCount?: (n: number) => void;
 }
 
 function pairId(a: string, b: string) {
