@@ -129,7 +129,33 @@ export class Matchmaker {
       return;
     }
 
+    this.joinOnline();
     await this.joinLobby();
+  }
+
+  /**
+   * Separate presence channel that counts EVERY active user (whether searching
+   * or already in a chat). Used to render the "X people online" banner. We
+   * don't untrack here when matched — only the lobby gets untracked.
+   */
+  private joinOnline() {
+    if (this.online) return;
+    const ch = supabase.channel("online", {
+      config: { presence: { key: this.sessionId } },
+    });
+    const emit = () => {
+      const state = ch.presenceState();
+      this.cb.onOnlineCount?.(Object.keys(state).length);
+    };
+    ch.on("presence", { event: "sync" }, emit)
+      .on("presence", { event: "join" }, emit)
+      .on("presence", { event: "leave" }, emit)
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await ch.track({ at: Date.now() });
+        }
+      });
+    this.online = ch;
   }
 
   private async joinLobby() {
