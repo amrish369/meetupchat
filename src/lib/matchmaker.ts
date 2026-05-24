@@ -443,6 +443,7 @@ export class Matchmaker {
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
     this.peerId = null;
+    this.offerSent = false;
     this.pendingCandidates = [];
     this.pairRetried = false;
   }
