@@ -469,8 +469,8 @@ export class Matchmaker {
     this.localStream?.getAudioTracks().forEach((t) => (t.enabled = on));
   }
 
-  private handlePeerLeft() {
-    this.tearDownPeer();
+  private async handlePeerLeft() {
+    await this.tearDownPeer();
     if (this.active) {
       this.cb.onMessage({
         id: crypto.randomUUID(),
