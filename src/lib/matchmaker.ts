@@ -78,6 +78,7 @@ interface Callbacks {
   onRemoteStream: (s: MediaStream | null) => void;
   onMessage: (m: ChatMessage) => void;
   onPeerSession: (id: string | null) => void;
+  onOnlineCount?: (n: number) => void;
 }
 
 function pairId(a: string, b: string) {
@@ -88,6 +89,7 @@ export class Matchmaker {
   private sessionId: string;
   private cb: Callbacks;
   private lobby: RealtimeChannel | null = null;
+  private online: RealtimeChannel | null = null;
   private signal: RealtimeChannel | null = null;
   private pc: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
@@ -96,6 +98,7 @@ export class Matchmaker {
   private peerId: string | null = null;
   private isCaller = false;
   private active = false;
+  private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
   // Once we observe an ICE failure with the default policy, every subsequent
   // connection in this session is forced through TURN relay.
@@ -126,7 +129,33 @@ export class Matchmaker {
       return;
     }
 
+    this.joinOnline();
     await this.joinLobby();
+  }
+
+  /**
+   * Separate presence channel that counts EVERY active user (whether searching
+   * or already in a chat). Used to render the "X people online" banner. We
+   * don't untrack here when matched — only the lobby gets untracked.
+   */
+  private joinOnline() {
+    if (this.online) return;
+    const ch = supabase.channel("online", {
+      config: { presence: { key: this.sessionId } },
+    });
+    const emit = () => {
+      const state = ch.presenceState();
+      this.cb.onOnlineCount?.(Object.keys(state).length);
+    };
+    ch.on("presence", { event: "sync" }, emit)
+      .on("presence", { event: "join" }, emit)
+      .on("presence", { event: "leave" }, emit)
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await ch.track({ at: Date.now() });
+        }
+      });
+    this.online = ch;
   }
 
   private async joinLobby() {
@@ -176,11 +205,27 @@ export class Matchmaker {
 
   private async openSignaling(peer: string) {
     const id = pairId(this.sessionId, peer);
+    this.offerSent = false;
     this.signal = supabase.channel(`pair:${id}`, {
-      config: { broadcast: { self: false, ack: false } },
+      config: {
+        broadcast: { self: false, ack: false },
+        presence: { key: this.sessionId },
+      },
     });
 
     this.signal
+      .on("presence", { event: "sync" }, () => {
+        // Caller waits until it can SEE the callee on the pair channel before
+        // firing the SDP offer. Without this, the offer is sent before the
+        // callee has subscribed and is silently dropped (broadcast.self:false,
+        // no ack, no replay).
+        if (!this.isCaller || this.offerSent || !this.signal) return;
+        const state = this.signal.presenceState();
+        if (Object.keys(state).includes(peer)) {
+          this.offerSent = true;
+          void this.startCallerOffer();
+        }
+      })
       .on("broadcast", { event: "offer" }, async ({ payload }) => {
         if (this.isCaller) return;
         await this.ensurePc();
@@ -212,8 +257,8 @@ export class Matchmaker {
         this.handlePeerLeft();
       })
       .subscribe(async (status) => {
-        if (status === "SUBSCRIBED" && this.isCaller) {
-          await this.startCallerOffer();
+        if (status === "SUBSCRIBED") {
+          await this.signal?.track({ at: Date.now() });
         }
       });
   }
@@ -327,6 +372,7 @@ export class Matchmaker {
 
     if (this.isCaller) {
       // Caller redrives the offer with the new (relay-only) PC.
+      this.offerSent = true;
       await this.startCallerOffer();
     }
     // Callee waits for the new offer over the existing signaling channel.
@@ -397,6 +443,7 @@ export class Matchmaker {
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
     this.peerId = null;
+    this.offerSent = false;
     this.pendingCandidates = [];
     this.pairRetried = false;
   }
@@ -412,6 +459,11 @@ export class Matchmaker {
     if (this.lobby) {
       await supabase.removeChannel(this.lobby);
       this.lobby = null;
+    }
+    if (this.online) {
+      await supabase.removeChannel(this.online);
+      this.online = null;
+      this.cb.onOnlineCount?.(0);
     }
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
