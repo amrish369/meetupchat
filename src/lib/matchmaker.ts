@@ -522,6 +522,10 @@ export class Matchmaker {
 
   async stop() {
     this.active = false;
+    if (this.presenceTimer) {
+      clearInterval(this.presenceTimer);
+      this.presenceTimer = null;
+    }
     await this.tearDownPeer();
     if (this.lobby) {
       await supabase.removeChannel(this.lobby);
