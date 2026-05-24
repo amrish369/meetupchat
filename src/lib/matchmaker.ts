@@ -358,8 +358,10 @@ export class Matchmaker {
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
       if (s === "connected") {
+        this.clearMatchTimer();
         this.cb.onStatus("connected");
         this.pairRetried = false;
+        this.retryingIce = false;
       }
       if (s === "failed") this.handleIceFailure();
       if (s === "disconnected") {
@@ -385,6 +387,8 @@ export class Matchmaker {
    * directly without re-failing first.
    */
   private async handleIceFailure() {
+    if (this.retryingIce) return;
+    this.retryingIce = true;
     if (this.pairRetried) {
       // Already tried relay; give up and find a new stranger.
       this.cb.onMessage({
@@ -394,6 +398,7 @@ export class Matchmaker {
         at: Date.now(),
       });
       this.handlePeerLeft();
+      this.retryingIce = false;
       return;
     }
     this.pairRetried = true;
@@ -422,6 +427,7 @@ export class Matchmaker {
       this.offerSent = true;
       await this.startCallerOffer();
     }
+    this.retryingIce = false;
     // Callee waits for the new offer over the existing signaling channel.
   }
 
@@ -479,6 +485,7 @@ export class Matchmaker {
   }
 
   private async tearDownPeer() {
+    this.clearMatchTimer();
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
     if (this.signal) {
       await supabase.removeChannel(this.signal);
@@ -493,6 +500,7 @@ export class Matchmaker {
     this.offerSent = false;
     this.pendingCandidates = [];
     this.pairRetried = false;
+    this.retryingIce = false;
   }
 
   async skip() {
