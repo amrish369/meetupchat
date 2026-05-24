@@ -110,6 +110,7 @@ function ChatRoom() {
       },
       onMessage: (msg) => setMessages((prev) => [...prev, msg]),
       onPeerSession: (id) => setPeerSession(id),
+      onOnlineCount: (n) => setOnlineCount(n),
     });
     matcherRef.current = m;
     await m.start();
