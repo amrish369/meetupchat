@@ -66,6 +66,7 @@ function ChatRoom() {
   const [muted, setMuted] = useState(false);
   const [camOff, setCamOff] = useState(false);
   const [peerSession, setPeerSession] = useState<string | null>(null);
+  const [onlineCount, setOnlineCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
