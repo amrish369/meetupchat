@@ -85,8 +85,31 @@ function pairId(a: string, b: string) {
   return [a, b].sort().join("__");
 }
 
+function createConnectionId(sessionId: string) {
+  const suffix =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID().slice(0, 8)
+      : Math.random().toString(36).slice(2, 10);
+  return `${sessionId}-${suffix}`;
+}
+
+function freshPresenceKeys(state: ReturnType<RealtimeChannel["presenceState"]>, selfId: string) {
+  const now = Date.now();
+  return Object.entries(state)
+    .filter(([id, metas]) => {
+      if (id === selfId || !Array.isArray(metas)) return false;
+      return metas.some((meta) => {
+        const at = Number((meta as { at?: number }).at ?? 0);
+        return !at || now - at < 45_000;
+      });
+    })
+    .map(([id]) => id)
+    .sort();
+}
+
 export class Matchmaker {
   private sessionId: string;
+  private connectionId: string;
   private cb: Callbacks;
   private lobby: RealtimeChannel | null = null;
   private online: RealtimeChannel | null = null;
@@ -100,6 +123,9 @@ export class Matchmaker {
   private active = false;
   private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
+  private matchTimer: ReturnType<typeof setTimeout> | null = null;
+  private presenceTimer: ReturnType<typeof setInterval> | null = null;
+  private retryingIce = false;
   // Once we observe an ICE failure with the default policy, every subsequent
   // connection in this session is forced through TURN relay.
   private forceRelay = false;
@@ -109,6 +135,7 @@ export class Matchmaker {
 
   constructor(sessionId: string, cb: Callbacks) {
     this.sessionId = sessionId;
+    this.connectionId = createConnectionId(sessionId);
     this.cb = cb;
   }
 
@@ -130,7 +157,18 @@ export class Matchmaker {
     }
 
     this.joinOnline();
+    this.startPresenceHeartbeat();
     await this.joinLobby();
+  }
+
+  private startPresenceHeartbeat() {
+    if (this.presenceTimer) return;
+    this.presenceTimer = setInterval(() => {
+      const meta = { at: Date.now(), sessionId: this.sessionId };
+      void this.online?.track(meta);
+      void this.lobby?.track(meta);
+      void this.signal?.track(meta);
+    }, 20_000);
   }
 
   /**
@@ -141,7 +179,7 @@ export class Matchmaker {
   private joinOnline() {
     if (this.online) return;
     const ch = supabase.channel("online", {
-      config: { presence: { key: this.sessionId } },
+      config: { presence: { key: this.connectionId } },
     });
     const emit = () => {
       const state = ch.presenceState();
@@ -152,7 +190,7 @@ export class Matchmaker {
       .on("presence", { event: "leave" }, emit)
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await ch.track({ at: Date.now() });
+          await ch.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
     this.online = ch;
@@ -162,6 +200,7 @@ export class Matchmaker {
     this.cb.onStatus("searching");
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
+    this.clearMatchTimer();
     this.peerId = null;
     this.pairRetried = false;
 
@@ -171,7 +210,7 @@ export class Matchmaker {
     }
 
     this.lobby = supabase.channel("lobby", {
-      config: { presence: { key: this.sessionId } },
+      config: { presence: { key: this.connectionId } },
     });
 
     this.lobby
@@ -179,7 +218,7 @@ export class Matchmaker {
       .on("presence", { event: "join" }, () => this.tryMatch())
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await this.lobby?.track({ at: Date.now() });
+          await this.lobby?.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
   }
@@ -187,16 +226,16 @@ export class Matchmaker {
   private async tryMatch() {
     if (!this.lobby || this.peerId) return;
     const state = this.lobby.presenceState();
-    const others = Object.keys(state).filter((k) => k !== this.sessionId);
+    const others = freshPresenceKeys(state, this.connectionId);
     if (others.length === 0) return;
 
-    others.sort();
     const candidate = others[0];
 
     this.peerId = candidate;
-    this.isCaller = this.sessionId < candidate;
+    this.isCaller = this.connectionId < candidate;
     this.cb.onPeerSession(candidate);
     this.cb.onStatus("connecting");
+    this.scheduleMatchTimeout();
 
     if (this.lobby) await this.lobby.untrack();
 
@@ -204,12 +243,12 @@ export class Matchmaker {
   }
 
   private async openSignaling(peer: string) {
-    const id = pairId(this.sessionId, peer);
+    const id = pairId(this.connectionId, peer);
     this.offerSent = false;
     this.signal = supabase.channel(`pair:${id}`, {
       config: {
         broadcast: { self: false, ack: false },
-        presence: { key: this.sessionId },
+        presence: { key: this.connectionId },
       },
     });
 
@@ -258,9 +297,29 @@ export class Matchmaker {
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await this.signal?.track({ at: Date.now() });
+          await this.signal?.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
+  }
+
+  private scheduleMatchTimeout() {
+    this.clearMatchTimer();
+    this.matchTimer = setTimeout(() => {
+      if (!this.active || this.pc?.connectionState === "connected") return;
+      this.cb.onMessage({
+        id: crypto.randomUUID(),
+        from: "system",
+        text: "Match did not respond. Searching again…",
+        at: Date.now(),
+      });
+      this.handlePeerLeft();
+    }, 15_000);
+  }
+
+  private clearMatchTimer() {
+    if (!this.matchTimer) return;
+    clearTimeout(this.matchTimer);
+    this.matchTimer = null;
   }
 
   private async startCallerOffer() {
@@ -311,8 +370,10 @@ export class Matchmaker {
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
       if (s === "connected") {
+        this.clearMatchTimer();
         this.cb.onStatus("connected");
         this.pairRetried = false;
+        this.retryingIce = false;
       }
       if (s === "failed") this.handleIceFailure();
       if (s === "disconnected") {
@@ -338,6 +399,8 @@ export class Matchmaker {
    * directly without re-failing first.
    */
   private async handleIceFailure() {
+    if (this.retryingIce) return;
+    this.retryingIce = true;
     if (this.pairRetried) {
       // Already tried relay; give up and find a new stranger.
       this.cb.onMessage({
@@ -347,6 +410,7 @@ export class Matchmaker {
         at: Date.now(),
       });
       this.handlePeerLeft();
+      this.retryingIce = false;
       return;
     }
     this.pairRetried = true;
@@ -375,6 +439,7 @@ export class Matchmaker {
       this.offerSent = true;
       await this.startCallerOffer();
     }
+    this.retryingIce = false;
     // Callee waits for the new offer over the existing signaling channel.
   }
 
@@ -416,8 +481,8 @@ export class Matchmaker {
     this.localStream?.getAudioTracks().forEach((t) => (t.enabled = on));
   }
 
-  private handlePeerLeft() {
-    this.tearDownPeer();
+  private async handlePeerLeft() {
+    await this.tearDownPeer();
     if (this.active) {
       this.cb.onMessage({
         id: crypto.randomUUID(),
@@ -432,6 +497,7 @@ export class Matchmaker {
   }
 
   private async tearDownPeer() {
+    this.clearMatchTimer();
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
     if (this.signal) {
       await supabase.removeChannel(this.signal);
@@ -446,6 +512,7 @@ export class Matchmaker {
     this.offerSent = false;
     this.pendingCandidates = [];
     this.pairRetried = false;
+    this.retryingIce = false;
   }
 
   async skip() {
@@ -455,6 +522,10 @@ export class Matchmaker {
 
   async stop() {
     this.active = false;
+    if (this.presenceTimer) {
+      clearInterval(this.presenceTimer);
+      this.presenceTimer = null;
+    }
     await this.tearDownPeer();
     if (this.lobby) {
       await supabase.removeChannel(this.lobby);
