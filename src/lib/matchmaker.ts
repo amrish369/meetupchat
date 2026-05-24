@@ -124,6 +124,7 @@ export class Matchmaker {
   private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
   private matchTimer: ReturnType<typeof setTimeout> | null = null;
+  private presenceTimer: ReturnType<typeof setInterval> | null = null;
   private retryingIce = false;
   // Once we observe an ICE failure with the default policy, every subsequent
   // connection in this session is forced through TURN relay.
@@ -156,7 +157,18 @@ export class Matchmaker {
     }
 
     this.joinOnline();
+    this.startPresenceHeartbeat();
     await this.joinLobby();
+  }
+
+  private startPresenceHeartbeat() {
+    if (this.presenceTimer) return;
+    this.presenceTimer = setInterval(() => {
+      const meta = { at: Date.now(), sessionId: this.sessionId };
+      void this.online?.track(meta);
+      void this.lobby?.track(meta);
+      void this.signal?.track(meta);
+    }, 20_000);
   }
 
   /**
