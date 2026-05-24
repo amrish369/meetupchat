@@ -66,6 +66,24 @@ export const Route = createFileRoute("/chat")({
   component: ChatRoom,
 });
 
+type PhaseKey =
+  | "media"
+  | "searching"
+  | "matched"
+  | "signaling"
+  | "connected"
+  | "relay"
+  | "disconnected"
+  | "error";
+
+interface PhaseEvent {
+  id: string;
+  phase: PhaseKey;
+  label: string;
+  detail?: string;
+  at: number;
+}
+
 function ChatRoom() {
   const [status, setStatus] = useState<MatchStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string | undefined>();
@@ -76,11 +94,15 @@ function ChatRoom() {
   const [peerSession, setPeerSession] = useState<string | null>(null);
   const [onlineCount, setOnlineCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
+  const [phases, setPhases] = useState<PhaseEvent[]>([]);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const matcherRef = useRef<Matchmaker | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastPhaseRef = useRef<PhaseKey | null>(null);
 
   const sessionId =
     typeof window !== "undefined" ? getSessionId() : "";
