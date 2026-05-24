@@ -188,6 +188,7 @@ export class Matchmaker {
     this.cb.onStatus("searching");
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
+    this.clearMatchTimer();
     this.peerId = null;
     this.pairRetried = false;
 
@@ -197,7 +198,7 @@ export class Matchmaker {
     }
 
     this.lobby = supabase.channel("lobby", {
-      config: { presence: { key: this.sessionId } },
+      config: { presence: { key: this.connectionId } },
     });
 
     this.lobby
@@ -205,7 +206,7 @@ export class Matchmaker {
       .on("presence", { event: "join" }, () => this.tryMatch())
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await this.lobby?.track({ at: Date.now() });
+          await this.lobby?.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
   }
@@ -213,16 +214,16 @@ export class Matchmaker {
   private async tryMatch() {
     if (!this.lobby || this.peerId) return;
     const state = this.lobby.presenceState();
-    const others = Object.keys(state).filter((k) => k !== this.sessionId);
+    const others = freshPresenceKeys(state, this.connectionId);
     if (others.length === 0) return;
 
-    others.sort();
     const candidate = others[0];
 
     this.peerId = candidate;
-    this.isCaller = this.sessionId < candidate;
+    this.isCaller = this.connectionId < candidate;
     this.cb.onPeerSession(candidate);
     this.cb.onStatus("connecting");
+    this.scheduleMatchTimeout();
 
     if (this.lobby) await this.lobby.untrack();
 
