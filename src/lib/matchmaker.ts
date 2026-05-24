@@ -167,7 +167,7 @@ export class Matchmaker {
   private joinOnline() {
     if (this.online) return;
     const ch = supabase.channel("online", {
-      config: { presence: { key: this.sessionId } },
+      config: { presence: { key: this.connectionId } },
     });
     const emit = () => {
       const state = ch.presenceState();
@@ -178,7 +178,7 @@ export class Matchmaker {
       .on("presence", { event: "leave" }, emit)
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await ch.track({ at: Date.now() });
+          await ch.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
     this.online = ch;
