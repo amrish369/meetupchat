@@ -205,11 +205,27 @@ export class Matchmaker {
 
   private async openSignaling(peer: string) {
     const id = pairId(this.sessionId, peer);
+    this.offerSent = false;
     this.signal = supabase.channel(`pair:${id}`, {
-      config: { broadcast: { self: false, ack: false } },
+      config: {
+        broadcast: { self: false, ack: false },
+        presence: { key: this.sessionId },
+      },
     });
 
     this.signal
+      .on("presence", { event: "sync" }, () => {
+        // Caller waits until it can SEE the callee on the pair channel before
+        // firing the SDP offer. Without this, the offer is sent before the
+        // callee has subscribed and is silently dropped (broadcast.self:false,
+        // no ack, no replay).
+        if (!this.isCaller || this.offerSent || !this.signal) return;
+        const state = this.signal.presenceState();
+        if (Object.keys(state).includes(peer)) {
+          this.offerSent = true;
+          void this.startCallerOffer();
+        }
+      })
       .on("broadcast", { event: "offer" }, async ({ payload }) => {
         if (this.isCaller) return;
         await this.ensurePc();
@@ -241,8 +257,8 @@ export class Matchmaker {
         this.handlePeerLeft();
       })
       .subscribe(async (status) => {
-        if (status === "SUBSCRIBED" && this.isCaller) {
-          await this.startCallerOffer();
+        if (status === "SUBSCRIBED") {
+          await this.signal?.track({ at: Date.now() });
         }
       });
   }
