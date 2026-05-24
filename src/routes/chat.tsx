@@ -415,23 +415,137 @@ function ChatRoom() {
   );
 }
 
-function StatusPill({ status }: { status: MatchStatus }) {
-  const map: Record<MatchStatus, { label: string; color: string; icon?: typeof Wifi }> = {
-    idle: { label: "Ready", color: "bg-cream/10 text-cream/70" },
-    "requesting-media": { label: "Camera…", color: "bg-cream/10 text-cream/70", icon: Loader2 },
-    searching: { label: "Searching", color: "bg-teal/20 text-teal-soft", icon: Loader2 },
-    connecting: { label: "Connecting", color: "bg-teal/20 text-teal-soft", icon: Loader2 },
-    connected: { label: "Live", color: "bg-success/20 text-success" },
-    disconnected: { label: "Disconnected", color: "bg-destructive/20 text-destructive" },
-    error: { label: "Error", color: "bg-destructive/20 text-destructive" },
-  };
-  const it = map[status];
-  const Icon = it.icon;
+function formatElapsed(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+function formatTime(at: number) {
+  const d = new Date(at);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+}
+
+const PHASE_META: Record<
+  PhaseKey,
+  { label: string; color: string; icon: typeof Wifi; spin?: boolean }
+> = {
+  media: { label: "Camera", color: "bg-cream/10 text-cream/80", icon: VideoIcon },
+  searching: { label: "Searching", color: "bg-teal/20 text-teal-soft", icon: Search, spin: false },
+  matched: { label: "Matched", color: "bg-teal/25 text-teal-soft", icon: Handshake },
+  signaling: { label: "Signaling", color: "bg-teal/20 text-teal-soft", icon: Radio, spin: true },
+  relay: { label: "Relay (TURN)", color: "bg-amber-400/20 text-amber-200", icon: Shuffle },
+  connected: { label: "Connected", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  disconnected: { label: "Disconnected", color: "bg-destructive/20 text-destructive", icon: X },
+  error: { label: "Error", color: "bg-destructive/20 text-destructive", icon: X },
+};
+
+function PhaseChip({
+  status,
+  currentPhase,
+  relayActive,
+  elapsed,
+  open,
+  onToggle,
+}: {
+  status: MatchStatus;
+  currentPhase?: PhaseEvent;
+  relayActive: boolean;
+  elapsed: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  if (status === "idle" || !currentPhase) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-cream/10 px-3 py-1 text-xs font-medium text-cream/70">
+        Ready
+      </span>
+    );
+  }
+  const meta = PHASE_META[currentPhase.phase];
+  const Icon = meta.icon;
+  const isLoading = currentPhase.phase === "searching" || currentPhase.phase === "signaling" || currentPhase.phase === "media";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${it.color}`}>
-      {Icon && <Icon className="h-3 w-3 animate-spin" />}
-      {it.label}
-    </span>
+    <button
+      onClick={onToggle}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-90 ${meta.color}`}
+      title="Tap for connection timeline"
+      aria-expanded={open}
+    >
+      {isLoading ? (
+        <Loader2 className="h-3 w-3 animate-spin" />
+      ) : (
+        <Icon className="h-3 w-3" />
+      )}
+      <span>{meta.label}</span>
+      {relayActive && currentPhase.phase !== "relay" && (
+        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[10px] text-amber-200">
+          <Shuffle className="h-2.5 w-2.5" />
+        </span>
+      )}
+      <span className="tabular-nums text-[10px] opacity-70">{formatElapsed(elapsed)}</span>
+      {open ? <ChevronUp className="h-3 w-3 opacity-70" /> : <ChevronDown className="h-3 w-3 opacity-70" />}
+    </button>
+  );
+}
+
+function PhaseTimeline({
+  phases,
+  now,
+  onClose,
+}: {
+  phases: PhaseEvent[];
+  now: number;
+  onClose: () => void;
+}) {
+  const start = phases[0]?.at ?? now;
+  return (
+    <div className="border-b border-cream/10 bg-deep/95 px-4 py-3 backdrop-blur">
+      <div className="mx-auto flex max-w-3xl items-start gap-3">
+        <div className="flex-1">
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-cream/60">
+              Connection timeline
+            </h4>
+            <button
+              onClick={onClose}
+              aria-label="Close timeline"
+              className="rounded-full p-1 text-cream/60 hover:bg-cream/10 hover:text-cream"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <ol className="space-y-1.5">
+            {phases.map((p, i) => {
+              const meta = PHASE_META[p.phase];
+              const Icon = meta.icon;
+              const next = phases[i + 1]?.at ?? now;
+              const dur = Math.max(0, Math.round((next - p.at) / 100) / 10);
+              const offset = Math.max(0, Math.round((p.at - start) / 100) / 10);
+              return (
+                <li key={p.id} className="flex items-center gap-3 text-xs">
+                  <span className="w-16 shrink-0 tabular-nums text-cream/45">
+                    +{offset.toFixed(1)}s
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.color}`}
+                  >
+                    <Icon className="h-3 w-3" />
+                    {meta.label}
+                  </span>
+                  {p.detail && (
+                    <span className="truncate text-cream/65">{p.detail}</span>
+                  )}
+                  <span className="ml-auto tabular-nums text-cream/40">
+                    {formatTime(p.at)} · {dur.toFixed(1)}s
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </div>
   );
 }
 
