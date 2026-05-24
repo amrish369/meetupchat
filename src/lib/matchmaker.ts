@@ -89,6 +89,7 @@ export class Matchmaker {
   private sessionId: string;
   private cb: Callbacks;
   private lobby: RealtimeChannel | null = null;
+  private online: RealtimeChannel | null = null;
   private signal: RealtimeChannel | null = null;
   private pc: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
@@ -97,6 +98,7 @@ export class Matchmaker {
   private peerId: string | null = null;
   private isCaller = false;
   private active = false;
+  private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
   // Once we observe an ICE failure with the default policy, every subsequent
   // connection in this session is forced through TURN relay.
