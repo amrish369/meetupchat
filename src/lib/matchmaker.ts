@@ -85,8 +85,31 @@ function pairId(a: string, b: string) {
   return [a, b].sort().join("__");
 }
 
+function createConnectionId(sessionId: string) {
+  const suffix =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID().slice(0, 8)
+      : Math.random().toString(36).slice(2, 10);
+  return `${sessionId}-${suffix}`;
+}
+
+function freshPresenceKeys(state: ReturnType<RealtimeChannel["presenceState"]>, selfId: string) {
+  const now = Date.now();
+  return Object.entries(state)
+    .filter(([id, metas]) => {
+      if (id === selfId || !Array.isArray(metas)) return false;
+      return metas.some((meta) => {
+        const at = Number((meta as { at?: number }).at ?? 0);
+        return !at || now - at < 45_000;
+      });
+    })
+    .map(([id]) => id)
+    .sort();
+}
+
 export class Matchmaker {
   private sessionId: string;
+  private connectionId: string;
   private cb: Callbacks;
   private lobby: RealtimeChannel | null = null;
   private online: RealtimeChannel | null = null;
@@ -100,6 +123,8 @@ export class Matchmaker {
   private active = false;
   private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
+  private matchTimer: ReturnType<typeof setTimeout> | null = null;
+  private retryingIce = false;
   // Once we observe an ICE failure with the default policy, every subsequent
   // connection in this session is forced through TURN relay.
   private forceRelay = false;
@@ -109,6 +134,7 @@ export class Matchmaker {
 
   constructor(sessionId: string, cb: Callbacks) {
     this.sessionId = sessionId;
+    this.connectionId = createConnectionId(sessionId);
     this.cb = cb;
   }
 
