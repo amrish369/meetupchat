@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Mic,
   MicOff,
@@ -14,6 +14,13 @@ import {
   Shield,
   Wifi,
   Users,
+  Search,
+  Handshake,
+  Radio,
+  CheckCircle2,
+  Shuffle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
