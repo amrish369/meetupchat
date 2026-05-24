@@ -231,12 +231,12 @@ export class Matchmaker {
   }
 
   private async openSignaling(peer: string) {
-    const id = pairId(this.sessionId, peer);
+    const id = pairId(this.connectionId, peer);
     this.offerSent = false;
     this.signal = supabase.channel(`pair:${id}`, {
       config: {
         broadcast: { self: false, ack: false },
-        presence: { key: this.sessionId },
+        presence: { key: this.connectionId },
       },
     });
 
@@ -285,9 +285,29 @@ export class Matchmaker {
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await this.signal?.track({ at: Date.now() });
+          await this.signal?.track({ at: Date.now(), sessionId: this.sessionId });
         }
       });
+  }
+
+  private scheduleMatchTimeout() {
+    this.clearMatchTimer();
+    this.matchTimer = setTimeout(() => {
+      if (!this.active || this.pc?.connectionState === "connected") return;
+      this.cb.onMessage({
+        id: crypto.randomUUID(),
+        from: "system",
+        text: "Match did not respond. Searching again…",
+        at: Date.now(),
+      });
+      this.handlePeerLeft();
+    }, 15_000);
+  }
+
+  private clearMatchTimer() {
+    if (!this.matchTimer) return;
+    clearTimeout(this.matchTimer);
+    this.matchTimer = null;
   }
 
   private async startCallerOffer() {
