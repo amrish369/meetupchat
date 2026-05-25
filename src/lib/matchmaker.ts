@@ -1,39 +1,37 @@
 /**
- * WebRTC matchmaker built on Lovable Cloud (Supabase) Realtime channels.
+ * Distributed WebRTC matchmaker.
  *
- * How it works (the "OmeTV"-style matching):
+ * Architecture
+ * ────────────
+ *  1. A Postgres-backed global queue (`public.match_queue`) acts as the
+ *     coordination layer. Each browser tab calls the `request_match` RPC,
+ *     which atomically pops the oldest waiting peer using
+ *     `FOR UPDATE SKIP LOCKED` — guaranteeing O(1), race-free pairing
+ *     even with thousands of concurrent callers across any number of
+ *     server replicas. If no peer is waiting, the caller is enqueued.
+ *  2. When two callers match, a row is inserted into `public.matches`.
+ *     The OTHER peer (who was waiting) gets notified via Supabase
+ *     Realtime postgres_changes on the `matches` table → sub-second match
+ *     notification without any client-side polling.
+ *  3. Both peers then open a private Realtime broadcast channel keyed by
+ *     the deterministic `room_id` from the match row and exchange SDP
+ *     offer/answer + ICE candidates.
+ *  4. WebRTC connection establishes peer-to-peer (audio + video + data
+ *     channel for in-call text). No media ever touches our servers.
+ *  5. ICE failure → automatic relay (TURN) retry; persists for the
+ *     remainder of the session.
+ *  6. A 15s heartbeat keeps the queue entry alive; a 30s sweep evicts
+ *     stale rows so dropped tabs don't pollute the queue.
  *
- *   1. Each peer joins a global "lobby" presence channel and announces itself.
- *   2. When two peers see each other in the lobby, the one with the
- *      lexicographically smaller session id becomes the "caller" — this avoids
- *      both sides creating an offer.
- *   3. They open a private signaling channel keyed by a deterministic pair id
- *      and exchange SDP offer/answer + ICE candidates over Realtime broadcast.
- *   4. WebRTC connection establishes peer-to-peer (audio + video + data channel
- *      for in-call text). The data channel means text never goes through our
- *      server either — fully P2P.
- *   5. "Skip" tears the connection down and rejoins the lobby.
- *   6. If the first ICE attempt fails (typical on strict mobile NATs), we
- *      automatically retry with `iceTransportPolicy: "relay"` so all media
- *      goes through TURN. This recovers carrier-grade NAT users who would
- *      otherwise see a black screen.
- *
- * No video/audio data ever touches our servers. Only signaling.
+ * Horizontal scalability: all state lives in Postgres + Realtime. Any
+ * number of clients can hit the RPC concurrently — `SKIP LOCKED` means
+ * each call grabs a distinct row in O(1).
  */
 
 import { supabase } from "@/integrations/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { getTurnCredentials, type TurnCredentialsResponse } from "@/lib/turn.functions";
 
-/**
- * ICE credentials are fetched from a server function that mints short-lived
- * (default 1h) Coturn REST-style credentials. The browser never sees the
- * shared secret, and credentials rotate automatically — even if a malicious
- * peer scraped them, they'd expire within the hour and can't be reused on
- * other Coturn realms.
- *
- * We cache the response in-memory and refresh ~5 minutes before expiry.
- */
 let turnCache: { value: TurnCredentialsResponse; fetchedAt: number } | null = null;
 const REFRESH_BUFFER_SEC = 5 * 60;
 
@@ -81,10 +79,6 @@ interface Callbacks {
   onOnlineCount?: (n: number) => void;
 }
 
-function pairId(a: string, b: string) {
-  return [a, b].sort().join("__");
-}
-
 function createConnectionId(sessionId: string) {
   const suffix =
     typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -93,44 +87,33 @@ function createConnectionId(sessionId: string) {
   return `${sessionId}-${suffix}`;
 }
 
-function freshPresenceKeys(state: ReturnType<RealtimeChannel["presenceState"]>, selfId: string) {
-  const now = Date.now();
-  return Object.entries(state)
-    .filter(([id, metas]) => {
-      if (id === selfId || !Array.isArray(metas)) return false;
-      return metas.some((meta) => {
-        const at = Number((meta as { at?: number }).at ?? 0);
-        return !at || now - at < 45_000;
-      });
-    })
-    .map(([id]) => id)
-    .sort();
-}
-
 export class Matchmaker {
   private sessionId: string;
   private connectionId: string;
   private cb: Callbacks;
-  private lobby: RealtimeChannel | null = null;
-  private online: RealtimeChannel | null = null;
+
+  private matchesChannel: RealtimeChannel | null = null;
+  private onlineChannel: RealtimeChannel | null = null;
   private signal: RealtimeChannel | null = null;
+
   private pc: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
   private dc: RTCDataChannel | null = null;
+
   private peerId: string | null = null;
+  private roomId: string | null = null;
   private isCaller = false;
   private active = false;
   private offerSent = false;
   private pendingCandidates: RTCIceCandidateInit[] = [];
+
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private matchTimer: ReturnType<typeof setTimeout> | null = null;
-  private presenceTimer: ReturnType<typeof setInterval> | null = null;
+  private onlineRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
   private retryingIce = false;
-  // Once we observe an ICE failure with the default policy, every subsequent
-  // connection in this session is forced through TURN relay.
   private forceRelay = false;
-  // Per-pair retry state — we only auto-retry once with relay policy before
-  // giving up and skipping to the next stranger.
   private pairRetried = false;
 
   constructor(sessionId: string, cb: Callbacks) {
@@ -150,121 +133,170 @@ export class Matchmaker {
         audio: { echoCancellation: true, noiseSuppression: true },
       });
       this.cb.onLocalStream(this.localStream);
-    } catch (err) {
+    } catch {
       this.cb.onStatus("error", "Camera/mic permission denied. Please allow access.");
       this.active = false;
       return;
     }
 
-    this.joinOnline();
-    this.startPresenceHeartbeat();
-    await this.joinLobby();
-  }
-
-  private startPresenceHeartbeat() {
-    if (this.presenceTimer) return;
-    this.presenceTimer = setInterval(() => {
-      const meta = { at: Date.now(), sessionId: this.sessionId };
-      void this.online?.track(meta);
-      void this.lobby?.track(meta);
-      void this.signal?.track(meta);
-    }, 20_000);
+    this.subscribeOnlineCount();
+    await this.enterQueue();
   }
 
   /**
-   * Separate presence channel that counts EVERY active user (whether searching
-   * or already in a chat). Used to render the "X people online" banner. We
-   * don't untrack here when matched — only the lobby gets untracked.
+   * Subscribes to `matches` table inserts where this connection is involved,
+   * and periodically polls the online count from the `online_count()` RPC.
+   * The realtime subscription is what makes match notification sub-second.
    */
-  private joinOnline() {
-    if (this.online) return;
-    const ch = supabase.channel("online", {
-      config: { presence: { key: this.connectionId } },
-    });
-    const emit = () => {
-      const state = ch.presenceState();
-      this.cb.onOnlineCount?.(Object.keys(state).length);
-    };
-    ch.on("presence", { event: "sync" }, emit)
-      .on("presence", { event: "join" }, emit)
-      .on("presence", { event: "leave" }, emit)
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await ch.track({ at: Date.now(), sessionId: this.sessionId });
-        }
-      });
-    this.online = ch;
+  private subscribeOnlineCount() {
+    void this.refreshOnlineCount();
+    if (this.onlineRefreshTimer) clearInterval(this.onlineRefreshTimer);
+    this.onlineRefreshTimer = setInterval(() => void this.refreshOnlineCount(), 5000);
   }
 
-  private async joinLobby() {
+  private async refreshOnlineCount() {
+    const { data } = await supabase.rpc("online_count");
+    if (typeof data === "number") this.cb.onOnlineCount?.(data);
+  }
+
+  /**
+   * The main matchmaking entry point. Calls the atomic `request_match` RPC:
+   *   • If a peer is waiting → returns 'matched' with room_id + peer
+   *   • If no peer is waiting → enqueues us, returns 'queued'.
+   *
+   * When queued, we listen on the `matches` table for an INSERT that
+   * mentions our connectionId — that's our pairing notification.
+   */
+  private async enterQueue() {
     this.cb.onStatus("searching");
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
     this.clearMatchTimer();
     this.peerId = null;
+    this.roomId = null;
     this.pairRetried = false;
+    this.offerSent = false;
 
-    if (this.lobby) {
-      await supabase.removeChannel(this.lobby);
-      this.lobby = null;
-    }
+    // Subscribe to matches table BEFORE calling request_match to avoid race
+    await this.subscribeMatches();
 
-    this.lobby = supabase.channel("lobby", {
-      config: { presence: { key: this.connectionId } },
+    const { data, error } = await supabase.rpc("request_match", {
+      p_session_id: this.connectionId,
     });
 
-    this.lobby
-      .on("presence", { event: "sync" }, () => this.tryMatch())
-      .on("presence", { event: "join" }, () => this.tryMatch())
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await this.lobby?.track({ at: Date.now(), sessionId: this.sessionId });
-        }
+    if (error) {
+      console.error("[matchmaker] request_match failed", error);
+      this.cb.onStatus("error", "Could not reach matchmaking server.");
+      return;
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (row?.status === "matched") {
+      this.handleMatched({
+        match_id: row.match_id,
+        room_id: row.room_id,
+        peer_session: row.peer_session,
+        is_caller: row.is_caller,
       });
+    } else {
+      // Queued — start heartbeat so our entry stays fresh
+      this.startHeartbeat();
+    }
   }
 
-  private async tryMatch() {
-    if (!this.lobby || this.peerId) return;
-    const state = this.lobby.presenceState();
-    const others = freshPresenceKeys(state, this.connectionId);
-    if (others.length === 0) return;
+  private startHeartbeat() {
+    if (this.heartbeatTimer) return;
+    this.heartbeatTimer = setInterval(() => {
+      void supabase.rpc("heartbeat_queue", { p_session_id: this.connectionId });
+    }, 15_000);
+  }
 
-    const candidate = others[0];
+  private stopHeartbeat() {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+  }
 
-    this.peerId = candidate;
-    this.isCaller = this.connectionId < candidate;
-    this.cb.onPeerSession(candidate);
+  /**
+   * Subscribes to public.matches INSERTs. When the OTHER peer matches us,
+   * they create the row → we get notified instantly via postgres_changes.
+   */
+  private async subscribeMatches() {
+    if (this.matchesChannel) {
+      await supabase.removeChannel(this.matchesChannel);
+      this.matchesChannel = null;
+    }
+    const ch = supabase.channel(`match-listener:${this.connectionId}`);
+    ch.on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "matches" },
+      (payload) => {
+        const row = payload.new as {
+          id: string;
+          room_id: string;
+          session_a: string;
+          session_b: string;
+          caller: string;
+        };
+        if (row.session_a !== this.connectionId && row.session_b !== this.connectionId) return;
+        if (this.roomId) return; // already matched
+        const peer = row.session_a === this.connectionId ? row.session_b : row.session_a;
+        this.handleMatched({
+          match_id: row.id,
+          room_id: row.room_id,
+          peer_session: peer,
+          is_caller: row.caller === this.connectionId,
+        });
+      }
+    );
+    await new Promise<void>((resolve) => {
+      ch.subscribe((status) => {
+        if (status === "SUBSCRIBED") resolve();
+      });
+    });
+    this.matchesChannel = ch;
+  }
+
+  private handleMatched(m: {
+    match_id: string;
+    room_id: string;
+    peer_session: string;
+    is_caller: boolean;
+  }) {
+    this.stopHeartbeat();
+    this.peerId = m.peer_session;
+    this.roomId = m.room_id;
+    this.isCaller = m.is_caller;
+    this.cb.onPeerSession(m.peer_session);
     this.cb.onStatus("connecting");
     this.scheduleMatchTimeout();
-
-    if (this.lobby) await this.lobby.untrack();
-
-    await this.openSignaling(candidate);
+    void this.openSignaling(m.room_id);
   }
 
-  private async openSignaling(peer: string) {
-    const id = pairId(this.connectionId, peer);
+  private async openSignaling(roomId: string) {
+    if (this.signal) {
+      await supabase.removeChannel(this.signal);
+      this.signal = null;
+    }
     this.offerSent = false;
-    this.signal = supabase.channel(`pair:${id}`, {
+    const ch = supabase.channel(`room:${roomId}`, {
       config: {
         broadcast: { self: false, ack: false },
         presence: { key: this.connectionId },
       },
     });
 
-    this.signal
-      .on("presence", { event: "sync" }, () => {
-        // Caller waits until it can SEE the callee on the pair channel before
-        // firing the SDP offer. Without this, the offer is sent before the
-        // callee has subscribed and is silently dropped (broadcast.self:false,
-        // no ack, no replay).
-        if (!this.isCaller || this.offerSent || !this.signal) return;
-        const state = this.signal.presenceState();
-        if (Object.keys(state).includes(peer)) {
-          this.offerSent = true;
-          void this.startCallerOffer();
-        }
-      })
+    ch.on("presence", { event: "sync" }, () => {
+      if (!this.isCaller || this.offerSent || !this.signal) return;
+      const state = this.signal.presenceState();
+      // Wait for the callee to be present before firing the offer
+      if (this.peerId && Object.keys(state).includes(this.peerId)) {
+        this.offerSent = true;
+        void this.startCallerOffer();
+      }
+    })
       .on("broadcast", { event: "offer" }, async ({ payload }) => {
         if (this.isCaller) return;
         await this.ensurePc();
@@ -286,20 +318,17 @@ export class Matchmaker {
           this.pendingCandidates.push(candidate);
           return;
         }
-        try {
-          await this.pc.addIceCandidate(candidate);
-        } catch {
-          /* ignore */
-        }
+        try { await this.pc.addIceCandidate(candidate); } catch { /* */ }
       })
       .on("broadcast", { event: "bye" }, () => {
-        this.handlePeerLeft();
+        void this.handlePeerLeft();
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await this.signal?.track({ at: Date.now(), sessionId: this.sessionId });
+          await ch.track({ at: Date.now() });
         }
       });
+    this.signal = ch;
   }
 
   private scheduleMatchTimeout() {
@@ -312,14 +341,15 @@ export class Matchmaker {
         text: "Match did not respond. Searching again…",
         at: Date.now(),
       });
-      this.handlePeerLeft();
+      void this.handlePeerLeft();
     }, 15_000);
   }
 
   private clearMatchTimer() {
-    if (!this.matchTimer) return;
-    clearTimeout(this.matchTimer);
-    this.matchTimer = null;
+    if (this.matchTimer) {
+      clearTimeout(this.matchTimer);
+      this.matchTimer = null;
+    }
   }
 
   private async startCallerOffer() {
@@ -360,11 +390,7 @@ export class Matchmaker {
     };
 
     pc.oniceconnectionstatechange = () => {
-      const s = pc.iceConnectionState;
-      // "failed" means the browser has exhausted all candidate pairs. If we
-      // haven't yet tried forcing TURN relay, do so now — this is the canonical
-      // recovery path on strict carrier-grade NATs (Jio/Airtel).
-      if (s === "failed") this.handleIceFailure();
+      if (pc.iceConnectionState === "failed") void this.handleIceFailure();
     };
 
     pc.onconnectionstatechange = () => {
@@ -375,12 +401,11 @@ export class Matchmaker {
         this.pairRetried = false;
         this.retryingIce = false;
       }
-      if (s === "failed") this.handleIceFailure();
+      if (s === "failed") void this.handleIceFailure();
       if (s === "disconnected") {
-        // give the browser a few seconds to recover before tearing down
         setTimeout(() => {
           if (this.pc === pc && pc.connectionState === "disconnected") {
-            this.handlePeerLeft();
+            void this.handlePeerLeft();
           }
         }, 4000);
       }
@@ -392,30 +417,22 @@ export class Matchmaker {
     };
   }
 
-  /**
-   * ICE-failure recovery: first failure on this pair → tear down PC and
-   * retry with `iceTransportPolicy: "relay"` (forces TURN). Persist the
-   * forceRelay flag so subsequent matches in this session also use TURN
-   * directly without re-failing first.
-   */
   private async handleIceFailure() {
     if (this.retryingIce) return;
     this.retryingIce = true;
     if (this.pairRetried) {
-      // Already tried relay; give up and find a new stranger.
       this.cb.onMessage({
         id: crypto.randomUUID(),
         from: "system",
         text: "Connection failed. Searching for a new stranger…",
         at: Date.now(),
       });
-      this.handlePeerLeft();
+      await this.handlePeerLeft();
       this.retryingIce = false;
       return;
     }
     this.pairRetried = true;
     this.forceRelay = true;
-    // Invalidate cached creds so we get a fresh TURN credential pair.
     turnCache = null;
 
     this.cb.onStatus("connecting", "Reconnecting via relay…");
@@ -426,8 +443,6 @@ export class Matchmaker {
       at: Date.now(),
     });
 
-    // Tear down only the peer connection / data channel — keep the signaling
-    // channel open so the existing pair can re-negotiate.
     if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
     if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
     this.pendingCandidates = [];
@@ -435,18 +450,16 @@ export class Matchmaker {
     this.cb.onRemoteStream(null);
 
     if (this.isCaller) {
-      // Caller redrives the offer with the new (relay-only) PC.
       this.offerSent = true;
       await this.startCallerOffer();
     }
     this.retryingIce = false;
-    // Callee waits for the new offer over the existing signaling channel.
   }
 
   private async flushCandidates() {
     if (!this.pc) return;
     for (const c of this.pendingCandidates) {
-      try { await this.pc.addIceCandidate(c); } catch { /* ignore */ }
+      try { await this.pc.addIceCandidate(c); } catch { /* */ }
     }
     this.pendingCandidates = [];
   }
@@ -490,7 +503,7 @@ export class Matchmaker {
         text: "Stranger left. Searching for a new one…",
         at: Date.now(),
       });
-      this.joinLobby();
+      await this.enterQueue();
     } else {
       this.cb.onStatus("disconnected");
     }
@@ -509,6 +522,7 @@ export class Matchmaker {
     this.cb.onRemoteStream(null);
     this.cb.onPeerSession(null);
     this.peerId = null;
+    this.roomId = null;
     this.offerSent = false;
     this.pendingCandidates = [];
     this.pairRetried = false;
@@ -517,28 +531,32 @@ export class Matchmaker {
 
   async skip() {
     await this.tearDownPeer();
-    if (this.active) await this.joinLobby();
+    // Make sure we leave the queue before re-entering (in case we were waiting)
+    await supabase.rpc("leave_queue", { p_session_id: this.connectionId });
+    if (this.active) await this.enterQueue();
   }
 
   async stop() {
     this.active = false;
-    if (this.presenceTimer) {
-      clearInterval(this.presenceTimer);
-      this.presenceTimer = null;
+    this.stopHeartbeat();
+    if (this.onlineRefreshTimer) {
+      clearInterval(this.onlineRefreshTimer);
+      this.onlineRefreshTimer = null;
     }
     await this.tearDownPeer();
-    if (this.lobby) {
-      await supabase.removeChannel(this.lobby);
-      this.lobby = null;
+    await supabase.rpc("leave_queue", { p_session_id: this.connectionId });
+    if (this.matchesChannel) {
+      await supabase.removeChannel(this.matchesChannel);
+      this.matchesChannel = null;
     }
-    if (this.online) {
-      await supabase.removeChannel(this.online);
-      this.online = null;
-      this.cb.onOnlineCount?.(0);
+    if (this.onlineChannel) {
+      await supabase.removeChannel(this.onlineChannel);
+      this.onlineChannel = null;
     }
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
     this.cb.onLocalStream(null as unknown as MediaStream);
+    this.cb.onOnlineCount?.(0);
     this.cb.onStatus("idle");
   }
 
