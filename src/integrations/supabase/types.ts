@@ -38,6 +38,57 @@ export type Database = {
         }
         Relationships: []
       }
+      match_queue: {
+        Row: {
+          heartbeat_at: string
+          joined_at: string
+          region: string | null
+          session_id: string
+        }
+        Insert: {
+          heartbeat_at?: string
+          joined_at?: string
+          region?: string | null
+          session_id: string
+        }
+        Update: {
+          heartbeat_at?: string
+          joined_at?: string
+          region?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
+      matches: {
+        Row: {
+          caller: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          room_id: string
+          session_a: string
+          session_b: string
+        }
+        Insert: {
+          caller: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          room_id: string
+          session_a: string
+          session_b: string
+        }
+        Update: {
+          caller?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          room_id?: string
+          session_a?: string
+          session_b?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
@@ -91,7 +142,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_stale_queue: { Args: never; Returns: undefined }
+      heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
+      leave_queue: { Args: { p_session_id: string }; Returns: undefined }
+      online_count: { Args: never; Returns: number }
+      request_match: {
+        Args: { p_session_id: string }
+        Returns: {
+          is_caller: boolean
+          match_id: string
+          peer_session: string
+          room_id: string
+          status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
