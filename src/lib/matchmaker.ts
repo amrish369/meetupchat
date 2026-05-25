@@ -567,10 +567,10 @@ export class Matchmaker {
       this.signal = null;
     }
     if (endedRoomId) {
-      void supabase.rpc("end_match" as never, {
+      void (supabase.rpc as any)("end_match", {
         p_room_id: endedRoomId,
         p_session_id: this.connectionId,
-      } as never);
+      });
     }
     if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
     if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
