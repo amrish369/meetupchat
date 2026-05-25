@@ -143,6 +143,10 @@ export type Database = {
     }
     Functions: {
       cleanup_stale_queue: { Args: never; Returns: undefined }
+      end_match: {
+        Args: { p_room_id: string; p_session_id: string }
+        Returns: undefined
+      }
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
       online_count: { Args: never; Returns: number }
