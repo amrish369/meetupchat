@@ -559,10 +559,15 @@ export class Matchmaker {
 
   private async tearDownPeer() {
     this.clearMatchTimer();
+    this.stopQueuedMatchPolling();
+    const endedRoomId = this.roomId;
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
     if (this.signal) {
       await supabase.removeChannel(this.signal);
       this.signal = null;
+    }
+    if (endedRoomId) {
+      void supabase.from("matches").update({ ended_at: new Date().toISOString() }).eq("room_id", endedRoomId);
     }
     if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
     if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
@@ -587,6 +592,7 @@ export class Matchmaker {
   async stop() {
     this.active = false;
     this.stopHeartbeat();
+    this.stopQueuedMatchPolling();
     if (this.onlineRefreshTimer) {
       clearInterval(this.onlineRefreshTimer);
       this.onlineRefreshTimer = null;
