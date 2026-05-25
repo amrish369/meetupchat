@@ -111,6 +111,7 @@ export class Matchmaker {
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private matchTimer: ReturnType<typeof setTimeout> | null = null;
   private onlineRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private queuedMatchPollTimer: ReturnType<typeof setInterval> | null = null;
 
   private retryingIce = false;
   private forceRelay = false;
@@ -202,6 +203,7 @@ export class Matchmaker {
     } else {
       // Queued — start heartbeat so our entry stays fresh
       this.startHeartbeat();
+      this.startQueuedMatchPolling();
     }
   }
 
@@ -217,6 +219,47 @@ export class Matchmaker {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
     }
+  }
+
+  /**
+   * Realtime is the fast path, but mobile networks/proxies can drop websocket
+   * notifications. Polling the already-indexed active match row is the safety
+   * net that guarantees a waiting user still starts signaling automatically.
+   */
+  private startQueuedMatchPolling() {
+    this.stopQueuedMatchPolling();
+    this.queuedMatchPollTimer = setInterval(() => {
+      void this.findExistingMatch();
+    }, 1_000);
+    void this.findExistingMatch();
+  }
+
+  private stopQueuedMatchPolling() {
+    if (this.queuedMatchPollTimer) {
+      clearInterval(this.queuedMatchPollTimer);
+      this.queuedMatchPollTimer = null;
+    }
+  }
+
+  private async findExistingMatch() {
+    if (!this.active || this.roomId) return;
+    const { data, error } = await supabase
+      .from("matches")
+      .select("id, room_id, session_a, session_b, caller")
+      .is("ended_at", null)
+      .or(`session_a.eq.${this.connectionId},session_b.eq.${this.connectionId}`)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) return;
+    const peer = data.session_a === this.connectionId ? data.session_b : data.session_a;
+    this.handleMatched({
+      match_id: data.id,
+      room_id: data.room_id,
+      peer_session: peer,
+      is_caller: data.caller === this.connectionId,
+    });
   }
 
   /**
@@ -252,8 +295,12 @@ export class Matchmaker {
       }
     );
     await new Promise<void>((resolve) => {
+      const timeout = setTimeout(resolve, 2_500);
       ch.subscribe((status) => {
-        if (status === "SUBSCRIBED") resolve();
+        if (["SUBSCRIBED", "CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          clearTimeout(timeout);
+          resolve();
+        }
       });
     });
     this.matchesChannel = ch;
@@ -266,6 +313,7 @@ export class Matchmaker {
     is_caller: boolean;
   }) {
     this.stopHeartbeat();
+    this.stopQueuedMatchPolling();
     this.peerId = m.peer_session;
     this.roomId = m.room_id;
     this.isCaller = m.is_caller;
@@ -511,10 +559,18 @@ export class Matchmaker {
 
   private async tearDownPeer() {
     this.clearMatchTimer();
+    this.stopQueuedMatchPolling();
+    const endedRoomId = this.roomId;
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
     if (this.signal) {
       await supabase.removeChannel(this.signal);
       this.signal = null;
+    }
+    if (endedRoomId) {
+      void (supabase.rpc as any)("end_match", {
+        p_room_id: endedRoomId,
+        p_session_id: this.connectionId,
+      });
     }
     if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
     if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
@@ -539,6 +595,7 @@ export class Matchmaker {
   async stop() {
     this.active = false;
     this.stopHeartbeat();
+    this.stopQueuedMatchPolling();
     if (this.onlineRefreshTimer) {
       clearInterval(this.onlineRefreshTimer);
       this.onlineRefreshTimer = null;
