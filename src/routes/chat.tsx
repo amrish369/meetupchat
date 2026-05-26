@@ -46,6 +46,7 @@ import { Matchmaker, type ChatMessage, type MatchStatus } from "@/lib/matchmaker
 import { getSessionId } from "@/lib/session";
 import { filterMessage } from "@/lib/profanity";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth, isPremiumActive } from "@/lib/auth";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -85,6 +86,10 @@ interface PhaseEvent {
 }
 
 function ChatRoom() {
+  const { profile } = useAuth();
+  const premium = isPremiumActive(profile);
+  const [filterGender, setFilterGender] = useState<string>("any");
+  const [filterRegion, setFilterRegion] = useState<string>("any");
   const [status, setStatus] = useState<MatchStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string | undefined>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -188,8 +193,14 @@ function ChatRoom() {
       onOnlineCount: (n) => setOnlineCount(n),
     });
     matcherRef.current = m;
-    await m.start();
-  }, [sessionId, pushPhase]);
+    await m.start({
+      gender: (profile?.gender as "male" | "female" | "other" | null) ?? null,
+      region: profile?.region ?? null,
+      filterGender: premium && filterGender !== "any" ? (filterGender as "male" | "female") : null,
+      filterRegion: premium && filterRegion !== "any" ? filterRegion : null,
+      isPremium: premium,
+    });
+  }, [sessionId, pushPhase, profile, premium, filterGender, filterRegion]);
 
   const stop = useCallback(async () => {
     await matcherRef.current?.stop();
