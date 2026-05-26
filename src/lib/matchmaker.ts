@@ -99,6 +99,7 @@ export class Matchmaker {
   private sessionId: string;
   private connectionId: string;
   private cb: Callbacks;
+  private prefs: MatchPreferences = {};
 
   private matchesChannel: RealtimeChannel | null = null;
   private onlineChannel: RealtimeChannel | null = null;
@@ -131,7 +132,12 @@ export class Matchmaker {
     this.cb = cb;
   }
 
-  async start() {
+  setPreferences(p: MatchPreferences) {
+    this.prefs = p;
+  }
+
+  async start(prefs?: MatchPreferences) {
+    if (prefs) this.prefs = prefs;
     if (this.active) return;
     this.active = true;
     this.cb.onStatus("requesting-media");
