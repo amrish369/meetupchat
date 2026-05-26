@@ -46,6 +46,7 @@ import { Matchmaker, type ChatMessage, type MatchStatus } from "@/lib/matchmaker
 import { getSessionId } from "@/lib/session";
 import { filterMessage } from "@/lib/profanity";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth, isPremiumActive } from "@/lib/auth";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -85,6 +86,10 @@ interface PhaseEvent {
 }
 
 function ChatRoom() {
+  const { profile } = useAuth();
+  const premium = isPremiumActive(profile);
+  const [filterGender, setFilterGender] = useState<string>("any");
+  const [filterRegion, setFilterRegion] = useState<string>("any");
   const [status, setStatus] = useState<MatchStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string | undefined>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -188,8 +193,14 @@ function ChatRoom() {
       onOnlineCount: (n) => setOnlineCount(n),
     });
     matcherRef.current = m;
-    await m.start();
-  }, [sessionId, pushPhase]);
+    await m.start({
+      gender: (profile?.gender as "male" | "female" | "other" | null) ?? null,
+      region: profile?.region ?? null,
+      filterGender: premium && filterGender !== "any" ? (filterGender as "male" | "female") : null,
+      filterRegion: premium && filterRegion !== "any" ? filterRegion : null,
+      isPremium: premium,
+    });
+  }, [sessionId, pushPhase, profile, premium, filterGender, filterRegion]);
 
   const stop = useCallback(async () => {
     await matcherRef.current?.stop();
@@ -271,6 +282,29 @@ function ChatRoom() {
           onToggle={() => setTimelineOpen((v) => !v)}
         />
       </header>
+
+      {status === "idle" && (
+        <div className="flex flex-wrap items-center justify-center gap-2 border-b border-cream/10 bg-deep/60 px-4 py-2 text-xs">
+          {premium ? (
+            <>
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal-grad px-2 py-0.5 text-[10px] font-semibold text-white">PREMIUM</span>
+              <span className="text-cream/60">Filters:</span>
+              <Select value={filterGender} onValueChange={setFilterGender}>
+                <SelectTrigger className="h-7 w-[110px] border-cream/15 bg-cream/5 text-cream"><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="any">Any gender</SelectItem><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem></SelectContent>
+              </Select>
+              <Select value={filterRegion} onValueChange={setFilterRegion}>
+                <SelectTrigger className="h-7 w-[130px] border-cream/15 bg-cream/5 text-cream"><SelectValue /></SelectTrigger>
+                <SelectContent>{["any","India","South Asia","Asia","Europe","Americas","Africa","Oceania"].map(r=> <SelectItem key={r} value={r}>{r==="any"?"Any region":r}</SelectItem>)}</SelectContent>
+              </Select>
+            </>
+          ) : (
+            <Link to="/premium" className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-3 py-1 text-teal-soft hover:bg-teal/25">
+              ✨ Unlock gender & region filters with Premium
+            </Link>
+          )}
+        </div>
+      )}
 
       {timelineOpen && phases.length > 0 && (
         <PhaseTimeline phases={phases} now={now} onClose={() => setTimelineOpen(false)} />

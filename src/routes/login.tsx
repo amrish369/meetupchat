@@ -1,0 +1,139 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Shield, Mail, Lock, ArrowLeft, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — Meetup" },
+      { name: "description", content: "Sign in to unlock private rooms and premium filters on Meetup." },
+    ],
+  }),
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (user) navigate({ to: "/chat" });
+  }, [user, navigate]);
+
+  const onGoogle = async () => {
+    setBusy(true);
+    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/chat" });
+    if (res.error) {
+      toast.error(res.error.message || "Google sign-in failed");
+      setBusy(false);
+    }
+  };
+
+  const onEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    navigate({ to: "/chat" });
+  };
+
+  const onEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/chat` },
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Account created! You can sign in now.");
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-md px-4 py-10">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Link>
+        <div className="mt-8 text-center">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-teal-grad text-white shadow-soft">
+            <Shield className="h-5 w-5" />
+          </span>
+          <h1 className="mt-4 font-display text-3xl font-bold">Welcome to Meetup</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Sign in to unlock <span className="font-semibold text-foreground">private rooms</span> &{" "}
+            <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-teal" /> premium filters
+            </span>
+          </p>
+        </div>
+
+        <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <Button onClick={onGoogle} disabled={busy} variant="outline" className="w-full" size="lg">
+            <svg className="h-4 w-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            Continue with Google
+          </Button>
+
+          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="h-px flex-1 bg-border" /> OR <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <Tabs defaultValue="signin">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign in</TabsTrigger>
+              <TabsTrigger value="signup">Sign up</TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
+              <form onSubmit={onEmailLogin} className="mt-4 space-y-3">
+                <Field id="login-email" label="Email" icon={<Mail className="h-4 w-4" />} value={email} onChange={setEmail} type="email" required />
+                <Field id="login-pw" label="Password" icon={<Lock className="h-4 w-4" />} value={password} onChange={setPassword} type="password" required />
+                <Button type="submit" disabled={busy} variant="hero" className="w-full">Sign in</Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="signup">
+              <form onSubmit={onEmailSignup} className="mt-4 space-y-3">
+                <Field id="su-email" label="Email" icon={<Mail className="h-4 w-4" />} value={email} onChange={setEmail} type="email" required />
+                <Field id="su-pw" label="Password (min 6)" icon={<Lock className="h-4 w-4" />} value={password} onChange={setPassword} type="password" required minLength={6} />
+                <Button type="submit" disabled={busy} variant="hero" className="w-full">Create account</Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          You can still use random chat without an account. Login is only needed for premium.
+        </p>
+      </div>
+      <Toaster richColors position="top-center" />
+    </div>
+  );
+}
+
+function Field({ id, label, icon, value, onChange, ...rest }: {
+  id: string; label: string; icon: React.ReactNode; value: string;
+  onChange: (v: string) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "id">) {
+  return (
+    <div>
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <div className="relative mt-1">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>
+        <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} className="pl-9" {...rest} />
+      </div>
+    </div>
+  );
+}

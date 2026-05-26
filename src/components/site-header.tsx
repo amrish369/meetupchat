@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, Sparkles, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth, isPremiumActive } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/safety", label: "Safety" },
   { to: "/about", label: "About" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/coturn-setup", label: "Self-host TURN" },
+  { to: "/premium", label: "Premium" },
 ] as const;
 
 export function SiteHeader() {
@@ -42,6 +43,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <AuthButton />
           <Button asChild variant="hero" size="default">
             <Link to="/chat">Start chatting</Link>
           </Button>
@@ -80,5 +82,25 @@ export function SiteHeader() {
         </div>
       )}
     </header>
+  );
+}
+
+function AuthButton() {
+  const { user, profile } = useAuth();
+  if (!user) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link to="/login"><UserIcon className="h-4 w-4" /> Sign in</Link>
+      </Button>
+    );
+  }
+  const premium = isPremiumActive(profile);
+  return (
+    <Button asChild variant="ghost" size="sm">
+      <Link to="/profile">
+        {premium && <Sparkles className="h-3.5 w-3.5 text-teal" />}
+        {profile?.display_name || user.email?.split("@")[0] || "Profile"}
+      </Link>
+    </Button>
   );
 }

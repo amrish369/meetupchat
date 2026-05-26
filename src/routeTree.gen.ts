@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
@@ -21,9 +24,24 @@ const SafetyRoute = SafetyRouteImport.update({
   path: '/safety',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoturnSetupRoute = CoturnSetupRouteImport.update({
@@ -52,7 +70,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
 }
 export interface FileRoutesByTo {
@@ -60,7 +81,10 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
 }
 export interface FileRoutesById {
@@ -69,21 +93,45 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/chat' | '/coturn-setup' | '/pricing' | '/safety'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/chat'
+    | '/coturn-setup'
+    | '/login'
+    | '/premium'
+    | '/pricing'
+    | '/profile'
+    | '/safety'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/chat' | '/coturn-setup' | '/pricing' | '/safety'
+  to:
+    | '/'
+    | '/about'
+    | '/chat'
+    | '/coturn-setup'
+    | '/login'
+    | '/premium'
+    | '/pricing'
+    | '/profile'
+    | '/safety'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/chat'
     | '/coturn-setup'
+    | '/login'
+    | '/premium'
     | '/pricing'
+    | '/profile'
     | '/safety'
   fileRoutesById: FileRoutesById
 }
@@ -92,7 +140,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
+  LoginRoute: typeof LoginRoute
+  PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
+  ProfileRoute: typeof ProfileRoute
   SafetyRoute: typeof SafetyRoute
 }
 
@@ -105,11 +156,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SafetyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/coturn-setup': {
@@ -148,18 +220,12 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
+  LoginRoute: LoginRoute,
+  PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
+  ProfileRoute: ProfileRoute,
   SafetyRoute: SafetyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -79,6 +79,14 @@ interface Callbacks {
   onOnlineCount?: (n: number) => void;
 }
 
+export interface MatchPreferences {
+  gender?: "male" | "female" | "other" | null;
+  region?: string | null;
+  filterGender?: "male" | "female" | null;
+  filterRegion?: string | null;
+  isPremium?: boolean;
+}
+
 function createConnectionId(sessionId: string) {
   const suffix =
     typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -91,6 +99,7 @@ export class Matchmaker {
   private sessionId: string;
   private connectionId: string;
   private cb: Callbacks;
+  private prefs: MatchPreferences = {};
 
   private matchesChannel: RealtimeChannel | null = null;
   private onlineChannel: RealtimeChannel | null = null;
@@ -123,7 +132,12 @@ export class Matchmaker {
     this.cb = cb;
   }
 
-  async start() {
+  setPreferences(p: MatchPreferences) {
+    this.prefs = p;
+  }
+
+  async start(prefs?: MatchPreferences) {
+    if (prefs) this.prefs = prefs;
     if (this.active) return;
     this.active = true;
     this.cb.onStatus("requesting-media");
@@ -183,7 +197,12 @@ export class Matchmaker {
 
     const { data, error } = await supabase.rpc("request_match", {
       p_session_id: this.connectionId,
-    });
+      p_gender: this.prefs.gender ?? null,
+      p_region: this.prefs.region ?? null,
+      p_filter_gender: this.prefs.filterGender ?? null,
+      p_filter_region: this.prefs.filterRegion ?? null,
+      p_is_premium: this.prefs.isPremium ?? false,
+    } as any);
 
     if (error) {
       console.error("[matchmaker] request_match failed", error);
