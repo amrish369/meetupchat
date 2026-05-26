@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, Sparkles, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth, isPremiumActive } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/safety", label: "Safety" },
   { to: "/about", label: "About" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/coturn-setup", label: "Self-host TURN" },
+  { to: "/premium", label: "Premium" },
 ] as const;
 
 export function SiteHeader() {
@@ -42,6 +43,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <AuthButton />
           <Button asChild variant="hero" size="default">
             <Link to="/chat">Start chatting</Link>
           </Button>
