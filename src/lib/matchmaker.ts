@@ -79,6 +79,14 @@ interface Callbacks {
   onOnlineCount?: (n: number) => void;
 }
 
+export interface MatchPreferences {
+  gender?: "male" | "female" | "other" | null;
+  region?: string | null;
+  filterGender?: "male" | "female" | null;
+  filterRegion?: string | null;
+  isPremium?: boolean;
+}
+
 function createConnectionId(sessionId: string) {
   const suffix =
     typeof crypto !== "undefined" && "randomUUID" in crypto
