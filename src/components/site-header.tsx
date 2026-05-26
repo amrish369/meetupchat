@@ -84,3 +84,23 @@ export function SiteHeader() {
     </header>
   );
 }
+
+function AuthButton() {
+  const { user, profile } = useAuth();
+  if (!user) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link to="/login"><UserIcon className="h-4 w-4" /> Sign in</Link>
+      </Button>
+    );
+  }
+  const premium = isPremiumActive(profile);
+  return (
+    <Button asChild variant="ghost" size="sm">
+      <Link to="/profile">
+        {premium && <Sparkles className="h-3.5 w-3.5 text-teal" />}
+        {profile?.display_name || user.email?.split("@")[0] || "Profile"}
+      </Link>
+    </Button>
+  );
+}
