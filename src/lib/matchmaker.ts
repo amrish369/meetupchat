@@ -197,7 +197,12 @@ export class Matchmaker {
 
     const { data, error } = await supabase.rpc("request_match", {
       p_session_id: this.connectionId,
-    });
+      p_gender: this.prefs.gender ?? null,
+      p_region: this.prefs.region ?? null,
+      p_filter_gender: this.prefs.filterGender ?? null,
+      p_filter_region: this.prefs.filterRegion ?? null,
+      p_is_premium: this.prefs.isPremium ?? false,
+    } as any);
 
     if (error) {
       console.error("[matchmaker] request_match failed", error);
