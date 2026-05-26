@@ -126,7 +126,7 @@ function LoginPage() {
 function Field({ id, label, icon, value, onChange, ...rest }: {
   id: string; label: string; icon: React.ReactNode; value: string;
   onChange: (v: string) => void;
-} & React.InputHTMLAttributes<HTMLInputElement>) {
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "id">) {
   return (
     <div>
       <Label htmlFor={id} className="text-xs">{label}</Label>
