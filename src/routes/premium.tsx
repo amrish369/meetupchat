@@ -24,7 +24,7 @@ const FEATURES = [
   "Verified badge",
 ];
 
-const UPI_ID = "meetup@upi"; // TODO: replace with your real UPI
+const UPI_ID = "9838906467@ptaxis"; // TODO: replace with your real UPI
 
 export const Route = createFileRoute("/premium")({
   head: () => ({
