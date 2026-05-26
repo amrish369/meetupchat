@@ -40,19 +40,31 @@ export type Database = {
       }
       match_queue: {
         Row: {
+          filter_gender: string | null
+          filter_region: string | null
+          gender: string | null
           heartbeat_at: string
+          is_premium: boolean
           joined_at: string
           region: string | null
           session_id: string
         }
         Insert: {
+          filter_gender?: string | null
+          filter_region?: string | null
+          gender?: string | null
           heartbeat_at?: string
+          is_premium?: boolean
           joined_at?: string
           region?: string | null
           session_id: string
         }
         Update: {
+          filter_gender?: string | null
+          filter_region?: string | null
+          gender?: string | null
           heartbeat_at?: string
+          is_premium?: boolean
           joined_at?: string
           region?: string | null
           session_id?: string
@@ -86,6 +98,78 @@ export type Database = {
           room_id?: string
           session_a?: string
           session_b?: string
+        }
+        Relationships: []
+      }
+      payment_submissions: {
+        Row: {
+          amount_inr: number
+          created_at: string
+          id: string
+          plan: string
+          reviewed_at: string | null
+          reviewer_note: string | null
+          screenshot_path: string | null
+          status: string
+          upi_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_inr: number
+          created_at?: string
+          id?: string
+          plan?: string
+          reviewed_at?: string | null
+          reviewer_note?: string | null
+          screenshot_path?: string | null
+          status?: string
+          upi_reference?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_inr?: number
+          created_at?: string
+          id?: string
+          plan?: string
+          reviewed_at?: string | null
+          reviewer_note?: string | null
+          screenshot_path?: string | null
+          status?: string
+          upi_reference?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          gender: string | null
+          is_premium: boolean
+          premium_until: string | null
+          region: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          gender?: string | null
+          is_premium?: boolean
+          premium_until?: string | null
+          region?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          gender?: string | null
+          is_premium?: boolean
+          premium_until?: string | null
+          region?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -151,7 +235,14 @@ export type Database = {
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
       online_count: { Args: never; Returns: number }
       request_match: {
-        Args: { p_session_id: string }
+        Args: {
+          p_filter_gender?: string
+          p_filter_region?: string
+          p_gender?: string
+          p_is_premium?: boolean
+          p_region?: string
+          p_session_id: string
+        }
         Returns: {
           is_caller: boolean
           match_id: string
