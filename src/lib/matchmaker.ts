@@ -262,24 +262,19 @@ export class Matchmaker {
 
   private async findExistingMatch() {
     if (!this.active || this.roomId) return;
-    const { data, error } = await supabase
-      .from("matches")
-      .select("id, room_id, session_a, session_b, caller")
-      .is("ended_at", null)
-      .or(`session_a.eq.${this.connectionId},session_b.eq.${this.connectionId}`)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error || !data) return;
-    const peer = data.session_a === this.connectionId ? data.session_b : data.session_a;
+    const { data, error } = await supabase.rpc("find_active_match", {
+      p_session_id: this.connectionId,
+    });
+    if (error || !data || data.length === 0) return;
+    const row = data[0];
     this.handleMatched({
-      match_id: data.id,
-      room_id: data.room_id,
-      peer_session: peer,
-      is_caller: data.caller === this.connectionId,
+      match_id: row.match_id,
+      room_id: row.room_id,
+      peer_session: row.peer_session,
+      is_caller: row.is_caller,
     });
   }
+
 
   /**
    * Subscribes to public.matches INSERTs. When the OTHER peer matches us,
