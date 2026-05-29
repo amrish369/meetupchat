@@ -38,12 +38,97 @@ export type Database = {
         }
         Relationships: []
       }
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      coins_ledger: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_checkins: {
+        Row: {
+          checkin_date: string
+          coins_awarded: number
+          created_at: string
+          streak_after: number
+          user_id: string
+        }
+        Insert: {
+          checkin_date: string
+          coins_awarded: number
+          created_at?: string
+          streak_after: number
+          user_id: string
+        }
+        Update: {
+          checkin_date?: string
+          coins_awarded?: number
+          created_at?: string
+          streak_after?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          followee_id: string
+          follower_id: string
+        }
+        Insert: {
+          created_at?: string
+          followee_id: string
+          follower_id: string
+        }
+        Update: {
+          created_at?: string
+          followee_id?: string
+          follower_id?: string
+        }
+        Relationships: []
+      }
       match_queue: {
         Row: {
           filter_gender: string | null
           filter_region: string | null
           gender: string | null
           heartbeat_at: string
+          interests: string[] | null
           is_premium: boolean
           joined_at: string
           region: string | null
@@ -54,6 +139,7 @@ export type Database = {
           filter_region?: string | null
           gender?: string | null
           heartbeat_at?: string
+          interests?: string[] | null
           is_premium?: boolean
           joined_at?: string
           region?: string | null
@@ -64,6 +150,7 @@ export type Database = {
           filter_region?: string | null
           gender?: string | null
           heartbeat_at?: string
+          interests?: string[] | null
           is_premium?: boolean
           joined_at?: string
           region?: string | null
@@ -140,17 +227,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_visitors: {
+        Row: {
+          id: string
+          profile_id: string
+          visited_at: string
+          visitor_id: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          visited_at?: string
+          visitor_id: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          visited_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
+          coins: number
           created_at: string
           display_name: string | null
           gender: string | null
           interests: string[]
           is_premium: boolean
+          last_checkin: string | null
           premium_until: string | null
           region: string | null
+          streak_days: number
+          trust_score: number
           updated_at: string
           user_id: string
           username: string | null
@@ -158,13 +270,17 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          coins?: number
           created_at?: string
           display_name?: string | null
           gender?: string | null
           interests?: string[]
           is_premium?: boolean
+          last_checkin?: string | null
           premium_until?: string | null
           region?: string | null
+          streak_days?: number
+          trust_score?: number
           updated_at?: string
           user_id: string
           username?: string | null
@@ -172,13 +288,17 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          coins?: number
           created_at?: string
           display_name?: string | null
           gender?: string | null
           interests?: string[]
           is_premium?: boolean
+          last_checkin?: string | null
           premium_until?: string | null
           region?: string | null
+          streak_days?: number
+          trust_score?: number
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -212,6 +332,101 @@ export type Database = {
         }
         Relationships: []
       }
+      room_messages: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          room_id: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          room_id: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          room_id?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          emoji: string | null
+          id: string
+          is_official: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_official?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_official?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      spin_history: {
+        Row: {
+          id: string
+          prize_coins: number
+          prize_label: string
+          spun_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          prize_coins: number
+          prize_label: string
+          spun_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          prize_coins?: number
+          prize_label?: string
+          spun_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string
@@ -238,6 +453,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_daily_checkin: {
+        Args: never
+        Returns: {
+          awarded: number
+          balance: number
+          streak: number
+        }[]
+      }
       cleanup_stale_queue: { Args: never; Returns: undefined }
       end_match: {
         Args: { p_room_id: string; p_session_id: string }
@@ -252,25 +475,85 @@ export type Database = {
           room_id: string
         }[]
       }
+      global_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          coins: number
+          display_name: string
+          is_premium: boolean
+          streak_days: number
+          user_id: string
+          username: string
+        }[]
+      }
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
       is_session_banned: { Args: { p_session_id: string }; Returns: boolean }
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
       online_count: { Args: never; Returns: number }
-      request_match: {
-        Args: {
-          p_filter_gender?: string
-          p_filter_region?: string
-          p_gender?: string
-          p_is_premium?: boolean
-          p_region?: string
-          p_session_id: string
-        }
+      public_profile: {
+        Args: { p_user_id: string }
         Returns: {
-          is_caller: boolean
-          match_id: string
-          peer_session: string
-          room_id: string
-          status: string
+          avatar_url: string
+          bio: string
+          coins: number
+          created_at: string
+          display_name: string
+          interests: string[]
+          is_premium: boolean
+          region: string
+          streak_days: number
+          trust_score: number
+          user_id: string
+          username: string
+        }[]
+      }
+      record_profile_visit: {
+        Args: { p_profile_id: string }
+        Returns: undefined
+      }
+      request_match:
+        | {
+            Args: {
+              p_filter_gender?: string
+              p_filter_region?: string
+              p_gender?: string
+              p_is_premium?: boolean
+              p_region?: string
+              p_session_id: string
+            }
+            Returns: {
+              is_caller: boolean
+              match_id: string
+              peer_session: string
+              room_id: string
+              status: string
+            }[]
+          }
+        | {
+            Args: {
+              p_filter_gender?: string
+              p_filter_region?: string
+              p_gender?: string
+              p_interests?: string[]
+              p_is_premium?: boolean
+              p_region?: string
+              p_session_id: string
+            }
+            Returns: {
+              is_caller: boolean
+              match_id: string
+              peer_session: string
+              room_id: string
+              status: string
+            }[]
+          }
+      spin_wheel: {
+        Args: never
+        Returns: {
+          balance: number
+          label: string
+          prize: number
         }[]
       }
     }
