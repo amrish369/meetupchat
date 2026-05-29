@@ -231,7 +231,17 @@ export type Database = {
         Args: { p_room_id: string; p_session_id: string }
         Returns: undefined
       }
+      find_active_match: {
+        Args: { p_session_id: string }
+        Returns: {
+          is_caller: boolean
+          match_id: string
+          peer_session: string
+          room_id: string
+        }[]
+      }
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
+      is_session_banned: { Args: { p_session_id: string }; Returns: boolean }
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
       online_count: { Args: never; Returns: number }
       request_match: {
