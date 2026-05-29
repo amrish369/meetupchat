@@ -13,8 +13,11 @@ export interface Profile {
   region: string | null;
   is_premium: boolean;
   premium_until: string | null;
+  coins: number;
+  streak_days: number;
+  trust_score: number;
+  last_checkin: string | null;
 }
-
 
 interface AuthContextValue {
   user: User | null;
@@ -36,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfile = async (uid: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("user_id, display_name, gender, region, is_premium, premium_until")
+      .select("*")
       .eq("user_id", uid)
       .maybeSingle();
     setProfile((data as Profile | null) ?? null);
