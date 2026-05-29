@@ -5,11 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Profile {
   user_id: string;
   display_name: string | null;
+  username: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  interests: string[];
   gender: "male" | "female" | "other" | null;
   region: string | null;
   is_premium: boolean;
   premium_until: string | null;
 }
+
 
 interface AuthContextValue {
   user: User | null;
