@@ -59,7 +59,9 @@ function RoomPage() {
 
   const send = async () => {
     if (!user || !room || !text.trim()) return;
-    const clean = filterMessage(text.trim()).slice(0, 500);
+    const check = filterMessage(text.trim());
+    if (!check.ok) { toast.error(check.reason || "Message blocked"); return; }
+    const clean = check.clean.slice(0, 500);
     setSending(true);
     const { error } = await supabase.from("room_messages").insert({
       room_id: room.id, user_id: user.id,

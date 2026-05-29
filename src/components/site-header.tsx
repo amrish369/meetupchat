@@ -7,6 +7,9 @@ import { useAuth, isPremiumActive } from "@/lib/auth";
 const nav = [
   { to: "/", label: "Home" },
   { to: "/chat", label: "Chat" },
+  { to: "/rooms", label: "Rooms" },
+  { to: "/leaderboard", label: "Top" },
+  { to: "/rewards", label: "Rewards" },
   { to: "/premium", label: "Premium" },
 ] as const;
 
