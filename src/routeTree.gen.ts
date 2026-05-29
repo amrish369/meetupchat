@@ -10,18 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UUserIdRouteImport } from './routes/u.$userId'
+import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
 
 const SafetyRoute = SafetyRouteImport.update({
   id: '/safety',
   path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -44,6 +60,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoturnSetupRoute = CoturnSetupRouteImport.update({
   id: '/coturn-setup',
   path: '/coturn-setup',
@@ -64,28 +90,50 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUserIdRoute = UUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsSlugRoute = RoomsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => RoomsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/friends': typeof FriendsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/rewards': typeof RewardsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/rooms/$slug': typeof RoomsSlugRoute
+  '/u/$userId': typeof UUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/friends': typeof FriendsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/rewards': typeof RewardsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/rooms/$slug': typeof RoomsSlugRoute
+  '/u/$userId': typeof UUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,11 +141,17 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/friends': typeof FriendsRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/rewards': typeof RewardsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/rooms/$slug': typeof RoomsSlugRoute
+  '/u/$userId': typeof UUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,33 +160,51 @@ export interface FileRouteTypes {
     | '/about'
     | '/chat'
     | '/coturn-setup'
+    | '/friends'
+    | '/leaderboard'
     | '/login'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/rewards'
+    | '/rooms'
     | '/safety'
+    | '/rooms/$slug'
+    | '/u/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/chat'
     | '/coturn-setup'
+    | '/friends'
+    | '/leaderboard'
     | '/login'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/rewards'
+    | '/rooms'
     | '/safety'
+    | '/rooms/$slug'
+    | '/u/$userId'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/chat'
     | '/coturn-setup'
+    | '/friends'
+    | '/leaderboard'
     | '/login'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/rewards'
+    | '/rooms'
     | '/safety'
+    | '/rooms/$slug'
+    | '/u/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,11 +212,16 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
+  FriendsRoute: typeof FriendsRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
+  RewardsRoute: typeof RewardsRoute
+  RoomsRoute: typeof RoomsRouteWithChildren
   SafetyRoute: typeof SafetyRoute
+  UUserIdRoute: typeof UUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -154,6 +231,20 @@ declare module '@tanstack/react-router' {
       path: '/safety'
       fullPath: '/safety'
       preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -184,6 +275,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/coturn-setup': {
       id: '/coturn-setup'
       path: '/coturn-setup'
@@ -212,19 +317,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$userId': {
+      id: '/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof UUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms/$slug': {
+      id: '/rooms/$slug'
+      path: '/$slug'
+      fullPath: '/rooms/$slug'
+      preLoaderRoute: typeof RoomsSlugRouteImport
+      parentRoute: typeof RoomsRoute
+    }
   }
 }
+
+interface RoomsRouteChildren {
+  RoomsSlugRoute: typeof RoomsSlugRoute
+}
+
+const RoomsRouteChildren: RoomsRouteChildren = {
+  RoomsSlugRoute: RoomsSlugRoute,
+}
+
+const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
+  FriendsRoute: FriendsRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
+  RewardsRoute: RewardsRoute,
+  RoomsRoute: RoomsRouteWithChildren,
   SafetyRoute: SafetyRoute,
+  UUserIdRoute: UUserIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
