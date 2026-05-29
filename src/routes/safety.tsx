@@ -179,7 +179,7 @@ function SafetyPage() {
                 </Link>
               </Button>
 
-              <Button asChild size="lg" variant="glass">
+              <Button asChild size="lg" variant="outline">
                 <Link to="/privacy">
                   Privacy Policy
                 </Link>
