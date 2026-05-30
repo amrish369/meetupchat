@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       bans: {
         Row: {
           created_at: string
@@ -251,14 +278,17 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banned_until: string | null
           bio: string | null
           coins: number
+          country: string | null
           created_at: string
           display_name: string | null
           gender: string | null
           interests: string[]
           is_premium: boolean
           last_checkin: string | null
+          plan: string
           premium_until: string | null
           region: string | null
           streak_days: number
@@ -269,14 +299,17 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banned_until?: string | null
           bio?: string | null
           coins?: number
+          country?: string | null
           created_at?: string
           display_name?: string | null
           gender?: string | null
           interests?: string[]
           is_premium?: boolean
           last_checkin?: string | null
+          plan?: string
           premium_until?: string | null
           region?: string | null
           streak_days?: number
@@ -287,14 +320,17 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banned_until?: string | null
           bio?: string | null
           coins?: number
+          country?: string | null
           created_at?: string
           display_name?: string | null
           gender?: string | null
           interests?: string[]
           is_premium?: boolean
           last_checkin?: string | null
+          plan?: string
           premium_until?: string | null
           region?: string | null
           streak_days?: number
@@ -427,6 +463,63 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          admin_reply: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_reply?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string
@@ -453,6 +546,62 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_coins: {
+        Args: { p_delta: number; p_reason?: string; p_user: string }
+        Returns: number
+      }
+      admin_approve_payment: {
+        Args: { p_days: number; p_plan: string; p_submission: string }
+        Returns: undefined
+      }
+      admin_ban_user: {
+        Args: { p_days: number; p_reason?: string; p_user: string }
+        Returns: undefined
+      }
+      admin_daily_revenue: {
+        Args: { p_days?: number }
+        Returns: {
+          day: string
+          revenue: number
+        }[]
+      }
+      admin_daily_signups: {
+        Args: { p_days?: number }
+        Returns: {
+          day: string
+          signups: number
+        }[]
+      }
+      admin_dashboard_stats: { Args: never; Returns: Json }
+      admin_grant_plan: {
+        Args: { p_days: number; p_plan: string; p_user: string }
+        Returns: undefined
+      }
+      admin_list_users: {
+        Args: { p_limit?: number; p_offset?: number; p_search?: string }
+        Returns: {
+          banned_until: string
+          coins: number
+          country: string
+          created_at: string
+          display_name: string
+          is_premium: boolean
+          plan: string
+          premium_until: string
+          region: string
+          user_id: string
+          username: string
+        }[]
+      }
+      admin_payment_screenshot_url: {
+        Args: { p_submission: string }
+        Returns: string
+      }
+      admin_reject_payment: {
+        Args: { p_note?: string; p_submission: string }
+        Returns: undefined
+      }
+      admin_unban_user: { Args: { p_user: string }; Returns: undefined }
       claim_daily_checkin: {
         Args: never
         Returns: {
@@ -486,6 +635,13 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
       is_session_banned: { Args: { p_session_id: string }; Returns: boolean }
@@ -558,7 +714,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -685,6 +841,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
