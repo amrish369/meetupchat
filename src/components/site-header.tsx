@@ -66,6 +66,15 @@ export function SiteHeader() {
 function AuthButton({ isMobile }: { isMobile?: boolean }) {
   const { user, profile } = useAuth();
   const premium = isPremiumActive(profile);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
+        .then(({ data }) => setIsAdmin(!!data));
+    });
+  }, [user]);
 
   if (!user) {
     return (
@@ -76,14 +85,18 @@ function AuthButton({ isMobile }: { isMobile?: boolean }) {
   }
 
   return (
-    <Link to="/profile" className="flex items-center gap-2 bg-secondary px-3 py-1.5 rounded-full text-sm font-medium">
-      {premium && <Sparkles className="h-3.5 w-3.5 text-teal" />}
-      {profile?.display_name || "Profile"}
-      {/* Notification Dot Example */}
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-teal"></span>
-      </span>
-    </Link>
+    <div className="flex items-center gap-2">
+      {isAdmin && (
+        <Link to="/admin" className="text-xs px-2 py-1 rounded bg-teal/15 text-teal font-semibold">Admin</Link>
+      )}
+      <Link to="/profile" className="flex items-center gap-2 bg-secondary px-3 py-1.5 rounded-full text-sm font-medium">
+        {premium && <Sparkles className="h-3.5 w-3.5 text-teal" />}
+        {profile?.display_name || "Profile"}
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-teal"></span>
+        </span>
+      </Link>
+    </div>
   );
 }
