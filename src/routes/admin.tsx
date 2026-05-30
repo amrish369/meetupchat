@@ -191,8 +191,8 @@ function UsersTab() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.rpc("admin_list_users", {
-      p_search: q || null, p_limit: limit, p_offset: page * limit,
-    });
+      p_search: q || undefined, p_limit: limit, p_offset: page * limit,
+    } as any);
     if (error) toast.error(error.message);
     setRows(data ?? []);
     setLoading(false);
