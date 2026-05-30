@@ -418,8 +418,8 @@ function PaymentsTab() {
     toast.success(`Approved as ${plan} ${days}d`); load();
   };
   const reject = async (id: string) => {
-    const note = prompt("Rejection reason (optional)") || null;
-    const { error } = await supabase.rpc("admin_reject_payment", { p_submission: id, p_note: note });
+    const note = prompt("Rejection reason (optional)") || undefined;
+    const { error } = await supabase.rpc("admin_reject_payment", { p_submission: id, p_note: note } as any);
     if (error) return toast.error(error.message);
     toast.success("Rejected"); load();
   };
