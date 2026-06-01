@@ -18,7 +18,7 @@ export const Route = createFileRoute("/shop")({
 interface Gift { code: string; name: string; emoji: string; price_coins: number; sort_order: number; }
 
 function ShopPage() {
-  const { user, profile, loading, refresh } = useAuth();
+  const { user, profile, loading, refreshProfile } = useAuth();
   const { to: preselectedTo } = Route.useSearch();
   const nav = useNavigate();
   const [gifts, setGifts] = useState<Gift[]>([]);
@@ -50,13 +50,13 @@ function ShopPage() {
     const { error } = await supabase.rpc("send_gift", {
       p_receiver: recipient.trim(),
       p_gift_code: openGift.code,
-      p_message: message.trim() || null,
+      p_message: message.trim() || undefined,
     });
     setSending(false);
     if (error) { toast.error(error.message); return; }
     toast.success(`${openGift.emoji} sent!`);
     setOpenGift(null); setMessage("");
-    void refresh?.();
+    void refreshProfile?.();
   };
 
   if (loading || busy) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;

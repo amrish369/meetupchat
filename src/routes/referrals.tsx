@@ -14,7 +14,7 @@ export const Route = createFileRoute("/referrals")({
 });
 
 function ReferralsPage() {
-  const { user, profile, loading, refresh } = useAuth();
+  const { user, profile, loading, refreshProfile } = useAuth();
   const nav = useNavigate();
   const [code, setCode] = useState("");
   const [referrals, setReferrals] = useState<Array<{ referred_id: string; reward_coins: number; created_at: string }>>([]);
@@ -49,7 +49,7 @@ function ReferralsPage() {
     if (error) { toast.error(error.message); return; }
     toast.success(`+${(data as any)?.coins_awarded ?? 50} coins!`);
     setRedeemCode("");
-    void refresh?.();
+    void refreshProfile?.();
   };
 
   if (loading || busy) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;

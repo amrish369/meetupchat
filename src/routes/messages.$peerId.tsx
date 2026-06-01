@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { cleanText } from "@/lib/profanity";
+import { filterMessage } from "@/lib/profanity";
 
 export const Route = createFileRoute("/messages/$peerId")({
   head: () => ({ meta: [{ title: "Chat — Meetup Live" }] }),
@@ -69,9 +69,10 @@ function DMPage() {
 
   const send = async () => {
     if (!user || !text.trim()) return;
-    const clean = cleanText(text.trim()).slice(0, 1000);
+    const f = filterMessage(text.trim());
+    if (!f.ok) { toast.error(f.reason ?? "Message blocked"); return; }
     setText("");
-    const { error } = await supabase.from("friend_messages").insert({ sender_id: user.id, receiver_id: peerId, text: clean });
+    const { error } = await supabase.from("friend_messages").insert({ sender_id: user.id, receiver_id: peerId, text: f.clean.slice(0, 1000) });
     if (error) toast.error(error.message);
   };
 
