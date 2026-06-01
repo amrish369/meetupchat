@@ -21,6 +21,7 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -92,6 +93,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
+  '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
+  '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
+  '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/coturn-setup'
     | '/friends'
+    | '/history'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/coturn-setup'
     | '/friends'
+    | '/history'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/coturn-setup'
     | '/friends'
+    | '/history'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FriendsRoute: typeof FriendsRoute
+  HistoryRoute: typeof HistoryRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FriendsRoute: FriendsRoute,
+  HistoryRoute: HistoryRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRouteWithChildren,

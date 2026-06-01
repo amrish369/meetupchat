@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Coins, Crown, Flame, Loader2, Trophy } from "lucide-react";
+import { ArrowLeft, Coins, Crown, Flame, Loader2, Trophy, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -24,15 +26,21 @@ interface Row {
 }
 
 function LeaderboardPage() {
+  const { profile } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scope, setScope] = useState<"global" | "country">("global");
 
   useEffect(() => {
-    void supabase.rpc("global_leaderboard").then(({ data }) => {
+    setLoading(true);
+    const promise = scope === "global"
+      ? supabase.rpc("global_leaderboard")
+      : supabase.rpc("country_leaderboard", { p_country: (profile as any)?.country || (profile as any)?.region || "Unknown" });
+    void promise.then(({ data }) => {
       setRows((data as Row[]) ?? []);
       setLoading(false);
     });
-  }, []);
+  }, [scope, (profile as any)?.country, (profile as any)?.region]);
 
   if (loading) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
@@ -52,6 +60,16 @@ function LeaderboardPage() {
           <p className="mt-1 text-muted-foreground">Top contributors on Meetup Live</p>
         </div>
 
+        <div className="mt-6 flex gap-2 justify-center">
+          <Button size="sm" variant={scope === "global" ? "default" : "outline"} onClick={() => setScope("global")}>
+            <Trophy className="h-4 w-4 mr-1" /> Global
+          </Button>
+          <Button size="sm" variant={scope === "country" ? "default" : "outline"} onClick={() => setScope("country")}>
+            <Globe className="h-4 w-4 mr-1" /> My Country
+          </Button>
+        </div>
+
+        {loading ? <div className="grid place-items-center py-12"><Loader2 className="animate-spin text-muted-foreground" /></div> : <>
         {/* Podium */}
         {top3.length > 0 && (
           <div className="mt-10 grid grid-cols-3 gap-3 items-end">
