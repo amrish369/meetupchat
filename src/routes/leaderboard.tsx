@@ -42,7 +42,7 @@ function LeaderboardPage() {
     });
   }, [scope, (profile as any)?.country, (profile as any)?.region]);
 
-  if (loading) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;
+  
 
   const top3 = rows.slice(0, 3);
   const rest = rows.slice(3);
@@ -114,6 +114,7 @@ function LeaderboardPage() {
           ))}
           {rows.length === 0 && <p className="p-8 text-center text-muted-foreground">No users on the board yet — be the first!</p>}
         </div>
+        </>}
       </div>
     </div>
   );
