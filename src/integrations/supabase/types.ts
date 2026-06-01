@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          description: string
+          icon: string
+          name: string
+          reward_coins: number
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          description: string
+          icon: string
+          name: string
+          reward_coins?: number
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          description?: string
+          icon?: string
+          name?: string
+          reward_coins?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       admin_logs: {
         Row: {
           action: string
@@ -146,6 +173,95 @@ export type Database = {
           created_at?: string
           followee_id?: string
           follower_id?: string
+        }
+        Relationships: []
+      }
+      friend_messages: {
+        Row: {
+          created_at: string
+          id: string
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      gift_transactions: {
+        Row: {
+          coins_spent: number
+          created_at: string
+          gift_code: string
+          id: string
+          message: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          coins_spent: number
+          created_at?: string
+          gift_code: string
+          id?: string
+          message?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          coins_spent?: number
+          created_at?: string
+          gift_code?: string
+          id?: string
+          message?: string | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_transactions_gift_code_fkey"
+            columns: ["gift_code"]
+            isOneToOne: false
+            referencedRelation: "gifts"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      gifts: {
+        Row: {
+          code: string
+          emoji: string
+          name: string
+          price_coins: number
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          emoji: string
+          name: string
+          price_coins: number
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          emoji?: string
+          name?: string
+          price_coins?: number
+          sort_order?: number
         }
         Relationships: []
       }
@@ -290,6 +406,8 @@ export type Database = {
           last_checkin: string | null
           plan: string
           premium_until: string | null
+          referral_code: string | null
+          referred_by: string | null
           region: string | null
           streak_days: number
           trust_score: number
@@ -311,6 +429,8 @@ export type Database = {
           last_checkin?: string | null
           plan?: string
           premium_until?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           region?: string | null
           streak_days?: number
           trust_score?: number
@@ -332,12 +452,41 @@ export type Database = {
           last_checkin?: string | null
           plan?: string
           premium_until?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           region?: string | null
           streak_days?: number
           trust_score?: number
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+          reward_coins: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+          reward_coins?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_coins?: number
         }
         Relationships: []
       }
@@ -499,6 +648,32 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_code: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_code: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_code?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_code_fkey"
+            columns: ["achievement_code"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -602,6 +777,17 @@ export type Database = {
         Returns: undefined
       }
       admin_unban_user: { Args: { p_user: string }; Returns: undefined }
+      award_achievement: {
+        Args: { p_code: string; p_user: string }
+        Returns: boolean
+      }
+      check_achievements: {
+        Args: never
+        Returns: {
+          awarded: boolean
+          code: string
+        }[]
+      }
       claim_daily_checkin: {
         Args: never
         Returns: {
@@ -611,6 +797,18 @@ export type Database = {
         }[]
       }
       cleanup_stale_queue: { Args: never; Returns: undefined }
+      country_leaderboard: {
+        Args: { p_country: string }
+        Returns: {
+          avatar_url: string
+          coins: number
+          display_name: string
+          is_premium: boolean
+          streak_days: number
+          user_id: string
+          username: string
+        }[]
+      }
       end_match: {
         Args: { p_room_id: string; p_session_id: string }
         Returns: undefined
@@ -622,6 +820,18 @@ export type Database = {
           match_id: string
           peer_session: string
           room_id: string
+        }[]
+      }
+      friend_conversations: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          last_at: string
+          last_text: string
+          peer_id: string
+          unread: number
+          username: string
         }[]
       }
       global_leaderboard: {
@@ -668,6 +878,7 @@ export type Database = {
         Args: { p_profile_id: string }
         Returns: undefined
       }
+      redeem_referral: { Args: { p_code: string }; Returns: Json }
       request_match:
         | {
             Args: {
@@ -704,6 +915,10 @@ export type Database = {
               status: string
             }[]
           }
+      send_gift: {
+        Args: { p_gift_code: string; p_message?: string; p_receiver: string }
+        Returns: Json
+      }
       spin_wheel: {
         Args: never
         Returns: {

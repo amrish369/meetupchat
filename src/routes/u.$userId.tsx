@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Coins, Flame, Loader2, ShieldCheck, UserMinus, UserPlus, Ban } from "lucide-react";
+import { ArrowLeft, Coins, Flame, Loader2, ShieldCheck, UserMinus, UserPlus, Ban, MessageCircle, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/sonner";
@@ -107,13 +107,27 @@ function PublicProfilePage() {
           </div>
 
           {!isSelf && (
-            <div className="mt-5 flex gap-2">
-              <Button onClick={toggleFollow} variant={following ? "outline" : "default"} className="flex-1">
-                {following ? <><UserMinus className="h-4 w-4 mr-2" /> Unfollow</> : <><UserPlus className="h-4 w-4 mr-2" /> Follow</>}
-              </Button>
-              <Button onClick={toggleBlock} variant={blocked ? "outline" : "secondary"}>
-                <Ban className="h-4 w-4 mr-2" /> {blocked ? "Unblock" : "Block"}
-              </Button>
+            <div className="mt-5 space-y-2">
+              <div className="flex gap-2">
+                <Button onClick={toggleFollow} variant={following ? "outline" : "default"} className="flex-1">
+                  {following ? <><UserMinus className="h-4 w-4 mr-2" /> Unfollow</> : <><UserPlus className="h-4 w-4 mr-2" /> Follow</>}
+                </Button>
+                <Button onClick={toggleBlock} variant={blocked ? "outline" : "secondary"}>
+                  <Ban className="h-4 w-4 mr-2" /> {blocked ? "Unblock" : "Block"}
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button asChild variant="hero" className="flex-1">
+                  <Link to="/messages/$peerId" params={{ peerId: p.user_id }}>
+                    <MessageCircle className="h-4 w-4 mr-2" /> Message
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/shop" search={{ to: p.user_id } as never}>
+                    <Gift className="h-4 w-4 mr-2" /> Gift
+                  </Link>
+                </Button>
+              </div>
             </div>
           )}
         </div>
