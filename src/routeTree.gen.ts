@@ -9,23 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
+import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
 
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SafetyRoute = SafetyRouteImport.update({
   id: '/safety',
   path: '/safety',
@@ -41,6 +57,11 @@ const RewardsRoute = RewardsRouteImport.update({
   path: '/rewards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -54,6 +75,11 @@ const PricingRoute = PricingRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -86,6 +112,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -106,40 +137,57 @@ const RoomsSlugRoute = RoomsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => RoomsRoute,
 } as any)
+const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
+  id: '/$peerId',
+  path: '/$peerId',
+  getParentRoute: () => MessagesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/shop': typeof ShopRoute
+  '/support': typeof SupportRoute
+  '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/shop': typeof ShopRoute
+  '/support': typeof SupportRoute
+  '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
 }
@@ -147,18 +195,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
+  '/shop': typeof ShopRoute
+  '/support': typeof SupportRoute
+  '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
 }
@@ -167,54 +221,72 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/achievements'
     | '/admin'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
     | '/leaderboard'
     | '/login'
+    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/referrals'
     | '/rewards'
     | '/rooms'
     | '/safety'
+    | '/shop'
+    | '/support'
+    | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/achievements'
     | '/admin'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
     | '/leaderboard'
     | '/login'
+    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/referrals'
     | '/rewards'
     | '/rooms'
     | '/safety'
+    | '/shop'
+    | '/support'
+    | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/achievements'
     | '/admin'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
     | '/leaderboard'
     | '/login'
+    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
+    | '/referrals'
     | '/rewards'
     | '/rooms'
     | '/safety'
+    | '/shop'
+    | '/support'
+    | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
   fileRoutesById: FileRoutesById
@@ -222,23 +294,42 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FriendsRoute: typeof FriendsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
+  ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
   RoomsRoute: typeof RoomsRouteWithChildren
   SafetyRoute: typeof SafetyRoute
+  ShopRoute: typeof ShopRoute
+  SupportRoute: typeof SupportRoute
   UUserIdRoute: typeof UUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/safety': {
       id: '/safety'
       path: '/safety'
@@ -260,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RewardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -279,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -323,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -351,8 +463,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoomsSlugRouteImport
       parentRoute: typeof RoomsRoute
     }
+    '/messages/$peerId': {
+      id: '/messages/$peerId'
+      path: '/$peerId'
+      fullPath: '/messages/$peerId'
+      preLoaderRoute: typeof MessagesPeerIdRouteImport
+      parentRoute: typeof MessagesRoute
+    }
   }
 }
+
+interface MessagesRouteChildren {
+  MessagesPeerIdRoute: typeof MessagesPeerIdRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesPeerIdRoute: MessagesPeerIdRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
 
 interface RoomsRouteChildren {
   RoomsSlugRoute: typeof RoomsSlugRoute
@@ -367,18 +498,23 @@ const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FriendsRoute: FriendsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
+  ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
   RoomsRoute: RoomsRouteWithChildren,
   SafetyRoute: SafetyRoute,
+  ShopRoute: ShopRoute,
+  SupportRoute: SupportRoute,
   UUserIdRoute: UUserIdRoute,
 }
 export const routeTree = rootRouteImport
