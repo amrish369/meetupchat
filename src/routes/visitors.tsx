@@ -1,21 +1,22 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, History as HistoryIcon, Loader2, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Eye, Loader2, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { downloadCSV } from "@/lib/csv";
 
-export const Route = createFileRoute("/history")({
-  head: () => ({ meta: [{ title: "Activity History — Meetup Live" }] }),
-  component: HistoryPage,
+export const Route = createFileRoute("/visitors")({
+  head: () => ({ meta: [{ title: "Profile Visitors — Meetup Live" }] }),
+  component: VisitorsPage,
 });
 
-interface Row { id: string; delta: number; reason: string; created_at: string }
+interface Row { id: string; visitor_id: string; display_name: string | null; username: string | null; avatar_url: string | null; visited_at: string }
 const PAGE = 25;
 
-function HistoryPage() {
+function VisitorsPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
@@ -27,7 +28,7 @@ function HistoryPage() {
 
   const load = useCallback(async (p: number) => {
     setBusy(true);
-    const { data } = await supabase.rpc("my_activity", { p_limit: PAGE + 1, p_offset: p * PAGE });
+    const { data } = await supabase.rpc("my_visitors", { p_limit: PAGE + 1, p_offset: p * PAGE });
     const arr = (data as Row[]) ?? [];
     setHasMore(arr.length > PAGE);
     setRows(arr.slice(0, PAGE));
@@ -39,12 +40,12 @@ function HistoryPage() {
   const exportAll = async () => {
     const all: Row[] = [];
     for (let p = 0; p < 200; p++) {
-      const { data } = await supabase.rpc("my_activity", { p_limit: 500, p_offset: p * 500 });
+      const { data } = await supabase.rpc("my_visitors", { p_limit: 500, p_offset: p * 500 });
       const arr = (data as Row[]) ?? [];
       all.push(...arr);
       if (arr.length < 500) break;
     }
-    downloadCSV(`activity-${Date.now()}.csv`, all as any, ["created_at", "delta", "reason", "id"]);
+    downloadCSV(`visitors-${Date.now()}.csv`, all as any, ["visited_at", "display_name", "username", "visitor_id"]);
   };
 
   if (loading || (busy && rows.length === 0)) {
@@ -58,24 +59,25 @@ function HistoryPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
         <div className="mt-4 flex items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold flex items-center gap-2"><HistoryIcon className="text-teal" /> Activity</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2"><Eye className="text-teal" /> Profile Visitors</h1>
           <Button variant="outline" size="sm" onClick={exportAll}><Download className="h-4 w-4 mr-2" />Export CSV</Button>
         </div>
-        <p className="text-sm text-muted-foreground">Your coin transactions and rewards.</p>
+        <p className="text-sm text-muted-foreground">People who recently viewed your profile.</p>
 
         <div className="mt-6 space-y-2">
           {rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border p-8 text-center">No activity yet.</p>
-          ) : rows.map((a) => (
-            <div key={a.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-3">
-              <div>
-                <p className="text-sm font-medium capitalize">{String(a.reason).replace(/_/g, ' ').replace(/:/g, ' · ')}</p>
-                <p className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</p>
+            <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border p-8 text-center">No visitors yet.</p>
+          ) : rows.map((v) => (
+            <Link key={v.id} to="/u/$userId" params={{ userId: v.visitor_id }} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={v.avatar_url ?? undefined} />
+                <AvatarFallback>{(v.display_name || v.username || "?").slice(0,1).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{v.display_name || v.username || "Anonymous"}</p>
+                <p className="text-xs text-muted-foreground">{new Date(v.visited_at).toLocaleString()}</p>
               </div>
-              <span className={`font-bold ${a.delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                {a.delta >= 0 ? '+' : ''}{a.delta}
-              </span>
-            </div>
+            </Link>
           ))}
         </div>
 

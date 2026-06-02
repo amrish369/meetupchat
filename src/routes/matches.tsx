@@ -1,23 +1,31 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, History as HistoryIcon, Loader2, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Video, Loader2, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getSessionId } from "@/lib/session";
 import { downloadCSV } from "@/lib/csv";
 
-export const Route = createFileRoute("/history")({
-  head: () => ({ meta: [{ title: "Activity History — Meetup Live" }] }),
-  component: HistoryPage,
+export const Route = createFileRoute("/matches")({
+  head: () => ({ meta: [{ title: "Match History — Meetup Live" }] }),
+  component: MatchesPage,
 });
 
-interface Row { id: string; delta: number; reason: string; created_at: string }
+interface Row { id: string; room_id: string; peer_session: string; started_at: string; ended_at: string | null; duration_sec: number }
 const PAGE = 25;
 
-function HistoryPage() {
+function fmtDur(s: number) {
+  if (!s) return "—";
+  const m = Math.floor(s / 60), r = s % 60;
+  return m > 0 ? `${m}m ${r}s` : `${r}s`;
+}
+
+function MatchesPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
+  const sid = getSessionId();
   const [rows, setRows] = useState<Row[]>([]);
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(true);
@@ -27,24 +35,24 @@ function HistoryPage() {
 
   const load = useCallback(async (p: number) => {
     setBusy(true);
-    const { data } = await supabase.rpc("my_activity", { p_limit: PAGE + 1, p_offset: p * PAGE });
+    const { data } = await supabase.rpc("my_match_history", { p_session_id: sid, p_limit: PAGE + 1, p_offset: p * PAGE });
     const arr = (data as Row[]) ?? [];
     setHasMore(arr.length > PAGE);
     setRows(arr.slice(0, PAGE));
     setBusy(false);
-  }, []);
+  }, [sid]);
 
   useEffect(() => { if (user) void load(page); }, [user?.id, page, load]);
 
   const exportAll = async () => {
     const all: Row[] = [];
     for (let p = 0; p < 200; p++) {
-      const { data } = await supabase.rpc("my_activity", { p_limit: 500, p_offset: p * 500 });
+      const { data } = await supabase.rpc("my_match_history", { p_session_id: sid, p_limit: 500, p_offset: p * 500 });
       const arr = (data as Row[]) ?? [];
       all.push(...arr);
       if (arr.length < 500) break;
     }
-    downloadCSV(`activity-${Date.now()}.csv`, all as any, ["created_at", "delta", "reason", "id"]);
+    downloadCSV(`match-history-${Date.now()}.csv`, all as any, ["started_at", "ended_at", "duration_sec", "peer_session", "room_id", "id"]);
   };
 
   if (loading || (busy && rows.length === 0)) {
@@ -58,23 +66,21 @@ function HistoryPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
         <div className="mt-4 flex items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold flex items-center gap-2"><HistoryIcon className="text-teal" /> Activity</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2"><Video className="text-teal" /> Match History</h1>
           <Button variant="outline" size="sm" onClick={exportAll}><Download className="h-4 w-4 mr-2" />Export CSV</Button>
         </div>
-        <p className="text-sm text-muted-foreground">Your coin transactions and rewards.</p>
+        <p className="text-sm text-muted-foreground">Your past video & chat matches on this device.</p>
 
         <div className="mt-6 space-y-2">
           {rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border p-8 text-center">No activity yet.</p>
-          ) : rows.map((a) => (
-            <div key={a.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-3">
-              <div>
-                <p className="text-sm font-medium capitalize">{String(a.reason).replace(/_/g, ' ').replace(/:/g, ' · ')}</p>
-                <p className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</p>
+            <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border p-8 text-center">No matches yet. Start a chat!</p>
+          ) : rows.map((m) => (
+            <div key={m.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Room {m.room_id.slice(0, 8)}…</p>
+                <p className="text-xs text-muted-foreground">{new Date(m.started_at).toLocaleString()}</p>
               </div>
-              <span className={`font-bold ${a.delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                {a.delta >= 0 ? '+' : ''}{a.delta}
-              </span>
+              <span className="text-sm font-semibold tabular-nums text-muted-foreground">{fmtDur(m.duration_sec)}</span>
             </div>
           ))}
         </div>
