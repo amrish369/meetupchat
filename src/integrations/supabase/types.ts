@@ -856,6 +856,37 @@ export type Database = {
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
       is_session_banned: { Args: { p_session_id: string }; Returns: boolean }
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
+      my_activity: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          created_at: string
+          delta: number
+          id: string
+          reason: string
+        }[]
+      }
+      my_match_history: {
+        Args: { p_limit?: number; p_offset?: number; p_session_id: string }
+        Returns: {
+          duration_sec: number
+          ended_at: string
+          id: string
+          peer_session: string
+          room_id: string
+          started_at: string
+        }[]
+      }
+      my_visitors: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          username: string
+          visited_at: string
+          visitor_id: string
+        }[]
+      }
       online_count: { Args: never; Returns: number }
       public_profile: {
         Args: { p_user_id: string }
