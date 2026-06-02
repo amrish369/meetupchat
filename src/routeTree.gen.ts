@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -19,6 +20,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -33,6 +35,11 @@ import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
 import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
 
+const VisitorsRoute = VisitorsRouteImport.update({
+  id: '/visitors',
+  path: '/visitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -81,6 +88,11 @@ const PremiumRoute = PremiumRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchesRoute = MatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -160,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
@@ -170,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
+  '/visitors': typeof VisitorsRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -185,6 +199,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
@@ -195,6 +210,7 @@ export interface FileRoutesByTo {
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
+  '/visitors': typeof VisitorsRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -211,6 +227,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/matches': typeof MatchesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
@@ -221,6 +238,7 @@ export interface FileRoutesById {
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
+  '/visitors': typeof VisitorsRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -238,6 +256,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/leaderboard'
     | '/login'
+    | '/matches'
     | '/messages'
     | '/premium'
     | '/pricing'
@@ -248,6 +267,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/shop'
     | '/support'
+    | '/visitors'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -263,6 +283,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/leaderboard'
     | '/login'
+    | '/matches'
     | '/messages'
     | '/premium'
     | '/pricing'
@@ -273,6 +294,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/shop'
     | '/support'
+    | '/visitors'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -288,6 +310,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/leaderboard'
     | '/login'
+    | '/matches'
     | '/messages'
     | '/premium'
     | '/pricing'
@@ -298,6 +321,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/shop'
     | '/support'
+    | '/visitors'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -314,6 +338,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
+  MatchesRoute: typeof MatchesRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
@@ -324,11 +349,19 @@ export interface RootRouteChildren {
   SafetyRoute: typeof SafetyRoute
   ShopRoute: typeof ShopRoute
   SupportRoute: typeof SupportRoute
+  VisitorsRoute: typeof VisitorsRoute
   UUserIdRoute: typeof UUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/visitors': {
+      id: '/visitors'
+      path: '/visitors'
+      fullPath: '/visitors'
+      preLoaderRoute: typeof VisitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/support': {
       id: '/support'
       path: '/support'
@@ -397,6 +430,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matches': {
+      id: '/matches'
+      path: '/matches'
+      fullPath: '/matches'
+      preLoaderRoute: typeof MatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -526,6 +566,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
+  MatchesRoute: MatchesRoute,
   MessagesRoute: MessagesRouteWithChildren,
   PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
@@ -536,6 +577,7 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyRoute: SafetyRoute,
   ShopRoute: ShopRoute,
   SupportRoute: SupportRoute,
+  VisitorsRoute: VisitorsRoute,
   UUserIdRoute: UUserIdRoute,
 }
 export const routeTree = rootRouteImport
