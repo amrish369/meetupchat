@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Eye, Loader2, UserMinus, Users } from "lucide-react";
+import { ArrowLeft, Eye, Loader2, MessageCircle, UserMinus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
@@ -106,12 +106,23 @@ function FriendsPage() {
 
           <TabsContent value="following" className="mt-4 space-y-2">
             {following.length === 0 ? <Empty icon={<Users />} text="You're not following anyone yet." /> :
-              following.map(p => <PersonRow key={p.user_id} p={p} action={<Button size="sm" variant="outline" onClick={() => unfollow(p.user_id)}><UserMinus className="h-4 w-4 mr-1" /> Unfollow</Button>} />)}
+              following.map(p => <PersonRow key={p.user_id} p={p} action={
+                <div className="flex gap-2">
+                  <Button asChild size="sm" variant="hero">
+                    <Link to="/messages/$peerId" params={{ peerId: p.user_id }} onClick={e => e.stopPropagation()}><MessageCircle className="h-4 w-4 mr-1" /> Message</Link>
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); e.stopPropagation(); void unfollow(p.user_id); }}><UserMinus className="h-4 w-4" /></Button>
+                </div>
+              } />)}
           </TabsContent>
 
           <TabsContent value="followers" className="mt-4 space-y-2">
             {followers.length === 0 ? <Empty icon={<Users />} text="No followers yet." /> :
-              followers.map(p => <PersonRow key={p.user_id} p={p} />)}
+              followers.map(p => <PersonRow key={p.user_id} p={p} action={
+                <Button asChild size="sm" variant="hero" onClick={e => e.stopPropagation()}>
+                  <Link to="/messages/$peerId" params={{ peerId: p.user_id }}><MessageCircle className="h-4 w-4 mr-1" /> Message</Link>
+                </Button>
+              } />)}
           </TabsContent>
 
           <TabsContent value="visitors" className="mt-4 space-y-2">

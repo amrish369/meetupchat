@@ -13,6 +13,7 @@ const nav = [
   { to: "/leaderboard", label: "Top" },
   { to: "/rewards", label: "Rewards" },
   { to: "/premium", label: "Premium" },
+  { to: "/support", label: "Support" },
 ] as const;
 
 export function SiteHeader() {
