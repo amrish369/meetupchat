@@ -879,42 +879,24 @@ export type Database = {
         Returns: undefined
       }
       redeem_referral: { Args: { p_code: string }; Returns: Json }
-      request_match:
-        | {
-            Args: {
-              p_filter_gender?: string
-              p_filter_region?: string
-              p_gender?: string
-              p_is_premium?: boolean
-              p_region?: string
-              p_session_id: string
-            }
-            Returns: {
-              is_caller: boolean
-              match_id: string
-              peer_session: string
-              room_id: string
-              status: string
-            }[]
-          }
-        | {
-            Args: {
-              p_filter_gender?: string
-              p_filter_region?: string
-              p_gender?: string
-              p_interests?: string[]
-              p_is_premium?: boolean
-              p_region?: string
-              p_session_id: string
-            }
-            Returns: {
-              is_caller: boolean
-              match_id: string
-              peer_session: string
-              room_id: string
-              status: string
-            }[]
-          }
+      request_match: {
+        Args: {
+          p_filter_gender?: string
+          p_filter_region?: string
+          p_gender?: string
+          p_interests?: string[]
+          p_is_premium?: boolean
+          p_region?: string
+          p_session_id: string
+        }
+        Returns: {
+          is_caller: boolean
+          match_id: string
+          peer_session: string
+          room_id: string
+          status: string
+        }[]
+      }
       send_gift: {
         Args: { p_gift_code: string; p_message?: string; p_receiver: string }
         Returns: Json
