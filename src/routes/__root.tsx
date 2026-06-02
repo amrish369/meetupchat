@@ -50,7 +50,7 @@ export const Route = createRootRoute({
       { name: "description", content: "Connect Safely offers anonymous, random video chats with enhanced privacy and safety features." },
       { property: "og:description", content: "Connect Safely offers anonymous, random video chats with enhanced privacy and safety features." },
       { name: "twitter:description", content: "Connect Safely offers anonymous, random video chats with enhanced privacy and safety features." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e10ad92c-7bfe-457b-a716-10bdb5c76eef/id-preview-f0946eda--8aefbe33-0e82-4b79-b045-00a70c1ae815.lovable.app-1776938161959.png" },
+      
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e10ad92c-7bfe-457b-a716-10bdb5c76eef/id-preview-f0946eda--8aefbe33-0e82-4b79-b045-00a70c1ae815.lovable.app-1776938161959.png" },
     ],
     links: [
