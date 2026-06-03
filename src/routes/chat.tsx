@@ -21,6 +21,9 @@ import {
   Shuffle,
   ChevronDown,
   ChevronUp,
+  Maximize2,
+  Minimize2,
+  SwitchCamera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
