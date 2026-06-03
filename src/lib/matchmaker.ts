@@ -556,6 +556,40 @@ export class Matchmaker {
     this.localStream?.getAudioTracks().forEach((t) => (t.enabled = on));
   }
 
+  private currentFacing: "user" | "environment" = "user";
+
+  /** Switch between front and back camera. Replaces the outgoing video
+   *  track in the active peer connection so the remote side sees the
+   *  new camera without a renegotiation. */
+  async switchCamera(): Promise<"user" | "environment"> {
+    if (!this.localStream) throw new Error("No local stream");
+    const next = this.currentFacing === "user" ? "environment" : "user";
+    let newStream: MediaStream;
+    try {
+      newStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: next } },
+        audio: false,
+      });
+    } catch {
+      throw new Error("Camera switch not supported on this device");
+    }
+    const newTrack = newStream.getVideoTracks()[0];
+    if (!newTrack) throw new Error("No video track from new camera");
+
+    const sender = this.pc?.getSenders().find((s) => s.track?.kind === "video");
+    if (sender) await sender.replaceTrack(newTrack);
+
+    const oldTrack = this.localStream.getVideoTracks()[0];
+    if (oldTrack) {
+      this.localStream.removeTrack(oldTrack);
+      oldTrack.stop();
+    }
+    this.localStream.addTrack(newTrack);
+    this.cb.onLocalStream(this.localStream);
+    this.currentFacing = next;
+    return next;
+  }
+
   private async handlePeerLeft() {
     await this.tearDownPeer();
     if (this.active) {

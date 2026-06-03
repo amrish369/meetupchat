@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Coins, Gift as GiftIcon, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Coins, Gift as GiftIcon, Loader2, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,15 +16,18 @@ export const Route = createFileRoute("/shop")({
 });
 
 interface Gift { code: string; name: string; emoji: string; price_coins: number; sort_order: number; }
+interface Recipient { user_id: string; display_name: string | null; username: string | null; avatar_url: string | null; relation: string; }
 
 function ShopPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const { to: preselectedTo } = Route.useSearch();
   const nav = useNavigate();
   const [gifts, setGifts] = useState<Gift[]>([]);
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [busy, setBusy] = useState(true);
   const [openGift, setOpenGift] = useState<Gift | null>(null);
-  const [recipient, setRecipient] = useState(preselectedTo ?? "");
+  const [recipientId, setRecipientId] = useState<string>(preselectedTo ?? "");
+  const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [received, setReceived] = useState<Array<any>>([]);
@@ -34,27 +37,40 @@ function ShopPage() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: g }, { data: r }] = await Promise.all([
+      const [{ data: g }, { data: r }, { data: rec }] = await Promise.all([
         supabase.from("gifts").select("*").order("sort_order"),
         supabase.from("gift_transactions").select("*").eq("receiver_id", user.id).order("created_at", { ascending: false }).limit(20),
+        supabase.rpc("gift_recipients"),
       ]);
       setGifts((g ?? []) as Gift[]);
       setReceived(r ?? []);
+      setRecipients((rec ?? []) as Recipient[]);
       setBusy(false);
     })();
   }, [user?.id]);
 
+  const filteredRecipients = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return recipients;
+    return recipients.filter(r =>
+      (r.display_name ?? "").toLowerCase().includes(q) ||
+      (r.username ?? "").toLowerCase().includes(q)
+    );
+  }, [recipients, search]);
+
+  const selectedRecipient = recipients.find(r => r.user_id === recipientId);
+
   const send = async () => {
-    if (!openGift || !recipient.trim()) return;
+    if (!openGift || !recipientId) return;
     setSending(true);
     const { error } = await supabase.rpc("send_gift", {
-      p_receiver: recipient.trim(),
+      p_receiver: recipientId,
       p_gift_code: openGift.code,
       p_message: message.trim() || undefined,
     });
     setSending(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(`${openGift.emoji} sent!`);
+    toast.success(`${openGift.emoji} sent to ${selectedRecipient?.display_name || "user"}!`);
     setOpenGift(null); setMessage("");
     void refreshProfile?.();
   };
@@ -105,7 +121,7 @@ function ShopPage() {
       </div>
 
       <Dialog open={!!openGift} onOpenChange={(o) => !o && setOpenGift(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span className="text-3xl">{openGift?.emoji}</span> Send {openGift?.name}
@@ -113,16 +129,46 @@ function ShopPage() {
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Recipient user ID</label>
-              <Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="User UUID" />
+              <label className="text-xs font-medium text-muted-foreground">Send to</label>
+              {recipients.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+                  <Users className="mx-auto h-6 w-6 opacity-60" />
+                  <p className="mt-1">Follow someone first to send them a gift.</p>
+                  <Button asChild size="sm" variant="outline" className="mt-2"><Link to="/leaderboard">Find people</Link></Button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative mt-1">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search followers / following..." className="pl-8" />
+                  </div>
+                  <div className="mt-2 max-h-56 overflow-y-auto space-y-1 rounded-xl border border-border p-1">
+                    {filteredRecipients.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-4">No matches.</p>
+                    ) : filteredRecipients.map(r => (
+                      <button key={r.user_id} onClick={() => setRecipientId(r.user_id)}
+                        className={`w-full flex items-center gap-2 rounded-lg p-2 text-left hover:bg-secondary transition ${recipientId === r.user_id ? 'bg-teal/15 ring-1 ring-teal' : ''}`}>
+                        <div className="h-8 w-8 rounded-full overflow-hidden bg-secondary grid place-items-center shrink-0">
+                          {r.avatar_url ? <img src={r.avatar_url} alt="" className="h-full w-full object-cover" /> : <span className="text-xs font-bold">{(r.display_name || "?")[0]}</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{r.display_name || r.username || "User"}</p>
+                          {r.username && <p className="text-[10px] text-muted-foreground truncate">@{r.username}</p>}
+                        </div>
+                        <span className="text-[10px] uppercase text-muted-foreground">{r.relation}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Message (optional)</label>
               <Input value={message} onChange={e => setMessage(e.target.value)} placeholder="From your secret admirer" maxLength={200} />
             </div>
             <p className="text-xs text-muted-foreground">Cost: <span className="font-bold text-amber-500">{openGift?.price_coins} coins</span> · Recipient receives 50%</p>
-            <Button onClick={send} disabled={sending || !recipient.trim()} className="w-full" variant="hero">
-              {sending ? <Loader2 className="animate-spin h-4 w-4" /> : `Send ${openGift?.emoji}`}
+            <Button onClick={send} disabled={sending || !recipientId} className="w-full" variant="hero">
+              {sending ? <Loader2 className="animate-spin h-4 w-4" /> : `Send ${openGift?.emoji}${selectedRecipient ? ` to ${selectedRecipient.display_name || selectedRecipient.username || "user"}` : ""}`}
             </Button>
           </div>
         </DialogContent>

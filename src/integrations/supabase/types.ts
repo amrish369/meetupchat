@@ -110,6 +110,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_threads: {
+        Row: {
+          accepted: boolean
+          accepted_at: string | null
+          created_at: string
+          declined: boolean
+          requester_id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          accepted?: boolean
+          accepted_at?: string | null
+          created_at?: string
+          declined?: boolean
+          requester_id: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          accepted?: boolean
+          accepted_at?: string | null
+          created_at?: string
+          declined?: boolean
+          requester_id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
       coins_ledger: {
         Row: {
           created_at: string
@@ -781,6 +811,20 @@ export type Database = {
         Args: { p_code: string; p_user: string }
         Returns: boolean
       }
+      can_send_friend_message: {
+        Args: { p_receiver: string; p_sender: string }
+        Returns: boolean
+      }
+      chat_thread_status: {
+        Args: { p_peer: string }
+        Returns: {
+          accepted: boolean
+          declined: boolean
+          remaining: number
+          requester_id: string
+          sent_count: number
+        }[]
+      }
       check_achievements: {
         Args: never
         Returns: {
@@ -831,6 +875,16 @@ export type Database = {
           last_text: string
           peer_id: string
           unread: number
+          username: string
+        }[]
+      }
+      gift_recipients: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          relation: string
+          user_id: string
           username: string
         }[]
       }
@@ -927,6 +981,10 @@ export type Database = {
           room_id: string
           status: string
         }[]
+      }
+      respond_chat_request: {
+        Args: { p_accept: boolean; p_peer: string }
+        Returns: undefined
       }
       send_gift: {
         Args: { p_gift_code: string; p_message?: string; p_receiver: string }
