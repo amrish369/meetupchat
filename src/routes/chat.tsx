@@ -248,6 +248,41 @@ function ChatRoom() {
     });
   };
 
+  const remoteWrapRef = useRef<HTMLDivElement>(null);
+  const localWrapRef = useRef<HTMLDivElement>(null);
+  const [fsTarget, setFsTarget] = useState<null | "local" | "remote">(null);
+
+  const toggleFullscreen = async (which: "local" | "remote") => {
+    const el = which === "local" ? localWrapRef.current : remoteWrapRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        setFsTarget(null);
+      } else {
+        await el.requestFullscreen();
+        setFsTarget(which);
+      }
+    } catch {
+      toast.error("Fullscreen not supported");
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => { if (!document.fullscreenElement) setFsTarget(null); };
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  const switchCamera = async () => {
+    try {
+      const facing = await matcherRef.current?.switchCamera();
+      if (facing) toast.success(facing === "user" ? "Front camera" : "Back camera");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   const currentPhase = phases[phases.length - 1];
   const relayActive = useMemo(() => phases.some((p) => p.phase === "relay"), [phases]);
   const startedAt = phases[0]?.at;
