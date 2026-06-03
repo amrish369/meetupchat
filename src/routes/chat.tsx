@@ -350,18 +350,33 @@ function ChatRoom() {
 
       <main className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <section className="relative flex-1 min-h-0 bg-black">
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className="h-full w-full object-cover"
-          />
+          <div ref={remoteWrapRef} className="relative h-full w-full bg-black" onDoubleClick={() => status === "connected" && toggleFullscreen("remote")}>
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              className="h-full w-full object-cover cursor-pointer"
+            />
+            {status === "connected" && (
+              <button
+                onClick={() => toggleFullscreen("remote")}
+                aria-label="Toggle fullscreen for stranger's video"
+                className="absolute right-3 bottom-24 sm:bottom-3 grid h-10 w-10 place-items-center rounded-full bg-deep/70 text-cream backdrop-blur hover:bg-deep/90"
+              >
+                {fsTarget === "remote" ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            )}
+          </div>
+
           {(status === "idle" || status === "searching" || status === "requesting-media") && (
             <Overlay status={status} statusInfo={statusInfo} onStart={start} />
           )}
 
           {status !== "idle" && (
-            <div className="pointer-events-none absolute right-3 top-3 aspect-[3/4] w-28 overflow-hidden rounded-xl border-2 border-cream/20 bg-deep shadow-elev sm:w-36">
+            <div
+              ref={localWrapRef}
+              className="absolute right-3 top-3 aspect-[3/4] w-28 overflow-hidden rounded-xl border-2 border-cream/20 bg-deep shadow-elev sm:w-36"
+            >
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -374,6 +389,22 @@ function ChatRoom() {
                   <VideoOff className="h-6 w-6 text-cream/60" />
                 </div>
               )}
+              <div className="absolute inset-x-1 bottom-1 flex justify-between gap-1">
+                <button
+                  onClick={(e) => { e.stopPropagation(); void switchCamera(); }}
+                  aria-label="Switch camera"
+                  className="grid h-7 w-7 place-items-center rounded-full bg-deep/80 text-cream backdrop-blur hover:bg-deep"
+                >
+                  <SwitchCamera className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); void toggleFullscreen("local"); }}
+                  aria-label="Fullscreen own camera"
+                  className="grid h-7 w-7 place-items-center rounded-full bg-deep/80 text-cream backdrop-blur hover:bg-deep"
+                >
+                  {fsTarget === "local" ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -391,12 +422,15 @@ function ChatRoom() {
           )}
 
           {status !== "idle" && (
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent p-4 sm:gap-3">
+            <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent p-4 sm:gap-3">
               <ControlBtn label={muted ? "Unmute" : "Mute"} onClick={toggleMic} active={!muted}>
                 {muted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </ControlBtn>
               <ControlBtn label={camOff ? "Camera on" : "Camera off"} onClick={toggleCam} active={!camOff}>
                 {camOff ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
+              </ControlBtn>
+              <ControlBtn label="Switch camera" onClick={switchCamera}>
+                <SwitchCamera className="h-5 w-5" />
               </ControlBtn>
               <button
                 onClick={skip}
@@ -404,6 +438,9 @@ function ChatRoom() {
               >
                 <SkipForward className="h-5 w-5" /> Next
               </button>
+              <ControlBtn label="Fullscreen" onClick={() => toggleFullscreen("remote")}>
+                {fsTarget === "remote" ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </ControlBtn>
               <ControlBtn
                 label="Report"
                 onClick={() => setReportOpen(true)}
@@ -417,6 +454,7 @@ function ChatRoom() {
             </div>
           )}
         </section>
+
 
         <aside className="flex h-72 flex-col border-t border-cream/10 bg-deep/95 lg:h-auto lg:w-96 lg:border-l lg:border-t-0">
           <div className="flex items-center justify-between border-b border-cream/10 px-4 py-3">
