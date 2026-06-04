@@ -274,10 +274,14 @@ function ChatRoom() {
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
+  const [facing, setFacing] = useState<"user" | "environment">("user");
   const switchCamera = async () => {
     try {
-      const facing = await matcherRef.current?.switchCamera();
-      if (facing) toast.success(facing === "user" ? "Front camera" : "Back camera");
+      const next = await matcherRef.current?.switchCamera();
+      if (next) {
+        setFacing(next);
+        toast.success(next === "user" ? "Front camera" : "Back camera");
+      }
     } catch (e) {
       toast.error((e as Error).message);
     }
