@@ -387,6 +387,7 @@ function ChatRoom() {
                 playsInline
                 muted
                 className="h-full w-full object-cover"
+                style={{ transform: facing === "user" ? "scaleX(-1)" : undefined }}
               />
               {camOff && (
                 <div className="absolute inset-0 grid place-items-center bg-deep/90">
