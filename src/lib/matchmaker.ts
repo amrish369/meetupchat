@@ -564,30 +564,64 @@ export class Matchmaker {
   async switchCamera(): Promise<"user" | "environment"> {
     if (!this.localStream) throw new Error("No local stream");
     const next = this.currentFacing === "user" ? "environment" : "user";
-    let newStream: MediaStream;
-    try {
-      newStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: next } },
-        audio: false,
-      });
-    } catch {
-      throw new Error("Camera switch not supported on this device");
+
+    // Stop old video track first — many mobile devices (esp. iOS Safari) cannot
+    // hold two camera streams open at once, so getUserMedia for the other
+    // camera fails with NotReadableError unless the current one is freed.
+    const oldTrack = this.localStream.getVideoTracks()[0];
+    const oldDeviceId = oldTrack?.getSettings?.().deviceId;
+    if (oldTrack) {
+      this.localStream.removeTrack(oldTrack);
+      try { oldTrack.stop(); } catch { /* */ }
     }
+
+    const tryGet = (c: MediaStreamConstraints) => navigator.mediaDevices.getUserMedia(c);
+
+    let newStream: MediaStream | null = null;
+    try { newStream = await tryGet({ video: { facingMode: { exact: next } }, audio: false }); } catch { /* */ }
+    if (!newStream) {
+      try { newStream = await tryGet({ video: { facingMode: { ideal: next } }, audio: false }); } catch { /* */ }
+    }
+    if (!newStream) {
+      try {
+        const devs = await navigator.mediaDevices.enumerateDevices();
+        const cams = devs.filter((d) => d.kind === "videoinput");
+        if (cams.length > 1) {
+          const other = cams.find((c) => c.deviceId && c.deviceId !== oldDeviceId) ?? cams[1];
+          newStream = await tryGet({ video: { deviceId: { exact: other.deviceId } }, audio: false });
+        }
+      } catch { /* */ }
+    }
+
+    if (!newStream) {
+      // Restore original camera so preview doesn't go black.
+      try {
+        const restore = await tryGet({ video: { facingMode: { ideal: this.currentFacing } }, audio: false });
+        const t = restore.getVideoTracks()[0];
+        if (t) {
+          this.localStream.addTrack(t);
+          const s = this.pc?.getSenders().find((x) => x.track?.kind === "video");
+          if (s) await s.replaceTrack(t);
+          this.cb.onLocalStream(this.localStream);
+        }
+      } catch { /* */ }
+      throw new Error("Only one camera available on this device");
+    }
+
     const newTrack = newStream.getVideoTracks()[0];
     if (!newTrack) throw new Error("No video track from new camera");
 
     const sender = this.pc?.getSenders().find((s) => s.track?.kind === "video");
     if (sender) await sender.replaceTrack(newTrack);
 
-    const oldTrack = this.localStream.getVideoTracks()[0];
-    if (oldTrack) {
-      this.localStream.removeTrack(oldTrack);
-      oldTrack.stop();
-    }
     this.localStream.addTrack(newTrack);
     this.cb.onLocalStream(this.localStream);
     this.currentFacing = next;
     return next;
+  }
+
+  getFacing(): "user" | "environment" {
+    return this.currentFacing;
   }
 
   private async handlePeerLeft() {
