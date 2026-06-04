@@ -144,7 +144,7 @@ function FriendsPage() {
 function PersonRow({ p, action, subtitle }: { p: MiniProfile; action?: React.ReactNode; subtitle?: string }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-teal-500/50 transition">
-      <Link to="/u/$userId" params={{ userId: p.user_id }} className="flex items-center gap-3 flex-1 min-w-0">
+      <Link to="/messages/$peerId" params={{ peerId: p.user_id }} className="flex items-center gap-3 flex-1 min-w-0">
         <div className="h-11 w-11 rounded-full overflow-hidden bg-secondary grid place-items-center shrink-0">
           {p.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-5 w-5 text-muted-foreground" />}
         </div>
