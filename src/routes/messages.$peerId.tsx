@@ -18,6 +18,17 @@ interface Msg { id: string; sender_id: string; receiver_id: string; text: string
 interface Peer { user_id: string; display_name: string | null; username: string | null; avatar_url: string | null; }
 interface ThreadStatus { accepted: boolean; declined: boolean; requester_id: string | null; sent_count: number; remaining: number; }
 
+const QUICK_REPLIES = [
+  "Hi 👋",
+  "Hello, kaise ho?",
+  "Nice profile! 😊",
+  "Kahan se ho?",
+  "Free ho abhi?",
+  "Baat karein?",
+  "Coffee? ☕",
+  "Tell me about yourself",
+];
+
 function DMPage() {
   const { peerId } = Route.useParams();
   const { user, loading } = useAuth();
@@ -95,6 +106,18 @@ function DMPage() {
     else void loadStatus();
   };
 
+  const sendTemplate = async (template: string) => {
+    if (!user || !canSend) {
+      toast.error(thread?.declined ? "Chat request was declined" : "Wait for them to accept your request");
+      return;
+    }
+    const f = filterMessage(template);
+    if (!f.ok) { toast.error(f.reason ?? "Message blocked"); return; }
+    const { error } = await supabase.from("friend_messages").insert({ sender_id: user.id, receiver_id: peerId, text: f.clean.slice(0, 1000) });
+    if (error) toast.error(error.message);
+    else void loadStatus();
+  };
+
   const respond = async (accept: boolean) => {
     const { error } = await supabase.rpc("respond_chat_request", { p_peer: peerId, p_accept: accept });
     if (error) { toast.error(error.message); return; }
@@ -153,7 +176,24 @@ function DMPage() {
       )}
 
       <div className="flex-1 mx-auto max-w-2xl w-full px-4 py-4 space-y-2 overflow-y-auto">
-        {msgs.length === 0 && <p className="text-center text-sm text-muted-foreground py-12">Say hi 👋</p>}
+        {msgs.length === 0 && (
+          <div className="py-10 text-center space-y-4">
+            <p className="text-sm text-muted-foreground">Say hi 👋 — pick a quick starter:</p>
+            <div className="flex flex-wrap justify-center gap-2 px-2">
+              {QUICK_REPLIES.map(q => (
+                <button
+                  key={q}
+                  type="button"
+                  disabled={!canSend}
+                  onClick={() => sendTemplate(q)}
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-teal-500/50 hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {msgs.map(m => {
           const mine = m.sender_id === user!.id;
           return (
