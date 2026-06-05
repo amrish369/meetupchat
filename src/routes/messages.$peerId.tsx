@@ -18,6 +18,17 @@ interface Msg { id: string; sender_id: string; receiver_id: string; text: string
 interface Peer { user_id: string; display_name: string | null; username: string | null; avatar_url: string | null; }
 interface ThreadStatus { accepted: boolean; declined: boolean; requester_id: string | null; sent_count: number; remaining: number; }
 
+const QUICK_REPLIES = [
+  "Hi 👋",
+  "Hello, kaise ho?",
+  "Nice profile! 😊",
+  "Kahan se ho?",
+  "Free ho abhi?",
+  "Baat karein?",
+  "Coffee? ☕",
+  "Tell me about yourself",
+];
+
 function DMPage() {
   const { peerId } = Route.useParams();
   const { user, loading } = useAuth();
