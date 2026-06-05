@@ -95,6 +95,18 @@ function DMPage() {
     else void loadStatus();
   };
 
+  const sendTemplate = async (template: string) => {
+    if (!user || !canSend) {
+      toast.error(thread?.declined ? "Chat request was declined" : "Wait for them to accept your request");
+      return;
+    }
+    const f = filterMessage(template);
+    if (!f.ok) { toast.error(f.reason ?? "Message blocked"); return; }
+    const { error } = await supabase.from("friend_messages").insert({ sender_id: user.id, receiver_id: peerId, text: f.clean.slice(0, 1000) });
+    if (error) toast.error(error.message);
+    else void loadStatus();
+  };
+
   const respond = async (accept: boolean) => {
     const { error } = await supabase.rpc("respond_chat_request", { p_peer: peerId, p_accept: accept });
     if (error) { toast.error(error.message); return; }
