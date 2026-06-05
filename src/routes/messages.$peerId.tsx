@@ -153,7 +153,24 @@ function DMPage() {
       )}
 
       <div className="flex-1 mx-auto max-w-2xl w-full px-4 py-4 space-y-2 overflow-y-auto">
-        {msgs.length === 0 && <p className="text-center text-sm text-muted-foreground py-12">Say hi 👋</p>}
+        {msgs.length === 0 && (
+          <div className="py-10 text-center space-y-4">
+            <p className="text-sm text-muted-foreground">Say hi 👋 — pick a quick starter:</p>
+            <div className="flex flex-wrap justify-center gap-2 px-2">
+              {QUICK_REPLIES.map(q => (
+                <button
+                  key={q}
+                  type="button"
+                  disabled={!canSend}
+                  onClick={() => sendTemplate(q)}
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-teal-500/50 hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {msgs.map(m => {
           const mine = m.sender_id === user!.id;
           return (
