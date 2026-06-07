@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Loader2, ArrowLeft, Send, Gift, Check, X } from "lucide-react";
+import { Loader2, ArrowLeft, Send, Gift, Check, X, Phone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
@@ -141,6 +141,24 @@ function DMPage() {
               {peer.username && <p className="text-xs text-muted-foreground truncate">@{peer.username}</p>}
             </div>
           </Link>
+          <Button size="icon" variant="ghost" aria-label="Voice call"
+            onClick={async () => {
+              const { data, error } = await supabase.rpc("start_private_call", { p_callee: peerId, p_mode: "audio" });
+              if (error) { toast.error(error.message.includes("mutual") ? "Mutual follow required" : error.message); return; }
+              const row = Array.isArray(data) ? data[0] : data;
+              if (row?.id) nav({ to: "/calls/$callId", params: { callId: row.id } });
+            }}>
+            <Phone className="h-5 w-5" />
+          </Button>
+          <Button size="icon" variant="ghost" aria-label="Video call"
+            onClick={async () => {
+              const { data, error } = await supabase.rpc("start_private_call", { p_callee: peerId, p_mode: "video" });
+              if (error) { toast.error(error.message.includes("mutual") ? "Mutual follow required" : error.message); return; }
+              const row = Array.isArray(data) ? data[0] : data;
+              if (row?.id) nav({ to: "/calls/$callId", params: { callId: row.id } });
+            }}>
+            <Video className="h-5 w-5" />
+          </Button>
           {thread?.accepted && (
             <Link to="/shop" search={{ to: peer.user_id } as never}>
               <Button size="icon" variant="ghost"><Gift className="h-5 w-5" /></Button>

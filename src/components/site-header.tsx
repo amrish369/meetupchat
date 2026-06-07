@@ -9,6 +9,7 @@ const nav = [
   { to: "/chat", label: "Chat" },
   { to: "/rooms", label: "Rooms" },
   { to: "/messages", label: "Inbox" },
+  { to: "/calls", label: "Calls" },
   { to: "/shop", label: "Gifts" },
   { to: "/leaderboard", label: "Top" },
   { to: "/rewards", label: "Rewards" },

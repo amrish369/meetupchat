@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Coins, Flame, Loader2, ShieldCheck, UserMinus, UserPlus, Ban, MessageCircle, Gift } from "lucide-react";
+import { ArrowLeft, Coins, Flame, Loader2, ShieldCheck, UserMinus, UserPlus, Ban, MessageCircle, Gift, Phone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/sonner";
@@ -78,6 +78,14 @@ function PublicProfilePage() {
     }
   };
 
+  const startCall = async (mode: "video" | "audio") => {
+    if (!user || !p) return;
+    const { data, error } = await supabase.rpc("start_private_call", { p_callee: p.user_id, p_mode: mode });
+    if (error) { toast.error(error.message.includes("mutual") ? "You and this user need to follow each other." : error.message); return; }
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row?.id) nav({ to: "/calls/$callId", params: { callId: row.id } });
+  };
+
   if (loading || busy || !p) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
   const isSelf = user?.id === p.user_id;
@@ -126,6 +134,14 @@ function PublicProfilePage() {
                   <Link to="/shop" search={{ to: p.user_id } as never}>
                     <Gift className="h-4 w-4 mr-2" /> Gift
                   </Link>
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => startCall("audio")} variant="outline" className="flex-1">
+                  <Phone className="h-4 w-4 mr-2" /> Voice call
+                </Button>
+                <Button onClick={() => startCall("video")} variant="outline" className="flex-1">
+                  <Video className="h-4 w-4 mr-2" /> Video call
                 </Button>
               </div>
             </div>

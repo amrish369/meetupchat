@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth";
+import { IncomingCallModal } from "@/components/incoming-call-modal";
 
 import appCss from "../styles.css?url";
 
@@ -83,6 +84,7 @@ function RootComponent() {
   return (
     <AuthProvider>
       <Outlet />
+      <IncomingCallModal />
     </AuthProvider>
   );
 }

@@ -27,6 +27,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as CallsRouteImport } from './routes/calls'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AboutRouteImport } from './routes/about'
@@ -34,6 +35,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
 import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
+import { Route as CallsCallIdRouteImport } from './routes/calls.$callId'
 
 const VisitorsRoute = VisitorsRouteImport.update({
   id: '/visitors',
@@ -125,6 +127,11 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CallsRoute = CallsRouteImport.update({
+  id: '/calls',
+  path: '/calls',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -160,12 +167,18 @@ const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
   path: '/$peerId',
   getParentRoute: () => MessagesRoute,
 } as any)
+const CallsCallIdRoute = CallsCallIdRouteImport.update({
+  id: '/$callId',
+  path: '/$callId',
+  getParentRoute: () => CallsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -184,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
+  '/calls/$callId': typeof CallsCallIdRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -193,6 +207,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -211,6 +226,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
+  '/calls/$callId': typeof CallsCallIdRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -221,6 +237,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -239,6 +256,7 @@ export interface FileRoutesById {
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
+  '/calls/$callId': typeof CallsCallIdRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
@@ -250,6 +268,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -268,6 +287,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/support'
     | '/visitors'
+    | '/calls/$callId'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -277,6 +297,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -295,6 +316,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/support'
     | '/visitors'
+    | '/calls/$callId'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -304,6 +326,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -322,6 +345,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/support'
     | '/visitors'
+    | '/calls/$callId'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
@@ -332,6 +356,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
+  CallsRoute: typeof CallsRouteWithChildren
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FriendsRoute: typeof FriendsRoute
@@ -481,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calls': {
+      id: '/calls'
+      path: '/calls'
+      fullPath: '/calls'
+      preLoaderRoute: typeof CallsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -530,8 +562,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesPeerIdRouteImport
       parentRoute: typeof MessagesRoute
     }
+    '/calls/$callId': {
+      id: '/calls/$callId'
+      path: '/$callId'
+      fullPath: '/calls/$callId'
+      preLoaderRoute: typeof CallsCallIdRouteImport
+      parentRoute: typeof CallsRoute
+    }
   }
 }
+
+interface CallsRouteChildren {
+  CallsCallIdRoute: typeof CallsCallIdRoute
+}
+
+const CallsRouteChildren: CallsRouteChildren = {
+  CallsCallIdRoute: CallsCallIdRoute,
+}
+
+const CallsRouteWithChildren = CallsRoute._addFileChildren(CallsRouteChildren)
 
 interface MessagesRouteChildren {
   MessagesPeerIdRoute: typeof MessagesPeerIdRoute
@@ -560,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
+  CallsRoute: CallsRouteWithChildren,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FriendsRoute: FriendsRoute,
@@ -583,12 +633,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
