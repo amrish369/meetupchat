@@ -400,6 +400,42 @@ export type Database = {
         }
         Relationships: []
       }
+      private_calls: {
+        Row: {
+          answered_at: string | null
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          mode: string
+          room_id: string
+          status: string
+        }
+        Insert: {
+          answered_at?: string | null
+          callee_id: string
+          caller_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          mode: string
+          room_id: string
+          status?: string
+        }
+        Update: {
+          answered_at?: string | null
+          callee_id?: string
+          caller_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          mode?: string
+          room_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profile_visitors: {
         Row: {
           id: string
@@ -857,6 +893,7 @@ export type Database = {
         Args: { p_room_id: string; p_session_id: string }
         Returns: undefined
       }
+      end_private_call: { Args: { p_call_id: string }; Returns: undefined }
       find_active_match: {
         Args: { p_session_id: string }
         Returns: {
@@ -908,8 +945,18 @@ export type Database = {
         Returns: boolean
       }
       heartbeat_queue: { Args: { p_session_id: string }; Returns: undefined }
+      is_mutual_follow: { Args: { p_a: string; p_b: string }; Returns: boolean }
       is_session_banned: { Args: { p_session_id: string }; Returns: boolean }
       leave_queue: { Args: { p_session_id: string }; Returns: undefined }
+      mutual_followers: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
+          username: string
+        }[]
+      }
       my_activity: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -986,6 +1033,26 @@ export type Database = {
         Args: { p_accept: boolean; p_peer: string }
         Returns: undefined
       }
+      respond_private_call: {
+        Args: { p_accept: boolean; p_call_id: string }
+        Returns: {
+          answered_at: string | null
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          mode: string
+          room_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "private_calls"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       send_gift: {
         Args: { p_gift_code: string; p_message?: string; p_receiver: string }
         Returns: Json
@@ -997,6 +1064,26 @@ export type Database = {
           label: string
           prize: number
         }[]
+      }
+      start_private_call: {
+        Args: { p_callee: string; p_mode?: string }
+        Returns: {
+          answered_at: string | null
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          mode: string
+          room_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "private_calls"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
