@@ -39,10 +39,9 @@ export function IncomingCallModal() {
         { event: "UPDATE", schema: "public", table: "private_calls", filter: `callee_id=eq.${user.id}` },
         (payload) => {
           const next = payload.new as IncomingCall;
-          if (incoming && next.id === incoming.id && next.status !== "ringing") {
-            setIncoming(null);
-          }
+          setIncoming((cur) => (cur && next.id === cur.id && next.status !== "ringing" ? null : cur));
         })
+
       .subscribe();
 
     // Also check on mount if there's a pending ringing call
