@@ -7,11 +7,22 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { FriendsList } from "@/components/friends-list";
 
 export const Route = createFileRoute("/friends")({
-  head: () => ({ meta: [{ title: "Friends — Meetup Live" }] }),
+  head: () => ({
+    meta: [
+      { title: "Friends — private chat & calls | Meetup" },
+      { name: "description", content: "Mutual followers ke saath private messages, voice call aur video call — sab ek jagah." },
+      { property: "og:title", content: "Friends — private chat & calls | Meetup" },
+      { property: "og:description", content: "Mutual followers ke saath private messages, voice call aur video call." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: FriendsPage,
 });
+
 
 interface MiniProfile {
   user_id: string;
