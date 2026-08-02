@@ -106,16 +106,25 @@ function FriendsPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Your network</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Friends = jinhe aap follow karte hain aur wo bhi aapko. Unke saath private chat aur call unlock rehta hai.
+        </p>
 
-        <Tabs defaultValue="following" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="friends" className="mt-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="friends">Friends</TabsTrigger>
             <TabsTrigger value="following">Following ({following.length})</TabsTrigger>
             <TabsTrigger value="followers">Followers ({followers.length})</TabsTrigger>
             <TabsTrigger value="visitors">Visitors ({visitors.length})</TabsTrigger>
             <TabsTrigger value="blocked">Blocked ({blocked.length})</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="friends" className="mt-4">
+            <FriendsList />
+          </TabsContent>
+
           <TabsContent value="following" className="mt-4 space-y-2">
+
             {following.length === 0 ? <Empty icon={<Users />} text="You're not following anyone yet." /> :
               following.map(p => <PersonRow key={p.user_id} p={p} action={
                 <div className="flex gap-2">
