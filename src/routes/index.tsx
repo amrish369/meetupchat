@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/site-header";
+import { PrivateCta } from "@/components/private-cta";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -48,6 +49,7 @@ function HomePage() {
       <SiteHeader />
       <Hero />
       <SocialProof />
+      <PrivateCta />
       <FeatureGrid />
       <SafetySection />
       <ComparisonTable />

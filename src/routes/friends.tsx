@@ -7,11 +7,22 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { FriendsList } from "@/components/friends-list";
 
 export const Route = createFileRoute("/friends")({
-  head: () => ({ meta: [{ title: "Friends — Meetup Live" }] }),
+  head: () => ({
+    meta: [
+      { title: "Friends — private chat & calls | Meetup" },
+      { name: "description", content: "Mutual followers ke saath private messages, voice call aur video call — sab ek jagah." },
+      { property: "og:title", content: "Friends — private chat & calls | Meetup" },
+      { property: "og:description", content: "Mutual followers ke saath private messages, voice call aur video call." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: FriendsPage,
 });
+
 
 interface MiniProfile {
   user_id: string;
@@ -90,21 +101,30 @@ function FriendsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 py-8 pb-28 md:pb-8">
         <Link to="/profile" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Your network</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Friends = jinhe aap follow karte hain aur wo bhi aapko. Unke saath private chat aur call unlock rehta hai.
+        </p>
 
-        <Tabs defaultValue="following" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="friends" className="mt-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="friends">Friends</TabsTrigger>
             <TabsTrigger value="following">Following ({following.length})</TabsTrigger>
             <TabsTrigger value="followers">Followers ({followers.length})</TabsTrigger>
             <TabsTrigger value="visitors">Visitors ({visitors.length})</TabsTrigger>
             <TabsTrigger value="blocked">Blocked ({blocked.length})</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="friends" className="mt-4">
+            <FriendsList />
+          </TabsContent>
+
           <TabsContent value="following" className="mt-4 space-y-2">
+
             {following.length === 0 ? <Empty icon={<Users />} text="You're not following anyone yet." /> :
               following.map(p => <PersonRow key={p.user_id} p={p} action={
                 <div className="flex gap-2">

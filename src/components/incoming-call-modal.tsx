@@ -24,11 +24,18 @@ export function IncomingCallModal() {
     const handle = async (row: IncomingCall) => {
       if (row.callee_id !== user.id) return;
       if (row.status !== "ringing") return;
+      // Ignore stale rings (e.g. caller closed the tab); close them out.
+      const age = Date.now() - new Date((row as unknown as { created_at?: string }).created_at ?? Date.now()).getTime();
+      if (age > 60_000) {
+        await supabase.rpc("end_private_call", { p_call_id: row.id });
+        return;
+      }
       setIncoming(row);
       const { data } = await supabase.rpc("public_profile", { p_user_id: row.caller_id });
       const p = Array.isArray(data) ? data[0] : data;
       if (p) setCaller({ display_name: p.display_name, avatar_url: p.avatar_url, username: p.username });
     };
+
 
     const ch = supabase
       .channel(`incoming-pc:${user.id}`)
@@ -39,10 +46,9 @@ export function IncomingCallModal() {
         { event: "UPDATE", schema: "public", table: "private_calls", filter: `callee_id=eq.${user.id}` },
         (payload) => {
           const next = payload.new as IncomingCall;
-          if (incoming && next.id === incoming.id && next.status !== "ringing") {
-            setIncoming(null);
-          }
+          setIncoming((cur) => (cur && next.id === cur.id && next.status !== "ringing" ? null : cur));
         })
+
       .subscribe();
 
     // Also check on mount if there's a pending ringing call
@@ -55,6 +61,19 @@ export function IncomingCallModal() {
 
     return () => { void supabase.removeChannel(ch); };
   }, [user?.id]);
+
+  // Vibrate + auto-dismiss an unanswered ring after 45s (call becomes "missed").
+  useEffect(() => {
+    if (!incoming) return;
+    try { navigator.vibrate?.([400, 200, 400, 200, 400]); } catch { /* noop */ }
+    const t = setTimeout(() => {
+      void supabase.rpc("end_private_call", { p_call_id: incoming.id });
+      setIncoming(null);
+    }, 45_000);
+    return () => { clearTimeout(t); try { navigator.vibrate?.(0); } catch { /* noop */ } };
+  }, [incoming?.id]);
+
+
 
   const accept = async () => {
     if (!incoming) return;
