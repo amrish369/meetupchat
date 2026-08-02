@@ -38,6 +38,7 @@ function DMPage() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(true);
   const [thread, setThread] = useState<ThreadStatus | null>(null);
+  const [mutual, setMutual] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (!loading && !user) nav({ to: "/login" }); }, [user, loading, nav]);
@@ -65,6 +66,8 @@ function DMPage() {
       await supabase.from("friend_messages").update({ read_at: new Date().toISOString() })
         .eq("receiver_id", user.id).eq("sender_id", peerId).is("read_at", null);
       await loadStatus();
+      const { data: mut } = await supabase.rpc("is_mutual_follow", { p_a: user.id, p_b: peerId });
+      setMutual(!!mut);
       setBusy(false);
     })();
   }, [user?.id, peerId, nav, loadStatus]);
@@ -142,6 +145,8 @@ function DMPage() {
             </div>
           </Link>
           <Button size="icon" variant="ghost" aria-label="Voice call"
+            disabled={!mutual}
+            title={mutual ? "Voice call" : "Mutual follow zaroori hai"}
             onClick={async () => {
               const { data, error } = await supabase.rpc("start_private_call", { p_callee: peerId, p_mode: "audio" });
               if (error) { toast.error(error.message.includes("mutual") ? "Mutual follow required" : error.message); return; }
@@ -151,6 +156,8 @@ function DMPage() {
             <Phone className="h-5 w-5" />
           </Button>
           <Button size="icon" variant="ghost" aria-label="Video call"
+            disabled={!mutual}
+            title={mutual ? "Video call" : "Mutual follow zaroori hai"}
             onClick={async () => {
               const { data, error } = await supabase.rpc("start_private_call", { p_callee: peerId, p_mode: "video" });
               if (error) { toast.error(error.message.includes("mutual") ? "Mutual follow required" : error.message); return; }
@@ -184,6 +191,13 @@ function DMPage() {
             {thread!.remaining > 0
               ? `Awaiting accept · ${thread!.remaining} of 3 intro messages left`
               : "You've used all 3 intro messages. Wait for them to reply."}
+          </div>
+        </div>
+      )}
+      {!mutual && (
+        <div className="border-b bg-secondary/60">
+          <div className="mx-auto max-w-2xl px-4 py-2 text-center text-xs text-muted-foreground">
+            Voice/video call unlock hone ke liye dono ka ek dusre ko follow karna zaroori hai.
           </div>
         </div>
       )}
