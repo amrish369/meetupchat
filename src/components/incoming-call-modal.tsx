@@ -62,6 +62,19 @@ export function IncomingCallModal() {
     return () => { void supabase.removeChannel(ch); };
   }, [user?.id]);
 
+  // Vibrate + auto-dismiss an unanswered ring after 45s (call becomes "missed").
+  useEffect(() => {
+    if (!incoming) return;
+    try { navigator.vibrate?.([400, 200, 400, 200, 400]); } catch { /* noop */ }
+    const t = setTimeout(() => {
+      void supabase.rpc("end_private_call", { p_call_id: incoming.id });
+      setIncoming(null);
+    }, 45_000);
+    return () => { clearTimeout(t); try { navigator.vibrate?.(0); } catch { /* noop */ } };
+  }, [incoming?.id]);
+
+
+
   const accept = async () => {
     if (!incoming) return;
     setBusy(true);
