@@ -24,12 +24,14 @@ export function IncomingCallModal() {
     const handle = async (row: IncomingCall) => {
       if (row.callee_id !== user.id) return;
       if (row.status !== "ringing") return;
+      if (shownRef.current === row.id) return;
       // Ignore stale rings (e.g. caller closed the tab); close them out.
       const age = Date.now() - new Date((row as unknown as { created_at?: string }).created_at ?? Date.now()).getTime();
       if (age > 60_000) {
         await supabase.rpc("end_private_call", { p_call_id: row.id });
         return;
       }
+      shownRef.current = row.id;
       setIncoming(row);
       const { data } = await supabase.rpc("public_profile", { p_user_id: row.caller_id });
       const p = Array.isArray(data) ? data[0] : data;
