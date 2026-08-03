@@ -28,6 +28,7 @@ function CallScreen() {
   const [status, setStatus] = useState<CallStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string>("");
   const [waiting, setWaiting] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const localRef = useRef<HTMLVideoElement>(null);
