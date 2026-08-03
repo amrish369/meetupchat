@@ -38,7 +38,7 @@ export function MobileTabBar() {
 
   if (!user) return null;
   // Hide on immersive full-screen surfaces (live chat / active call).
-  if (pathname.startsWith("/calls/") || pathname.startsWith("/chat")) return null;
+  if (pathname.startsWith("/calls/") || pathname.startsWith("/chat") || pathname.startsWith("/messages/")) return null;
 
   return (
     <nav
