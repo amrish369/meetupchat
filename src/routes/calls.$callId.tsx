@@ -243,9 +243,22 @@ function CallScreen() {
           </div>
         )}
 
-        {(waiting || status === "requesting-media" || status === "connecting") && (
+        {!failed && (waiting || status === "requesting-media" || status === "connecting") && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-white/70" />
+          </div>
+        )}
+
+        {failed && status !== "connected" && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/80 px-8 text-center">
+            <p className="text-base font-semibold">Connection failed</p>
+            <p className="text-sm text-white/70">
+              Aapka network is call ko block kar raha hai. Wi-Fi par try karein ya dobara koshish karein.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => { setFailed(false); window.location.reload(); }}>Retry</Button>
+              <Button variant="destructive" onClick={hangup}>End</Button>
+            </div>
           </div>
         )}
       </div>
