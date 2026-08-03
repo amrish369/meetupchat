@@ -13,13 +13,11 @@ import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SafetyRouteImport } from './routes/safety'
-import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
-import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
@@ -27,11 +25,13 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
-import { Route as CallsRouteImport } from './routes/calls'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
+import { Route as CallsIndexRouteImport } from './routes/calls.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
 import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
@@ -57,11 +57,6 @@ const SafetyRoute = SafetyRouteImport.update({
   path: '/safety',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoomsRoute = RoomsRouteImport.update({
-  id: '/rooms',
-  path: '/rooms',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RewardsRoute = RewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
@@ -85,11 +80,6 @@ const PricingRoute = PricingRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesRoute = MessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchesRoute = MatchesRouteImport.update({
@@ -127,11 +117,6 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CallsRoute = CallsRouteImport.update({
-  id: '/calls',
-  path: '/calls',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -152,25 +137,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoomsIndexRoute = RoomsIndexRouteImport.update({
+  id: '/rooms/',
+  path: '/rooms/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallsIndexRoute = CallsIndexRouteImport.update({
+  id: '/calls/',
+  path: '/calls/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUserIdRoute = UUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoomsSlugRoute = RoomsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => RoomsRoute,
+  id: '/rooms/$slug',
+  path: '/rooms/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
-  id: '/$peerId',
-  path: '/$peerId',
-  getParentRoute: () => MessagesRoute,
+  id: '/messages/$peerId',
+  path: '/messages/$peerId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CallsCallIdRoute = CallsCallIdRouteImport.update({
-  id: '/$callId',
-  path: '/$callId',
-  getParentRoute: () => CallsRoute,
+  id: '/calls/$callId',
+  path: '/calls/$callId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -178,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
-  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -186,13 +185,11 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
@@ -201,13 +198,15 @@ export interface FileRoutesByFullPath {
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
+  '/calls/': typeof CallsIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/rooms/': typeof RoomsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
-  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -215,13 +214,11 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
@@ -230,6 +227,9 @@ export interface FileRoutesByTo {
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
+  '/calls': typeof CallsIndexRoute
+  '/messages': typeof MessagesIndexRoute
+  '/rooms': typeof RoomsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -237,7 +237,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
-  '/calls': typeof CallsRouteWithChildren
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/friends': typeof FriendsRoute
@@ -245,13 +244,11 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/messages': typeof MessagesRouteWithChildren
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
-  '/rooms': typeof RoomsRouteWithChildren
   '/safety': typeof SafetyRoute
   '/shop': typeof ShopRoute
   '/support': typeof SupportRoute
@@ -260,6 +257,9 @@ export interface FileRoutesById {
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
+  '/calls/': typeof CallsIndexRoute
+  '/messages/': typeof MessagesIndexRoute
+  '/rooms/': typeof RoomsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -268,7 +268,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
-    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -276,13 +275,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/matches'
-    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
     | '/referrals'
     | '/rewards'
-    | '/rooms'
     | '/safety'
     | '/shop'
     | '/support'
@@ -291,13 +288,15 @@ export interface FileRouteTypes {
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
+    | '/calls/'
+    | '/messages/'
+    | '/rooms/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/achievements'
     | '/admin'
-    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -305,13 +304,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/matches'
-    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
     | '/referrals'
     | '/rewards'
-    | '/rooms'
     | '/safety'
     | '/shop'
     | '/support'
@@ -320,13 +317,15 @@ export interface FileRouteTypes {
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
+    | '/calls'
+    | '/messages'
+    | '/rooms'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/achievements'
     | '/admin'
-    | '/calls'
     | '/chat'
     | '/coturn-setup'
     | '/friends'
@@ -334,13 +333,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/matches'
-    | '/messages'
     | '/premium'
     | '/pricing'
     | '/profile'
     | '/referrals'
     | '/rewards'
-    | '/rooms'
     | '/safety'
     | '/shop'
     | '/support'
@@ -349,6 +346,9 @@ export interface FileRouteTypes {
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
+    | '/calls/'
+    | '/messages/'
+    | '/rooms/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -356,7 +356,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
-  CallsRoute: typeof CallsRouteWithChildren
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FriendsRoute: typeof FriendsRoute
@@ -364,18 +363,22 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
-  MessagesRoute: typeof MessagesRouteWithChildren
   PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
   ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
-  RoomsRoute: typeof RoomsRouteWithChildren
   SafetyRoute: typeof SafetyRoute
   ShopRoute: typeof ShopRoute
   SupportRoute: typeof SupportRoute
   VisitorsRoute: typeof VisitorsRoute
+  CallsCallIdRoute: typeof CallsCallIdRoute
+  MessagesPeerIdRoute: typeof MessagesPeerIdRoute
+  RoomsSlugRoute: typeof RoomsSlugRoute
   UUserIdRoute: typeof UUserIdRoute
+  CallsIndexRoute: typeof CallsIndexRoute
+  MessagesIndexRoute: typeof MessagesIndexRoute
+  RoomsIndexRoute: typeof RoomsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -406,13 +409,6 @@ declare module '@tanstack/react-router' {
       path: '/safety'
       fullPath: '/safety'
       preLoaderRoute: typeof SafetyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rooms': {
-      id: '/rooms'
-      path: '/rooms'
-      fullPath: '/rooms'
-      preLoaderRoute: typeof RoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rewards': {
@@ -448,13 +444,6 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages': {
-      id: '/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matches': {
@@ -506,13 +495,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calls': {
-      id: '/calls'
-      path: '/calls'
-      fullPath: '/calls'
-      preLoaderRoute: typeof CallsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -541,6 +523,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rooms/': {
+      id: '/rooms/'
+      path: '/rooms'
+      fullPath: '/rooms/'
+      preLoaderRoute: typeof RoomsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calls/': {
+      id: '/calls/'
+      path: '/calls'
+      fullPath: '/calls/'
+      preLoaderRoute: typeof CallsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$userId': {
       id: '/u/$userId'
       path: '/u/$userId'
@@ -550,66 +553,33 @@ declare module '@tanstack/react-router' {
     }
     '/rooms/$slug': {
       id: '/rooms/$slug'
-      path: '/$slug'
+      path: '/rooms/$slug'
       fullPath: '/rooms/$slug'
       preLoaderRoute: typeof RoomsSlugRouteImport
-      parentRoute: typeof RoomsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/messages/$peerId': {
       id: '/messages/$peerId'
-      path: '/$peerId'
+      path: '/messages/$peerId'
       fullPath: '/messages/$peerId'
       preLoaderRoute: typeof MessagesPeerIdRouteImport
-      parentRoute: typeof MessagesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/calls/$callId': {
       id: '/calls/$callId'
-      path: '/$callId'
+      path: '/calls/$callId'
       fullPath: '/calls/$callId'
       preLoaderRoute: typeof CallsCallIdRouteImport
-      parentRoute: typeof CallsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface CallsRouteChildren {
-  CallsCallIdRoute: typeof CallsCallIdRoute
-}
-
-const CallsRouteChildren: CallsRouteChildren = {
-  CallsCallIdRoute: CallsCallIdRoute,
-}
-
-const CallsRouteWithChildren = CallsRoute._addFileChildren(CallsRouteChildren)
-
-interface MessagesRouteChildren {
-  MessagesPeerIdRoute: typeof MessagesPeerIdRoute
-}
-
-const MessagesRouteChildren: MessagesRouteChildren = {
-  MessagesPeerIdRoute: MessagesPeerIdRoute,
-}
-
-const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
-  MessagesRouteChildren,
-)
-
-interface RoomsRouteChildren {
-  RoomsSlugRoute: typeof RoomsSlugRoute
-}
-
-const RoomsRouteChildren: RoomsRouteChildren = {
-  RoomsSlugRoute: RoomsSlugRoute,
-}
-
-const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
-  CallsRoute: CallsRouteWithChildren,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FriendsRoute: FriendsRoute,
@@ -617,18 +587,22 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
-  MessagesRoute: MessagesRouteWithChildren,
   PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
   ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
-  RoomsRoute: RoomsRouteWithChildren,
   SafetyRoute: SafetyRoute,
   ShopRoute: ShopRoute,
   SupportRoute: SupportRoute,
   VisitorsRoute: VisitorsRoute,
+  CallsCallIdRoute: CallsCallIdRoute,
+  MessagesPeerIdRoute: MessagesPeerIdRoute,
+  RoomsSlugRoute: RoomsSlugRoute,
   UUserIdRoute: UUserIdRoute,
+  CallsIndexRoute: CallsIndexRoute,
+  MessagesIndexRoute: MessagesIndexRoute,
+  RoomsIndexRoute: RoomsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
