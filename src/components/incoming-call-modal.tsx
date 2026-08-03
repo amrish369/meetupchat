@@ -51,15 +51,17 @@ export function IncomingCallModal() {
 
       .subscribe();
 
-    // Also check on mount if there's a pending ringing call
-    (async () => {
+    // Poll as a safety net: if the websocket drops, we still pick up new rings.
+    const checkPending = async () => {
       const { data } = await supabase.from("private_calls")
         .select("*").eq("callee_id", user.id).eq("status", "ringing")
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (data) await handle(data as IncomingCall);
-    })();
+    };
+    void checkPending();
+    const poll = setInterval(() => { void checkPending(); }, 5000);
 
-    return () => { void supabase.removeChannel(ch); };
+    return () => { clearInterval(poll); void supabase.removeChannel(ch); };
   }, [user?.id]);
 
   // Vibrate + auto-dismiss an unanswered ring after 45s (call becomes "missed").
