@@ -172,6 +172,31 @@ function CallScreen() {
     return () => clearTimeout(t);
   }, [row?.status, row?.id, user?.id]);
 
+  // Realtime safety net: poll the call row while it is still ringing, so a
+  // dropped websocket can't leave the caller stuck on "Ringing…".
+  useEffect(() => {
+    if (!row || row.status !== "ringing") return;
+    const t = setInterval(async () => {
+      const { data } = await supabase.from("private_calls").select("*").eq("id", row.id).maybeSingle();
+      if (!data) return;
+      const next = data as CallRow;
+      if (next.status === row.status) return;
+      setRow(next);
+      if (next.status === "declined") { toast.info("Call declined"); void cleanup(); nav({ to: "/calls" }); }
+      else if (next.status === "ended" || next.status === "missed") { toast.info("Call ended"); void cleanup(); nav({ to: "/" }); }
+      else if (next.status === "accepted") setWaiting(false);
+    }, 3000);
+    return () => clearInterval(t);
+  }, [row?.id, row?.status]);
+
+  // Surface a real failure instead of an endless spinner.
+  useEffect(() => {
+    if (waiting || status === "connected" || status === "ended") { setFailed(false); return; }
+    if (status !== "connecting" && status !== "requesting-media") return;
+    const t = setTimeout(() => setFailed(true), 20_000);
+    return () => clearTimeout(t);
+  }, [status, waiting]);
+
   const isVideo = row?.mode === "video";
 
   return (
