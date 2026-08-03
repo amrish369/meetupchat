@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Phone, PhoneOff, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ export function IncomingCallModal() {
   const [incoming, setIncoming] = useState<IncomingCall | null>(null);
   const [caller, setCaller] = useState<CallerProfile | null>(null);
   const [busy, setBusy] = useState(false);
+  const shownRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!user) { setIncoming(null); return; }
