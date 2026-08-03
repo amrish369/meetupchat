@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/calls")({
+export const Route = createFileRoute("/calls/")({
   head: () => ({ meta: [{ title: "Private Calls — Meetup" }] }),
   component: CallsPage,
 });

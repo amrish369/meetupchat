@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Hash, Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/rooms")({
+export const Route = createFileRoute("/rooms/")({
   head: () => ({
     meta: [
       { title: "Community Rooms — Meetup Live" },

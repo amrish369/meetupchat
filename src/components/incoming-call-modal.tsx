@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Phone, PhoneOff, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ export function IncomingCallModal() {
   const [incoming, setIncoming] = useState<IncomingCall | null>(null);
   const [caller, setCaller] = useState<CallerProfile | null>(null);
   const [busy, setBusy] = useState(false);
+  const shownRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!user) { setIncoming(null); return; }
@@ -24,12 +25,14 @@ export function IncomingCallModal() {
     const handle = async (row: IncomingCall) => {
       if (row.callee_id !== user.id) return;
       if (row.status !== "ringing") return;
+      if (shownRef.current === row.id) return;
       // Ignore stale rings (e.g. caller closed the tab); close them out.
       const age = Date.now() - new Date((row as unknown as { created_at?: string }).created_at ?? Date.now()).getTime();
       if (age > 60_000) {
         await supabase.rpc("end_private_call", { p_call_id: row.id });
         return;
       }
+      shownRef.current = row.id;
       setIncoming(row);
       const { data } = await supabase.rpc("public_profile", { p_user_id: row.caller_id });
       const p = Array.isArray(data) ? data[0] : data;
@@ -51,15 +54,17 @@ export function IncomingCallModal() {
 
       .subscribe();
 
-    // Also check on mount if there's a pending ringing call
-    (async () => {
+    // Poll as a safety net: if the websocket drops, we still pick up new rings.
+    const checkPending = async () => {
       const { data } = await supabase.from("private_calls")
         .select("*").eq("callee_id", user.id).eq("status", "ringing")
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (data) await handle(data as IncomingCall);
-    })();
+    };
+    void checkPending();
+    const poll = setInterval(() => { void checkPending(); }, 5000);
 
-    return () => { void supabase.removeChannel(ch); };
+    return () => { clearInterval(poll); void supabase.removeChannel(ch); };
   }, [user?.id]);
 
   // Vibrate + auto-dismiss an unanswered ring after 45s (call becomes "missed").

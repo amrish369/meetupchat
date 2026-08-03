@@ -28,6 +28,7 @@ function CallScreen() {
   const [status, setStatus] = useState<CallStatus>("idle");
   const [statusInfo, setStatusInfo] = useState<string>("");
   const [waiting, setWaiting] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const localRef = useRef<HTMLVideoElement>(null);
@@ -172,6 +173,31 @@ function CallScreen() {
     return () => clearTimeout(t);
   }, [row?.status, row?.id, user?.id]);
 
+  // Realtime safety net: poll the call row while it is still ringing, so a
+  // dropped websocket can't leave the caller stuck on "Ringing…".
+  useEffect(() => {
+    if (!row || row.status !== "ringing") return;
+    const t = setInterval(async () => {
+      const { data } = await supabase.from("private_calls").select("*").eq("id", row.id).maybeSingle();
+      if (!data) return;
+      const next = data as CallRow;
+      if (next.status === row.status) return;
+      setRow(next);
+      if (next.status === "declined") { toast.info("Call declined"); void cleanup(); nav({ to: "/calls" }); }
+      else if (next.status === "ended" || next.status === "missed") { toast.info("Call ended"); void cleanup(); nav({ to: "/" }); }
+      else if (next.status === "accepted") setWaiting(false);
+    }, 3000);
+    return () => clearInterval(t);
+  }, [row?.id, row?.status]);
+
+  // Surface a real failure instead of an endless spinner.
+  useEffect(() => {
+    if (waiting || status === "connected" || status === "ended") { setFailed(false); return; }
+    if (status !== "connecting" && status !== "requesting-media") return;
+    const t = setTimeout(() => setFailed(true), 20_000);
+    return () => clearTimeout(t);
+  }, [status, waiting]);
+
   const isVideo = row?.mode === "video";
 
   return (
@@ -217,9 +243,22 @@ function CallScreen() {
           </div>
         )}
 
-        {(waiting || status === "requesting-media" || status === "connecting") && (
+        {!failed && (waiting || status === "requesting-media" || status === "connecting") && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-white/70" />
+          </div>
+        )}
+
+        {failed && status !== "connected" && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/80 px-8 text-center">
+            <p className="text-base font-semibold">Connection failed</p>
+            <p className="text-sm text-white/70">
+              Aapka network is call ko block kar raha hai. Wi-Fi par try karein ya dobara koshish karein.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => { setFailed(false); window.location.reload(); }}>Retry</Button>
+              <Button variant="destructive" onClick={hangup}>End</Button>
+            </div>
           </div>
         )}
       </div>
