@@ -233,6 +233,38 @@ function ChatRoom() {
     await matcherRef.current.skip();
   }, []);
 
+  // --- Community-rule enforcement ---------------------------------------
+  const captureGuard = useScreenCaptureGuard();
+  const liveMod = useLiveModeration({
+    active: status === "connected",
+    localVideo: localVideoRef,
+    remoteVideo: remoteVideoRef,
+    sessionId,
+    onSuspend: () => { void stop(); },
+    onBlockLocalVideo: (blocked) => {
+      matcherRef.current?.toggleVideo(!blocked);
+      setCamOff(blocked);
+    },
+  });
+
+  // Strict screen-recording lock: mute mic + camera and record the violation.
+  useEffect(() => {
+    if (!captureGuard.blocked) return;
+    matcherRef.current?.toggleAudio(false);
+    matcherRef.current?.toggleVideo(false);
+    setMuted(true);
+    setCamOff(true);
+    void recordViolation("recording", {
+      severity: 2,
+      details: { reason: captureGuard.reason },
+      sessionId,
+    });
+  }, [captureGuard.blocked, captureGuard.reason, sessionId]);
+
+  const locked = captureGuard.blocked;
+  const hideRemote = locked || liveMod.remoteExplicit;
+
+
   const sendMessage = useCallback(() => {
     const text = input.trim();
     if (!text) return;
