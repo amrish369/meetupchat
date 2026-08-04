@@ -47,9 +47,15 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Matchmaker, type ChatMessage, type MatchStatus } from "@/lib/matchmaker";
 import { getSessionId } from "@/lib/session";
-import { filterMessage } from "@/lib/profanity";
+import { moderateText } from "@/lib/moderation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, isPremiumActive } from "@/lib/auth";
+import { AgeGate } from "@/components/age-gate";
+import { EnforcementOverlay } from "@/components/enforcement-overlay";
+import { useScreenCaptureGuard } from "@/lib/screen-guard";
+import { useLiveModeration } from "@/lib/use-live-moderation";
+import { recordViolation } from "@/lib/violations";
+
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
