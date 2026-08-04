@@ -361,6 +361,36 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_events: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          kind: string
+          session_id: string | null
+          severity: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          kind: string
+          session_id?: string | null
+          severity?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          kind?: string
+          session_id?: string | null
+          severity?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       payment_submissions: {
         Row: {
           amount_inr: number
@@ -459,15 +489,18 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_verified_at: string | null
           avatar_url: string | null
           banned_until: string | null
           bio: string | null
           coins: number
           country: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string | null
           gender: string | null
           interests: string[]
+          is_adult: boolean
           is_premium: boolean
           last_checkin: string | null
           plan: string
@@ -482,15 +515,18 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          age_verified_at?: string | null
           avatar_url?: string | null
           banned_until?: string | null
           bio?: string | null
           coins?: number
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           gender?: string | null
           interests?: string[]
+          is_adult?: boolean
           is_premium?: boolean
           last_checkin?: string | null
           plan?: string
@@ -505,15 +541,18 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          age_verified_at?: string | null
           avatar_url?: string | null
           banned_until?: string | null
           bio?: string | null
           coins?: number
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           gender?: string | null
           interests?: string[]
+          is_adult?: boolean
           is_premium?: boolean
           last_checkin?: string | null
           plan?: string
@@ -877,6 +916,13 @@ export type Database = {
         }[]
       }
       cleanup_stale_queue: { Args: never; Returns: undefined }
+      confirm_age: {
+        Args: { p_dob: string }
+        Returns: {
+          age: number
+          is_adult: boolean
+        }[]
+      }
       country_leaderboard: {
         Args: { p_country: string }
         Returns: {
@@ -1005,6 +1051,15 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      record_moderation_violation: {
+        Args: {
+          p_details?: Json
+          p_kind: string
+          p_session_id?: string
+          p_severity?: number
+        }
+        Returns: Json
       }
       record_profile_visit: {
         Args: { p_profile_id: string }

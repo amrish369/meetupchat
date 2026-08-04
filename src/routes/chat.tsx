@@ -47,9 +47,15 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Matchmaker, type ChatMessage, type MatchStatus } from "@/lib/matchmaker";
 import { getSessionId } from "@/lib/session";
-import { filterMessage } from "@/lib/profanity";
+import { moderateText } from "@/lib/moderation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, isPremiumActive } from "@/lib/auth";
+import { AgeGate } from "@/components/age-gate";
+import { EnforcementOverlay } from "@/components/enforcement-overlay";
+import { useScreenCaptureGuard } from "@/lib/screen-guard";
+import { useLiveModeration } from "@/lib/use-live-moderation";
+import { recordViolation } from "@/lib/violations";
+
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -67,7 +73,12 @@ export const Route = createFileRoute("/chat")({
       },
     ],
   }),
-  component: ChatRoom,
+  component: () => (
+    <AgeGate>
+      <ChatRoom />
+    </AgeGate>
+  ),
+
 });
 
 type PhaseKey =
@@ -222,18 +233,62 @@ function ChatRoom() {
     await matcherRef.current.skip();
   }, []);
 
+  // --- Community-rule enforcement ---------------------------------------
+  const captureGuard = useScreenCaptureGuard();
+  const liveMod = useLiveModeration({
+    active: status === "connected",
+    localVideo: localVideoRef,
+    remoteVideo: remoteVideoRef,
+    sessionId,
+    onSuspend: () => { void stop(); },
+    onBlockLocalVideo: (blocked) => {
+      matcherRef.current?.toggleVideo(!blocked);
+      setCamOff(blocked);
+    },
+  });
+
+  // Strict screen-recording lock: mute mic + camera and record the violation.
+  useEffect(() => {
+    if (!captureGuard.blocked) return;
+    matcherRef.current?.toggleAudio(false);
+    matcherRef.current?.toggleVideo(false);
+    setMuted(true);
+    setCamOff(true);
+    void recordViolation("recording", {
+      severity: 2,
+      details: { reason: captureGuard.reason },
+      sessionId,
+    });
+  }, [captureGuard.blocked, captureGuard.reason, sessionId]);
+
+  const locked = captureGuard.blocked;
+  const hideRemote = locked || liveMod.remoteExplicit;
+
+
   const sendMessage = useCallback(() => {
     const text = input.trim();
     if (!text) return;
-    const check = filterMessage(text);
+    if (captureGuard.blocked) {
+      toast.error(captureGuard.warning);
+      return;
+    }
+    const check = moderateText(text);
     if (!check.ok) {
       toast.warning(check.reason ?? "Message blocked");
+      if (check.severity >= 2) {
+        void recordViolation("hate", {
+          severity: 2,
+          details: { source: "random-chat-text", matched: check.matched },
+          sessionId,
+        });
+      }
       return;
     }
     const ok = matcherRef.current?.sendMessage(check.clean) ?? false;
     if (!ok) toast.error("Not connected to anyone yet");
     setInput("");
-  }, [input]);
+  }, [input, captureGuard.blocked, captureGuard.warning, sessionId]);
+
 
   const toggleMic = () => {
     setMuted((m) => {
@@ -359,8 +414,24 @@ function ChatRoom() {
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              className="h-full w-full object-cover cursor-pointer"
+              className="h-full w-full object-cover cursor-pointer transition-all"
+              style={hideRemote ? { filter: "blur(36px)", opacity: 0.35 } : undefined}
             />
+            {status === "connected" && liveMod.remoteExplicit && !locked && (
+              <EnforcementOverlay kind="nudity-remote" onAcknowledge={() => void skip()} onEnd={() => void stop()} />
+            )}
+            {locked && (
+              <EnforcementOverlay
+                kind="recording"
+                detail={captureGuard.reason === "screenshot-key" ? "Screenshot key detected." : undefined}
+                onAcknowledge={captureGuard.clear}
+                onEnd={() => void stop()}
+              />
+            )}
+            {status === "connected" && liveMod.localExplicit && !locked && (
+              <EnforcementOverlay kind="nudity-local" strikes={liveMod.strikes} onEnd={() => void stop()} />
+            )}
+
             {status === "connected" && (
               <button
                 onClick={() => toggleFullscreen("remote")}
@@ -501,8 +572,8 @@ function ChatRoom() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={status === "connected" ? "Type a message…" : "Waiting for match…"}
-              disabled={status !== "connected"}
+              placeholder={locked ? "Chat disabled — stop recording" : status === "connected" ? "Type a message…" : "Waiting for match…"}
+              disabled={status !== "connected" || locked}
               maxLength={500}
               className="border-cream/15 bg-cream/5 text-cream placeholder:text-cream/40 focus-visible:ring-teal"
             />
@@ -510,7 +581,8 @@ function ChatRoom() {
               type="submit"
               variant="hero"
               size="icon"
-              disabled={status !== "connected" || !input.trim()}
+              disabled={status !== "connected" || locked || !input.trim()}
+
             >
               <Send className="h-4 w-4" />
             </Button>
