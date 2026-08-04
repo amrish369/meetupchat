@@ -414,8 +414,24 @@ function ChatRoom() {
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              className="h-full w-full object-cover cursor-pointer"
+              className="h-full w-full object-cover cursor-pointer transition-all"
+              style={hideRemote ? { filter: "blur(36px)", opacity: 0.35 } : undefined}
             />
+            {status === "connected" && liveMod.remoteExplicit && !locked && (
+              <EnforcementOverlay kind="nudity-remote" onAcknowledge={() => void skip()} onEnd={() => void stop()} />
+            )}
+            {locked && (
+              <EnforcementOverlay
+                kind="recording"
+                detail={captureGuard.reason === "screenshot-key" ? "Screenshot key detected." : undefined}
+                onAcknowledge={captureGuard.clear}
+                onEnd={() => void stop()}
+              />
+            )}
+            {status === "connected" && liveMod.localExplicit && !locked && (
+              <EnforcementOverlay kind="nudity-local" strikes={liveMod.strikes} onEnd={() => void stop()} />
+            )}
+
             {status === "connected" && (
               <button
                 onClick={() => toggleFullscreen("remote")}
