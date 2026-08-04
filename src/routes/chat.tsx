@@ -236,15 +236,27 @@ function ChatRoom() {
   const sendMessage = useCallback(() => {
     const text = input.trim();
     if (!text) return;
-    const check = filterMessage(text);
+    if (captureGuard.blocked) {
+      toast.error(captureGuard.warning);
+      return;
+    }
+    const check = moderateText(text);
     if (!check.ok) {
       toast.warning(check.reason ?? "Message blocked");
+      if (check.severity >= 2) {
+        void recordViolation("hate", {
+          severity: 2,
+          details: { source: "random-chat-text", matched: check.matched },
+          sessionId,
+        });
+      }
       return;
     }
     const ok = matcherRef.current?.sendMessage(check.clean) ?? false;
     if (!ok) toast.error("Not connected to anyone yet");
     setInput("");
-  }, [input]);
+  }, [input, captureGuard.blocked, captureGuard.warning, sessionId]);
+
 
   const toggleMic = () => {
     setMuted((m) => {
