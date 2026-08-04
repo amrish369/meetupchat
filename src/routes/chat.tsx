@@ -73,7 +73,12 @@ export const Route = createFileRoute("/chat")({
       },
     ],
   }),
-  component: ChatRoom,
+  component: () => (
+    <AgeGate>
+      <ChatRoom />
+    </AgeGate>
+  ),
+
 });
 
 type PhaseKey =
