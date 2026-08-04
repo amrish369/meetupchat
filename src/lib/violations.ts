@@ -19,7 +19,7 @@ export async function recordViolation(
       p_kind: kind,
       p_severity: opts.severity ?? 1,
       p_details: (opts.details ?? {}) as never,
-      p_session_id: opts.sessionId ?? null,
+      p_session_id: opts.sessionId ?? undefined,
     });
     if (error) return null;
     const row = data as unknown as ViolationOutcome | null;
