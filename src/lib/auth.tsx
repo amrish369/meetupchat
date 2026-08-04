@@ -17,6 +17,10 @@ export interface Profile {
   streak_days: number;
   trust_score: number;
   last_checkin: string | null;
+  is_adult: boolean;
+  age_verified_at: string | null;
+  date_of_birth: string | null;
+
 }
 
 interface AuthContextValue {
