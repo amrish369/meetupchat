@@ -30,6 +30,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "crypto";
 import { z } from "zod";
+import { OPEN_RELAY_ICE_SERVERS } from "@/lib/ice-servers";
+
 
 export interface TurnCredentialsResponse {
   iceServers: RTCIceServer[];
@@ -52,18 +54,13 @@ export const getTurnCredentials = createServerFn({ method: "POST" })
     const urlsRaw = process.env.TURN_URLS;
     const ttl = Math.max(60, Math.min(86_400, Number(process.env.TURN_TTL_SECONDS) || 3600));
 
-    // Always include public STUN — costs us nothing and helps direct P2P.
-    const stunServers: RTCIceServer[] = [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-      { urls: "stun:stun.cloudflare.com:3478" },
-    ];
+    // Always include public STUN + the free Open Relay TURN servers, so calls
+    // work worldwide even without a self-hosted Coturn instance.
+    const baseServers: RTCIceServer[] = OPEN_RELAY_ICE_SERVERS;
 
     if (!secret || !urlsRaw) {
-      // No TURN configured yet — return STUN only. The matchmaker will still
-      // work for ~70-80% of users on home Wi-Fi.
       return {
-        iceServers: stunServers,
+        iceServers: baseServers,
         expiresAt: Math.floor(Date.now() / 1000) + ttl,
         ttl,
       };
@@ -80,13 +77,14 @@ export const getTurnCredentials = createServerFn({ method: "POST" })
 
     return {
       iceServers: [
-        ...stunServers,
         {
           urls,
           username,
           credential,
         },
+        ...baseServers,
       ],
+
       expiresAt,
       ttl,
     };

@@ -31,6 +31,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { getTurnCredentials, type TurnCredentialsResponse } from "@/lib/turn.functions";
+import { OPEN_RELAY_ICE_SERVERS } from "@/lib/ice-servers";
 
 let turnCache: { value: TurnCredentialsResponse; fetchedAt: number } | null = null;
 const REFRESH_BUFFER_SEC = 5 * 60;
@@ -45,14 +46,11 @@ async function fetchIceServers(sessionId: string): Promise<RTCIceServer[]> {
     turnCache = { value, fetchedAt: now };
     return value.iceServers;
   } catch (err) {
-    console.warn("[turn] credential fetch failed, using STUN-only fallback", err);
-    return [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-      { urls: "stun:stun.cloudflare.com:3478" },
-    ];
+    console.warn("[turn] credential fetch failed, using Open Relay fallback", err);
+    return OPEN_RELAY_ICE_SERVERS;
   }
 }
+
 
 export type MatchStatus =
   | "idle"
