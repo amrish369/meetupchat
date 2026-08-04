@@ -572,8 +572,8 @@ function ChatRoom() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={status === "connected" ? "Type a message…" : "Waiting for match…"}
-              disabled={status !== "connected"}
+              placeholder={locked ? "Chat disabled — stop recording" : status === "connected" ? "Type a message…" : "Waiting for match…"}
+              disabled={status !== "connected" || locked}
               maxLength={500}
               className="border-cream/15 bg-cream/5 text-cream placeholder:text-cream/40 focus-visible:ring-teal"
             />
@@ -581,7 +581,8 @@ function ChatRoom() {
               type="submit"
               variant="hero"
               size="icon"
-              disabled={status !== "connected" || !input.trim()}
+              disabled={status !== "connected" || locked || !input.trim()}
+
             >
               <Send className="h-4 w-4" />
             </Button>
