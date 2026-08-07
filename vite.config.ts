@@ -6,4 +6,13 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        // nsfwjs imports { Buffer } from "buffer"; map it to the browser polyfill
+        buffer: "buffer/",
+      },
+    },
+  },
+});
