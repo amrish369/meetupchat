@@ -13,9 +13,5 @@ const bufferAlias = { find: /^buffer$/, replacement: "buffer/index.js" };
 export default defineConfig({
   vite: {
     resolve: { alias: [bufferAlias] },
-    environments: {
-      client: { resolve: { alias: [bufferAlias] } },
-      ssr: { resolve: { alias: [bufferAlias] } },
-    },
   },
 });
