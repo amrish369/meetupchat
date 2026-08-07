@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -31,11 +34,14 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
+import { Route as ExploreIndexRouteImport } from './routes/explore.index'
 import { Route as CallsIndexRouteImport } from './routes/calls.index'
 import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
 import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
+import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
 import { Route as CallsCallIdRouteImport } from './routes/calls.$callId'
+import { Route as ApiPublicSeoCronRouteImport } from './routes/api/public/seo-cron'
 
 const VisitorsRoute = VisitorsRouteImport.update({
   id: '/visitors',
@@ -47,14 +53,29 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SeoDashboardRoute = SeoDashboardRouteImport.update({
+  id: '/seo-dashboard',
+  path: '/seo-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SafetyRoute = SafetyRouteImport.update({
   id: '/safety',
   path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RewardsRoute = RewardsRouteImport.update({
@@ -147,6 +168,11 @@ const MessagesIndexRoute = MessagesIndexRouteImport.update({
   path: '/messages/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CallsIndexRoute = CallsIndexRouteImport.update({
   id: '/calls/',
   path: '/calls/',
@@ -167,9 +193,19 @@ const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
   path: '/messages/$peerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExploreSlugRoute = ExploreSlugRouteImport.update({
+  id: '/explore/$slug',
+  path: '/explore/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CallsCallIdRoute = CallsCallIdRouteImport.update({
   id: '/calls/$callId',
   path: '/calls/$callId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSeoCronRoute = ApiPublicSeoCronRouteImport.update({
+  id: '/api/public/seo-cron',
+  path: '/api/public/seo-cron',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -190,17 +226,23 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/safety': typeof SafetyRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
+  '/explore/$slug': typeof ExploreSlugRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/calls/': typeof CallsIndexRoute
+  '/explore/': typeof ExploreIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/rooms/': typeof RoomsIndexRoute
+  '/api/public/seo-cron': typeof ApiPublicSeoCronRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -219,17 +261,23 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/safety': typeof SafetyRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
+  '/explore/$slug': typeof ExploreSlugRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/calls': typeof CallsIndexRoute
+  '/explore': typeof ExploreIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/rooms': typeof RoomsIndexRoute
+  '/api/public/seo-cron': typeof ApiPublicSeoCronRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -249,17 +297,23 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/safety': typeof SafetyRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
+  '/explore/$slug': typeof ExploreSlugRoute
   '/messages/$peerId': typeof MessagesPeerIdRoute
   '/rooms/$slug': typeof RoomsSlugRoute
   '/u/$userId': typeof UUserIdRoute
   '/calls/': typeof CallsIndexRoute
+  '/explore/': typeof ExploreIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/rooms/': typeof RoomsIndexRoute
+  '/api/public/seo-cron': typeof ApiPublicSeoCronRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -280,17 +334,23 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/rewards'
+    | '/robots.txt'
     | '/safety'
+    | '/seo-dashboard'
     | '/shop'
+    | '/sitemap.xml'
     | '/support'
     | '/visitors'
     | '/calls/$callId'
+    | '/explore/$slug'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
     | '/calls/'
+    | '/explore/'
     | '/messages/'
     | '/rooms/'
+    | '/api/public/seo-cron'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -309,17 +369,23 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/rewards'
+    | '/robots.txt'
     | '/safety'
+    | '/seo-dashboard'
     | '/shop'
+    | '/sitemap.xml'
     | '/support'
     | '/visitors'
     | '/calls/$callId'
+    | '/explore/$slug'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
     | '/calls'
+    | '/explore'
     | '/messages'
     | '/rooms'
+    | '/api/public/seo-cron'
   id:
     | '__root__'
     | '/'
@@ -338,17 +404,23 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/rewards'
+    | '/robots.txt'
     | '/safety'
+    | '/seo-dashboard'
     | '/shop'
+    | '/sitemap.xml'
     | '/support'
     | '/visitors'
     | '/calls/$callId'
+    | '/explore/$slug'
     | '/messages/$peerId'
     | '/rooms/$slug'
     | '/u/$userId'
     | '/calls/'
+    | '/explore/'
     | '/messages/'
     | '/rooms/'
+    | '/api/public/seo-cron'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -368,17 +440,23 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SafetyRoute: typeof SafetyRoute
+  SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
   VisitorsRoute: typeof VisitorsRoute
   CallsCallIdRoute: typeof CallsCallIdRoute
+  ExploreSlugRoute: typeof ExploreSlugRoute
   MessagesPeerIdRoute: typeof MessagesPeerIdRoute
   RoomsSlugRoute: typeof RoomsSlugRoute
   UUserIdRoute: typeof UUserIdRoute
   CallsIndexRoute: typeof CallsIndexRoute
+  ExploreIndexRoute: typeof ExploreIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   RoomsIndexRoute: typeof RoomsIndexRoute
+  ApiPublicSeoCronRoute: typeof ApiPublicSeoCronRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,6 +475,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -404,11 +489,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seo-dashboard': {
+      id: '/seo-dashboard'
+      path: '/seo-dashboard'
+      fullPath: '/seo-dashboard'
+      preLoaderRoute: typeof SeoDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/safety': {
       id: '/safety'
       path: '/safety'
       fullPath: '/safety'
       preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rewards': {
@@ -537,6 +636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calls/': {
       id: '/calls/'
       path: '/calls'
@@ -565,11 +671,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesPeerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/explore/$slug': {
+      id: '/explore/$slug'
+      path: '/explore/$slug'
+      fullPath: '/explore/$slug'
+      preLoaderRoute: typeof ExploreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calls/$callId': {
       id: '/calls/$callId'
       path: '/calls/$callId'
       fullPath: '/calls/$callId'
       preLoaderRoute: typeof CallsCallIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/seo-cron': {
+      id: '/api/public/seo-cron'
+      path: '/api/public/seo-cron'
+      fullPath: '/api/public/seo-cron'
+      preLoaderRoute: typeof ApiPublicSeoCronRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -592,17 +712,23 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SafetyRoute: SafetyRoute,
+  SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
   VisitorsRoute: VisitorsRoute,
   CallsCallIdRoute: CallsCallIdRoute,
+  ExploreSlugRoute: ExploreSlugRoute,
   MessagesPeerIdRoute: MessagesPeerIdRoute,
   RoomsSlugRoute: RoomsSlugRoute,
   UUserIdRoute: UUserIdRoute,
   CallsIndexRoute: CallsIndexRoute,
+  ExploreIndexRoute: ExploreIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   RoomsIndexRoute: RoomsIndexRoute,
+  ApiPublicSeoCronRoute: ApiPublicSeoCronRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
