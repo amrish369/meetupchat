@@ -693,6 +693,213 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_keywords: {
+        Row: {
+          category: string | null
+          city: string | null
+          competition: number
+          country: string | null
+          first_seen_at: string
+          id: string
+          intent: string | null
+          is_relevant: boolean
+          keyword: string
+          last_seen_at: string
+          normalized: string
+          source: string
+          state: string | null
+          topic: string | null
+          trend_score: number
+          used_for_page: string | null
+          volume_estimate: number
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          competition?: number
+          country?: string | null
+          first_seen_at?: string
+          id?: string
+          intent?: string | null
+          is_relevant?: boolean
+          keyword: string
+          last_seen_at?: string
+          normalized: string
+          source: string
+          state?: string | null
+          topic?: string | null
+          trend_score?: number
+          used_for_page?: string | null
+          volume_estimate?: number
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          competition?: number
+          country?: string | null
+          first_seen_at?: string
+          id?: string
+          intent?: string | null
+          is_relevant?: boolean
+          keyword?: string
+          last_seen_at?: string
+          normalized?: string
+          source?: string
+          state?: string | null
+          topic?: string | null
+          trend_score?: number
+          used_for_page?: string | null
+          volume_estimate?: number
+        }
+        Relationships: []
+      }
+      seo_pages: {
+        Row: {
+          category: string | null
+          city: string | null
+          cluster: string | null
+          content_hash: string
+          country: string | null
+          created_at: string
+          description: string
+          evidence: Json
+          faqs: Json
+          h1: string
+          id: string
+          intent: string | null
+          intro: string
+          keywords: string[]
+          kind: string
+          primary_keyword: string | null
+          published_at: string | null
+          redirect_to: string | null
+          refreshed_at: string | null
+          related_slugs: string[]
+          room_slug: string | null
+          sections: Json
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          word_count: number
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          cluster?: string | null
+          content_hash?: string
+          country?: string | null
+          created_at?: string
+          description: string
+          evidence?: Json
+          faqs?: Json
+          h1: string
+          id?: string
+          intent?: string | null
+          intro?: string
+          keywords?: string[]
+          kind?: string
+          primary_keyword?: string | null
+          published_at?: string | null
+          redirect_to?: string | null
+          refreshed_at?: string | null
+          related_slugs?: string[]
+          room_slug?: string | null
+          sections?: Json
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          word_count?: number
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          cluster?: string | null
+          content_hash?: string
+          country?: string | null
+          created_at?: string
+          description?: string
+          evidence?: Json
+          faqs?: Json
+          h1?: string
+          id?: string
+          intent?: string | null
+          intro?: string
+          keywords?: string[]
+          kind?: string
+          primary_keyword?: string | null
+          published_at?: string | null
+          redirect_to?: string | null
+          refreshed_at?: string | null
+          related_slugs?: string[]
+          room_slug?: string | null
+          sections?: Json
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          word_count?: number
+        }
+        Relationships: []
+      }
+      seo_runs: {
+        Row: {
+          finished_at: string | null
+          id: string
+          internal_links: number
+          issues: Json
+          keywords_found: number
+          keywords_kept: number
+          log: Json
+          pages_archived: number
+          pages_created: number
+          pages_updated: number
+          rejected: number
+          run_date: string
+          source: string
+          started_at: string
+          status: string
+          traffic_potential: number
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          internal_links?: number
+          issues?: Json
+          keywords_found?: number
+          keywords_kept?: number
+          log?: Json
+          pages_archived?: number
+          pages_created?: number
+          pages_updated?: number
+          rejected?: number
+          run_date?: string
+          source?: string
+          started_at?: string
+          status?: string
+          traffic_potential?: number
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          internal_links?: number
+          issues?: Json
+          keywords_found?: number
+          keywords_kept?: number
+          log?: Json
+          pages_archived?: number
+          pages_created?: number
+          pages_updated?: number
+          rejected?: number
+          run_date?: string
+          source?: string
+          started_at?: string
+          status?: string
+          traffic_potential?: number
+        }
+        Relationships: []
+      }
       spin_history: {
         Row: {
           id: string
