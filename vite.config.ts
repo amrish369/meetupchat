@@ -6,13 +6,16 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// nsfwjs does `import { Buffer } from "buffer"`, which Vite maps to
+// __vite-browser-external in browser builds. Redirect it to the polyfill package.
+const bufferAlias = { find: /^buffer$/, replacement: "buffer/index.js" };
+
 export default defineConfig({
   vite: {
-    resolve: {
-      alias: {
-        // nsfwjs imports { Buffer } from "buffer"; map it to the browser polyfill
-        buffer: "buffer/",
-      },
+    resolve: { alias: [bufferAlias] },
+    environments: {
+      client: { resolve: { alias: [bufferAlias] } },
+      ssr: { resolve: { alias: [bufferAlias] } },
     },
   },
 });
