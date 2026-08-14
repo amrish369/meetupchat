@@ -843,6 +843,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_promos: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          hashtags: string[]
+          headline: string
+          id: string
+          page_slug: string | null
+          posted_at: string | null
+          run_id: string | null
+          status: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          hashtags?: string[]
+          headline: string
+          id?: string
+          page_slug?: string | null
+          posted_at?: string | null
+          run_id?: string | null
+          status?: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          hashtags?: string[]
+          headline?: string
+          id?: string
+          page_slug?: string | null
+          posted_at?: string | null
+          run_id?: string | null
+          status?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_runs: {
         Row: {
           finished_at: string | null
@@ -897,6 +942,48 @@ export type Database = {
           started_at?: string
           status?: string
           traffic_potential?: number
+        }
+        Relationships: []
+      }
+      seo_submissions: {
+        Row: {
+          attempts: number
+          created_at: string
+          detail: string | null
+          engine: string
+          http_status: number | null
+          id: string
+          retry_after: string | null
+          run_id: string | null
+          status: string
+          target: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          detail?: string | null
+          engine: string
+          http_status?: number | null
+          id?: string
+          retry_after?: string | null
+          run_id?: string | null
+          status?: string
+          target: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          detail?: string | null
+          engine?: string
+          http_status?: number | null
+          id?: string
+          retry_after?: string | null
+          run_id?: string | null
+          status?: string
+          target?: string
+          updated_at?: string
         }
         Relationships: []
       }
