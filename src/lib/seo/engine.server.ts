@@ -42,6 +42,9 @@ export interface EngineResult {
   rejected: number;
   trafficPotential: number;
   internalLinks: number;
+  indexnowSubmitted: number;
+  sitemapSubmitted: boolean;
+  promosQueued: number;
   issues: string[];
   log: string[];
 }
