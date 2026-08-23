@@ -345,6 +345,13 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       usedKeywords.add(normalizeKeyword(page.primaryKeyword));
       bySlug.set(page.slug, { slug: page.slug, status: "published", cluster: page.cluster } as never);
       created += 1;
+      changedUrls.push(`${SITE_URL}/explore/${page.slug}`);
+      newPages.push({
+        slug: page.slug,
+        title: page.title,
+        description: page.description,
+        facts: target.evidence.facts,
+      });
       result.trafficPotential += Math.round(
         (candidates.find((c) => c.keyword === page.primaryKeyword)?.volume_estimate ?? 40) * 0.18,
       );
