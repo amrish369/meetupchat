@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
+import { Route as SitemapRoomsDotxmlRouteImport } from './routes/sitemap-rooms[.]xml'
+import { Route as SitemapRecentDotxmlRouteImport } from './routes/sitemap-recent[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -24,8 +28,10 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -56,6 +62,26 @@ const SupportRoute = SupportRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
+  id: '/sitemap-static.xml',
+  path: '/sitemap-static.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoomsDotxmlRoute = SitemapRoomsDotxmlRouteImport.update({
+  id: '/sitemap-rooms.xml',
+  path: '/sitemap-rooms.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRecentDotxmlRoute = SitemapRecentDotxmlRouteImport.update({
+  id: '/sitemap-recent.xml',
+  path: '/sitemap-recent.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -118,6 +144,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
+  id: '/indexnow-key.txt',
+  path: '/indexnow-key.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -126,6 +157,11 @@ const HistoryRoute = HistoryRouteImport.update({
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoturnSetupRoute = CoturnSetupRouteImport.update({
@@ -216,8 +252,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -230,6 +268,10 @@ export interface FileRoutesByFullPath {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
+  '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
@@ -251,8 +293,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -265,6 +309,10 @@ export interface FileRoutesByTo {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
+  '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
@@ -287,8 +335,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -301,6 +351,10 @@ export interface FileRoutesById {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
+  '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/visitors': typeof VisitorsRoute
@@ -324,8 +378,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -338,6 +394,10 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
+    | '/sitemap-rooms.xml'
+    | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
     | '/visitors'
@@ -359,8 +419,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -373,6 +435,10 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
+    | '/sitemap-rooms.xml'
+    | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
     | '/visitors'
@@ -394,8 +460,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -408,6 +476,10 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
+    | '/sitemap-rooms.xml'
+    | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
     | '/visitors'
@@ -430,8 +502,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
+  FeedDotxmlRoute: typeof FeedDotxmlRoute
   FriendsRoute: typeof FriendsRoute
   HistoryRoute: typeof HistoryRoute
+  IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
@@ -444,6 +518,10 @@ export interface RootRouteChildren {
   SafetyRoute: typeof SafetyRoute
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapRecentDotxmlRoute: typeof SitemapRecentDotxmlRoute
+  SitemapRoomsDotxmlRoute: typeof SitemapRoomsDotxmlRoute
+  SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
   VisitorsRoute: typeof VisitorsRoute
@@ -480,6 +558,34 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-static.xml': {
+      id: '/sitemap-static.xml'
+      path: '/sitemap-static.xml'
+      fullPath: '/sitemap-static.xml'
+      preLoaderRoute: typeof SitemapStaticDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-rooms.xml': {
+      id: '/sitemap-rooms.xml'
+      path: '/sitemap-rooms.xml'
+      fullPath: '/sitemap-rooms.xml'
+      preLoaderRoute: typeof SitemapRoomsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-recent.xml': {
+      id: '/sitemap-recent.xml'
+      path: '/sitemap-recent.xml'
+      fullPath: '/sitemap-recent.xml'
+      preLoaderRoute: typeof SitemapRecentDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -566,6 +672,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/indexnow-key.txt': {
+      id: '/indexnow-key.txt'
+      path: '/indexnow-key.txt'
+      fullPath: '/indexnow-key.txt'
+      preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
@@ -578,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: '/friends'
       fullPath: '/friends'
       preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/coturn-setup': {
@@ -702,8 +822,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
+  FeedDotxmlRoute: FeedDotxmlRoute,
   FriendsRoute: FriendsRoute,
   HistoryRoute: HistoryRoute,
+  IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
@@ -716,6 +838,10 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyRoute: SafetyRoute,
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapRecentDotxmlRoute: SitemapRecentDotxmlRoute,
+  SitemapRoomsDotxmlRoute: SitemapRoomsDotxmlRoute,
+  SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
   VisitorsRoute: VisitorsRoute,

@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, ShieldCheck, Users, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
+import { ShareRow } from "@/components/share-row";
 import { SiteFooter } from "@/components/site-footer";
 import { getSeoPage } from "@/lib/seo/pages.functions";
 import type { SeoPageRecord } from "@/lib/seo/public.server";
@@ -152,6 +153,8 @@ function ExplorePage() {
             instantly. We do not organise physical events.
           </p>
         </aside>
+
+        <ShareRow url={`${SITE_URL}/explore/${page.slug}`} title={page.title} />
 
         {page.related_slugs?.length > 0 && (
           <section className="mt-10">

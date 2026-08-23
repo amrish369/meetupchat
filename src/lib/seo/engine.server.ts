@@ -14,6 +14,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { discoverKeywords, type KeywordCandidate } from "./discover.server";
+import { distribute } from "./distribute.server";
+import { queuePromosForPage } from "./promos.server";
 import { generatePage, type PageEvidence, type RejectionReason } from "./generate.server";
 import {
   CATEGORIES,
@@ -40,6 +42,9 @@ export interface EngineResult {
   rejected: number;
   trafficPotential: number;
   internalLinks: number;
+  indexnowSubmitted: number;
+  sitemapSubmitted: boolean;
+  promosQueued: number;
   issues: string[];
   log: string[];
 }
@@ -74,6 +79,9 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     rejected: 0,
     trafficPotential: 0,
     internalLinks: 0,
+    indexnowSubmitted: 0,
+    sitemapSubmitted: false,
+    promosQueued: 0,
     issues,
     log,
   };
@@ -282,6 +290,8 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     // ---------- 5. Create new pages ----------
     const rejections: RejectionReason[] = [];
     let created = 0;
+    const changedUrls: string[] = [];
+    const newPages: { slug: string; title: string; description: string; facts: string[] }[] = [];
 
     for (const target of targets) {
       if (created >= MAX_PAGES_PER_RUN) break;
@@ -335,6 +345,13 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       usedKeywords.add(normalizeKeyword(page.primaryKeyword));
       bySlug.set(page.slug, { slug: page.slug, status: "published", cluster: page.cluster } as never);
       created += 1;
+      changedUrls.push(`${SITE_URL}/explore/${page.slug}`);
+      newPages.push({
+        slug: page.slug,
+        title: page.title,
+        description: page.description,
+        facts: target.evidence.facts,
+      });
       result.trafficPotential += Math.round(
         (candidates.find((c) => c.keyword === page.primaryKeyword)?.volume_estimate ?? 40) * 0.18,
       );
@@ -378,6 +395,7 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       if (error) issues.push(`Refresh ${row.slug}: ${error.message}`);
       else {
         updated += 1;
+        changedUrls.push(`${SITE_URL}/explore/${row.slug}`);
         push(`Refreshed /explore/${row.slug} with new information.`);
       }
     }
@@ -398,6 +416,7 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       if (error) issues.push(`Archive ${row.slug}: ${error.message}`);
       else {
         archived += 1;
+        changedUrls.push(`${SITE_URL}/explore/${row.slug}`);
         push(`Archived /explore/${row.slug} (its room no longer exists) → redirects to /rooms.`);
       }
     }
@@ -431,22 +450,37 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     result.internalLinks = linkUpdates;
     if (linkUpdates) push(`Refreshed ${linkUpdates} internal links across topic clusters.`);
 
-    // ---------- 9. Ping search engines ----------
-    if (created > 0 || updated > 0 || archived > 0) {
-      // Google retired the sitemap ping endpoint in 2023 — Search Console
-      // handles discovery. IndexNow (Bing, Yandex, Naver) is still supported.
-      try {
-        const ping = await fetch(
-          `https://www.bing.com/indexnow?url=${encodeURIComponent(`${SITE_URL}/sitemap.xml`)}`,
-        );
-        push(`IndexNow ping: HTTP ${ping.status}.`);
-      } catch (err) {
-        issues.push(`IndexNow ping failed: ${(err as Error).message}`);
+    // ---------- 9. Search-engine distribution (IndexNow + Search Console) ----------
+    // Google retired the sitemap ping endpoint in 2023, so Google discovery goes
+    // through a Search Console sitemap submission instead.
+    try {
+      const dist = await distribute(db, changedUrls, result.runId, push);
+      result.indexnowSubmitted = dist.indexnowSubmitted;
+      result.sitemapSubmitted = dist.sitemapSubmitted;
+      if (dist.retriesFlushed) push(`Retried ${dist.retriesFlushed} previously failed URL submission(s).`);
+      if (!dist.sitemapSubmitted && dist.sitemapDetail.includes("not connected")) {
+        issues.push("Google Search Console is not connected — Google discovery still relies on its own crawl schedule.");
       }
-      push("Google no longer accepts sitemap pings — submit /sitemap.xml once in Search Console and it re-crawls automatically.");
+    } catch (err) {
+      issues.push(`Distribution failed: ${(err as Error).message}`);
     }
 
+    // ---------- 9b. Ready-to-post promo copy (no auto-posting) ----------
+    let promos = 0;
+    for (const page of newPages.slice(0, 3)) {
+      try {
+        promos += await queuePromosForPage(db, page, result.runId);
+      } catch (err) {
+        issues.push(`Promo copy for ${page.slug}: ${(err as Error).message}`);
+      }
+    }
+    result.promosQueued = promos;
+    if (promos) push(`Queued ${promos} ready-to-post promo drafts for review.`);
+
     // ---------- 10. Technical checks ----------
+    if (!process.env["INDEXNOW_KEY"]) {
+      issues.push("INDEXNOW_KEY is missing — Bing/Yandex URL submission is disabled.");
+    }
     if (!process.env["FIRECRAWL_API_KEY"]) {
       issues.push("Firecrawl is not connected — keyword discovery is running on seed expansion only, without live trend data.");
     }
