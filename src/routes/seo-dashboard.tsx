@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { useIsAdmin } from "@/lib/admin";
+import { SeoDistributionPanels } from "@/components/seo-distribution";
 import { getSeoReport, triggerSeoRun, type SeoReport } from "@/lib/seo/seo.functions";
 
 export const Route = createFileRoute("/seo-dashboard")({
@@ -202,6 +203,8 @@ function SeoDashboard() {
             </table>
           </div>
         </section>
+
+        <SeoDistributionPanels />
       </main>
     </div>
   );
