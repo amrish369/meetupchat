@@ -290,6 +290,8 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     // ---------- 5. Create new pages ----------
     const rejections: RejectionReason[] = [];
     let created = 0;
+    const changedUrls: string[] = [];
+    const newPages: { slug: string; title: string; description: string; facts: string[] }[] = [];
 
     for (const target of targets) {
       if (created >= MAX_PAGES_PER_RUN) break;
