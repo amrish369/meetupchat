@@ -13,6 +13,7 @@ import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -62,6 +63,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
   id: '/sitemap-static.xml',
   path: '/sitemap-static.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -309,6 +317,7 @@ export interface FileRoutesById {
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
+    | '/sitemap-pages.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -456,6 +468,7 @@ export interface RootRouteChildren {
   SafetyRoute: typeof SafetyRoute
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
@@ -500,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-static.xml'
       fullPath: '/sitemap-static.xml'
       preLoaderRoute: typeof SitemapStaticDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -736,6 +756,7 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyRoute: SafetyRoute,
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
