@@ -14,6 +14,7 @@ import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
 import { Route as SitemapRoomsDotxmlRouteImport } from './routes/sitemap-rooms[.]xml'
+import { Route as SitemapRecentDotxmlRouteImport } from './routes/sitemap-recent[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
@@ -69,6 +70,11 @@ const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
 const SitemapRoomsDotxmlRoute = SitemapRoomsDotxmlRouteImport.update({
   id: '/sitemap-rooms.xml',
   path: '/sitemap-rooms.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRecentDotxmlRoute = SitemapRecentDotxmlRouteImport.update({
+  id: '/sitemap-recent.xml',
+  path: '/sitemap-recent.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
   '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
   '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -326,6 +334,7 @@ export interface FileRoutesById {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-recent.xml': typeof SitemapRecentDotxmlRoute
   '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
     | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
     | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-recent.xml'
     | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -481,6 +493,7 @@ export interface RootRouteChildren {
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapRecentDotxmlRoute: typeof SitemapRecentDotxmlRoute
   SitemapRoomsDotxmlRoute: typeof SitemapRoomsDotxmlRoute
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-rooms.xml'
       fullPath: '/sitemap-rooms.xml'
       preLoaderRoute: typeof SitemapRoomsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-recent.xml': {
+      id: '/sitemap-recent.xml'
+      path: '/sitemap-recent.xml'
+      fullPath: '/sitemap-recent.xml'
+      preLoaderRoute: typeof SitemapRecentDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -777,6 +797,7 @@ const rootRouteChildren: RootRouteChildren = {
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapRecentDotxmlRoute: SitemapRecentDotxmlRoute,
   SitemapRoomsDotxmlRoute: SitemapRoomsDotxmlRoute,
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
