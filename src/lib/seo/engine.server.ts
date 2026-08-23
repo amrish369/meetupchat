@@ -79,6 +79,9 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     rejected: 0,
     trafficPotential: 0,
     internalLinks: 0,
+    indexnowSubmitted: 0,
+    sitemapSubmitted: false,
+    promosQueued: 0,
     issues,
     log,
   };
