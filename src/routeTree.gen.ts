@@ -13,6 +13,7 @@ import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
+import { Route as SitemapRoomsDotxmlRouteImport } from './routes/sitemap-rooms[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
@@ -63,6 +64,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
   id: '/sitemap-static.xml',
   path: '/sitemap-static.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoomsDotxmlRoute = SitemapRoomsDotxmlRouteImport.update({
+  id: '/sitemap-rooms.xml',
+  path: '/sitemap-rooms.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-rooms.xml': typeof SitemapRoomsDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/seo-dashboard'
     | '/shop'
     | '/sitemap-pages.xml'
+    | '/sitemap-rooms.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
@@ -469,6 +481,7 @@ export interface RootRouteChildren {
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapRoomsDotxmlRoute: typeof SitemapRoomsDotxmlRoute
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-static.xml'
       fullPath: '/sitemap-static.xml'
       preLoaderRoute: typeof SitemapStaticDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-rooms.xml': {
+      id: '/sitemap-rooms.xml'
+      path: '/sitemap-rooms.xml'
+      fullPath: '/sitemap-rooms.xml'
+      preLoaderRoute: typeof SitemapRoomsDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -757,6 +777,7 @@ const rootRouteChildren: RootRouteChildren = {
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapRoomsDotxmlRoute: SitemapRoomsDotxmlRoute,
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
