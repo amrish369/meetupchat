@@ -14,6 +14,8 @@ export const Route = createFileRoute("/robots.txt")({
           "",
           `Sitemap: ${SITE_URL}/sitemap.xml`,
           "",
+          `# RSS feed: ${SITE_URL}/feed.xml`,
+          "",
         ].join("\n");
         return new Response(body, {
           headers: { "Content-Type": "text/plain", "Cache-Control": "public, max-age=3600" },

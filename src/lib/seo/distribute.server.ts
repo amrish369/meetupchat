@@ -35,7 +35,7 @@ export function indexNowKey(): string | null {
 
 export function indexNowKeyLocation(): string | null {
   const key = indexNowKey();
-  return key ? `${SITE_URL}/${key}.txt` : null;
+  return key ? `${SITE_URL}/indexnow-key.txt` : null;
 }
 
 async function record(
@@ -69,7 +69,7 @@ async function pushIndexNow(urls: string[]): Promise<{ status: number; detail: s
     body: JSON.stringify({
       host: new URL(SITE_URL).host,
       key,
-      keyLocation: `${SITE_URL}/${key}.txt`,
+      keyLocation: `${SITE_URL}/indexnow-key.txt`,
       urlList: urls,
     }),
   });

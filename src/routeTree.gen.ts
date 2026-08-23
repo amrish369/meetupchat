@@ -28,6 +28,7 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
@@ -143,6 +144,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
+  id: '/indexnow-key.txt',
+  path: '/indexnow-key.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
+  '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -452,6 +463,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/friends'
     | '/history'
+    | '/indexnow-key.txt'
     | '/leaderboard'
     | '/login'
     | '/matches'
@@ -493,6 +505,7 @@ export interface RootRouteChildren {
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   FriendsRoute: typeof FriendsRoute
   HistoryRoute: typeof HistoryRoute
+  IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
@@ -659,6 +672,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/indexnow-key.txt': {
+      id: '/indexnow-key.txt'
+      path: '/indexnow-key.txt'
+      fullPath: '/indexnow-key.txt'
+      preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
@@ -805,6 +825,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedDotxmlRoute: FeedDotxmlRoute,
   FriendsRoute: FriendsRoute,
   HistoryRoute: HistoryRoute,
+  IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
