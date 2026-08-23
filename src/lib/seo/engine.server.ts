@@ -478,6 +478,9 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
     if (promos) push(`Queued ${promos} ready-to-post promo drafts for review.`);
 
     // ---------- 10. Technical checks ----------
+    if (!process.env["INDEXNOW_KEY"]) {
+      issues.push("INDEXNOW_KEY is missing — Bing/Yandex URL submission is disabled.");
+    }
     if (!process.env["FIRECRAWL_API_KEY"]) {
       issues.push("Firecrawl is not connected — keyword discovery is running on seed expansion only, without live trend data.");
     }

@@ -113,3 +113,115 @@ export const getSeoReport = createServerFn({ method: "GET" })
       },
     };
   });
+
+export interface SeoSubmissionRow {
+  id: string;
+  target: string;
+  engine: string;
+  status: string;
+  attempts: number;
+  http_status: number | null;
+  detail: string | null;
+  retry_after: string | null;
+  created_at: string;
+}
+
+export interface SeoPromoRow {
+  id: string;
+  page_slug: string | null;
+  target_url: string;
+  channel: string;
+  headline: string;
+  body: string;
+  hashtags: string[];
+  status: string;
+  posted_at: string | null;
+  created_at: string;
+}
+
+export interface SeoDistribution {
+  submissions: SeoSubmissionRow[];
+  promos: SeoPromoRow[];
+  indexnowConfigured: boolean;
+  keyLocation: string | null;
+  searchConsole:
+    | { status: "unavailable"; reason: string }
+    | { status: "ok"; properties: string[]; sitemap: Record<string, unknown> | null };
+}
+
+export const getSeoDistribution = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SeoDistribution> => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { indexNowKey, indexNowKeyLocation, listVerifiedProperties, sitemapStatus } = await import(
+      "./distribute.server"
+    );
+    const db = supabaseAdmin as unknown as {
+      from: (t: string) => {
+        select: (c: string) => {
+          order: (c: string, o: { ascending: boolean }) => { limit: (n: number) => Promise<{ data: unknown }> };
+        };
+      };
+    };
+
+    const { data: submissions } = await db
+      .from("seo_submissions")
+      .select("id,target,engine,status,attempts,http_status,detail,retry_after,created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    const { data: promos } = await db
+      .from("seo_promos")
+      .select("id,page_slug,target_url,channel,headline,body,hashtags,status,posted_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    let searchConsole: SeoDistribution["searchConsole"];
+    const props = await listVerifiedProperties();
+    if (props.status === "unavailable") {
+      searchConsole = { status: "unavailable", reason: props.reason };
+    } else if (props.candidates.length === 1) {
+      const status = await sitemapStatus(props.candidates[0]);
+      searchConsole = {
+        status: "ok",
+        properties: props.candidates,
+        sitemap: status.status === "ok" ? (status as unknown as Record<string, unknown>) : null,
+      };
+    } else {
+      searchConsole = { status: "ok", properties: props.candidates, sitemap: null };
+    }
+
+    return {
+      submissions: (submissions as SeoSubmissionRow[]) ?? [],
+      promos: (promos as SeoPromoRow[]) ?? [],
+      indexnowConfigured: Boolean(indexNowKey()),
+      keyLocation: indexNowKeyLocation(),
+      searchConsole,
+    };
+  });
+
+/** Admin marks a queued promo as posted or discarded. It is never auto-posted. */
+export const setPromoStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string; status: "queued" | "posted" | "discarded" }) => {
+    if (!data?.id || !["queued", "posted", "discarded"].includes(data.status)) {
+      throw new Error("Invalid promo update");
+    }
+    return data;
+  })
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as unknown as {
+      from: (t: string) => {
+        update: (v: Record<string, unknown>) => { eq: (c: string, v: string) => Promise<{ error: { message: string } | null }> };
+      };
+    };
+    const { error } = await db
+      .from("seo_promos")
+      .update({ status: data.status, posted_at: data.status === "posted" ? new Date().toISOString() : null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
