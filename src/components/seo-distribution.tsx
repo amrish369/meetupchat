@@ -23,7 +23,7 @@ export function SeoDistributionPanels() {
   const load = async () => {
     setLoading(true);
     try {
-      setData(await fetchDistribution());
+      setData((await fetchDistribution()) as SeoDistribution);
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -96,8 +96,8 @@ export function SeoDistributionPanels() {
                 {gsc.sitemap && (
                   <p>
                     Sitemap last downloaded:{" "}
-                    {String(gsc.sitemap["lastDownloaded"] ?? "never")} · errors{" "}
-                    {String(gsc.sitemap["errors"] ?? 0)} · warnings {String(gsc.sitemap["warnings"] ?? 0)}
+                    {gsc.sitemap.lastDownloaded ?? "never"} · errors {gsc.sitemap.errors} · warnings{" "}
+                    {gsc.sitemap.warnings}
                   </p>
                 )}
                 {gsc.properties.length > 1 && (

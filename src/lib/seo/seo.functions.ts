@@ -146,7 +146,16 @@ export interface SeoDistribution {
   keyLocation: string | null;
   searchConsole:
     | { status: "unavailable"; reason: string }
-    | { status: "ok"; properties: string[]; sitemap: Record<string, unknown> | null };
+    | {
+        status: "ok";
+        properties: string[];
+        sitemap: {
+          lastSubmitted: string | null;
+          lastDownloaded: string | null;
+          errors: number;
+          warnings: number;
+        } | null;
+      };
 }
 
 export const getSeoDistribution = createServerFn({ method: "GET" })
@@ -186,7 +195,15 @@ export const getSeoDistribution = createServerFn({ method: "GET" })
       searchConsole = {
         status: "ok",
         properties: props.candidates,
-        sitemap: status.status === "ok" ? (status as unknown as Record<string, unknown>) : null,
+        sitemap:
+          status.status === "ok"
+            ? {
+                lastSubmitted: status.lastSubmitted,
+                lastDownloaded: status.lastDownloaded,
+                errors: status.errors,
+                warnings: status.warnings,
+              }
+            : null,
       };
     } else {
       searchConsole = { status: "ok", properties: props.candidates, sitemap: null };
