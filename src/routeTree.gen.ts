@@ -30,6 +30,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -152,6 +153,11 @@ const FriendsRoute = FriendsRouteImport.update({
   path: '/friends',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoturnSetupRoute = CoturnSetupRouteImport.update({
   id: '/coturn-setup',
   path: '/coturn-setup',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
     | '/leaderboard'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
     | '/leaderboard'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chat'
     | '/coturn-setup'
+    | '/feed.xml'
     | '/friends'
     | '/history'
     | '/leaderboard'
@@ -478,6 +490,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
+  FeedDotxmlRoute: typeof FeedDotxmlRoute
   FriendsRoute: typeof FriendsRoute
   HistoryRoute: typeof HistoryRoute
   LeaderboardRoute: typeof LeaderboardRoute
@@ -660,6 +673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FriendsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/coturn-setup': {
       id: '/coturn-setup'
       path: '/coturn-setup'
@@ -782,6 +802,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
+  FeedDotxmlRoute: FeedDotxmlRoute,
   FriendsRoute: FriendsRoute,
   HistoryRoute: HistoryRoute,
   LeaderboardRoute: LeaderboardRoute,
