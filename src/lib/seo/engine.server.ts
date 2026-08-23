@@ -395,6 +395,7 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       if (error) issues.push(`Refresh ${row.slug}: ${error.message}`);
       else {
         updated += 1;
+        changedUrls.push(`${SITE_URL}/explore/${row.slug}`);
         push(`Refreshed /explore/${row.slug} with new information.`);
       }
     }
@@ -415,6 +416,7 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       if (error) issues.push(`Archive ${row.slug}: ${error.message}`);
       else {
         archived += 1;
+        changedUrls.push(`${SITE_URL}/explore/${row.slug}`);
         push(`Archived /explore/${row.slug} (its room no longer exists) → redirects to /rooms.`);
       }
     }
