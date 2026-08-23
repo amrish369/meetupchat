@@ -14,6 +14,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { discoverKeywords, type KeywordCandidate } from "./discover.server";
+import { distribute } from "./distribute.server";
+import { queuePromosForPage } from "./promos.server";
 import { generatePage, type PageEvidence, type RejectionReason } from "./generate.server";
 import {
   CATEGORIES,
