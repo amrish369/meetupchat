@@ -43,6 +43,13 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async (): Promise<SeoPageRecord[]> => {
+    try {
+      return ((await listSeoPages()) as SeoPageRecord[]).slice(0, 6);
+    } catch {
+      return [];
+    }
+  },
   component: HomePage,
 });
 
@@ -52,6 +59,7 @@ function HomePage() {
       <SiteHeader />
       <Hero />
       <SocialProof />
+      <FreshToday />
       <PrivateCta />
       <FeatureGrid />
       <SafetySection />
@@ -64,6 +72,61 @@ function HomePage() {
     </div>
   );
 }
+
+function FreshToday() {
+  const pages = Route.useLoaderData() as SeoPageRecord[];
+  if (!pages.length) return null;
+
+  const dateFmt = (v: string | null) =>
+    v
+      ? new Date(v).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+      : "";
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wider text-teal">
+            New every day
+          </p>
+          <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl text-balance">
+            Fresh from Meetup today
+          </h2>
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            New guides, city rooms and safety tips are published here daily.
+          </p>
+        </div>
+        <Button asChild variant="cream" size="lg">
+          <Link to="/explore">See everything</Link>
+        </Button>
+      </div>
+
+      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {pages.map((p) => (
+          <Link
+            key={p.slug}
+            to="/explore/$slug"
+            params={{ slug: p.slug }}
+            className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-elev"
+          >
+            <span className="text-xs font-medium uppercase tracking-wider text-teal">
+              {p.category ?? p.kind}
+            </span>
+            <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground">{p.title}</h3>
+            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+              {p.description}
+            </p>
+            <span className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+              {dateFmt(p.published_at ?? p.updated_at)}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
 function Hero() {
   return (
