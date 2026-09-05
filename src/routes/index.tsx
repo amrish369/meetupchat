@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { listSeoPages } from "@/lib/seo/pages.functions";
+import type { SeoPageRecord } from "@/lib/seo/public.server";
+
 import {
   Shield,
   Lock,
