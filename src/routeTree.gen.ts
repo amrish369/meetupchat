@@ -34,6 +34,7 @@ import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as AdsDottxtRouteImport } from './routes/ads[.]txt'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AboutRouteImport } from './routes/about'
@@ -174,6 +175,11 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdsDottxtRoute = AdsDottxtRouteImport.update({
+  id: '/ads.txt',
+  path: '/ads.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/ads.txt': typeof AdsDottxtRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -291,6 +298,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/ads.txt': typeof AdsDottxtRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
+  '/ads.txt': typeof AdsDottxtRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/ads.txt'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -417,6 +427,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/ads.txt'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/achievements'
     | '/admin'
+    | '/ads.txt'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -500,6 +512,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
+  AdsDottxtRoute: typeof AdsDottxtRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
@@ -714,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ads.txt': {
+      id: '/ads.txt'
+      path: '/ads.txt'
+      fullPath: '/ads.txt'
+      preLoaderRoute: typeof AdsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -820,6 +840,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
+  AdsDottxtRoute: AdsDottxtRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
