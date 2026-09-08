@@ -43,9 +43,9 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    debug: typeof search.debug === "string" ? search.debug : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { debug?: string } =>
+    typeof search.debug === "string" ? { debug: search.debug } : {},
+
   loader: async (): Promise<FeedData> => {
     const startedAt = Date.now();
     try {
