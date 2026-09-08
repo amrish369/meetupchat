@@ -43,15 +43,40 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: async (): Promise<SeoPageRecord[]> => {
+  validateSearch: (search: Record<string, unknown>) => ({
+    debug: typeof search.debug === "string" ? search.debug : undefined,
+  }),
+  loader: async (): Promise<FeedData> => {
+    const startedAt = Date.now();
     try {
-      return ((await listSeoPages()) as SeoPageRecord[]).slice(0, 6);
-    } catch {
-      return [];
+      const all = (await listSeoPages()) as SeoPageRecord[];
+      return {
+        pages: all.slice(0, 6),
+        total: all.length,
+        error: null,
+        ms: Date.now() - startedAt,
+        fetchedAt: new Date().toISOString(),
+      };
+    } catch (e) {
+      return {
+        pages: [],
+        total: 0,
+        error: e instanceof Error ? e.message : String(e),
+        ms: Date.now() - startedAt,
+        fetchedAt: new Date().toISOString(),
+      };
     }
   },
   component: HomePage,
 });
+
+interface FeedData {
+  pages: SeoPageRecord[];
+  total: number;
+  error: string | null;
+  ms: number;
+  fetchedAt: string;
+}
 
 function HomePage() {
   return (
@@ -74,8 +99,12 @@ function HomePage() {
 }
 
 function FreshToday() {
-  const pages = Route.useLoaderData() as SeoPageRecord[];
-  if (!pages.length) return null;
+  const data = Route.useLoaderData() as FeedData;
+  const { debug } = Route.useSearch();
+  const debugOn = debug === "feed" || debug === "1";
+  const pages = data.pages;
+
+  if (!pages.length && !debugOn) return null;
 
   const dateFmt = (v: string | null) =>
     v
@@ -101,31 +130,56 @@ function FreshToday() {
         </Button>
       </div>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {pages.map((p) => (
-          <Link
-            key={p.slug}
-            to="/explore/$slug"
-            params={{ slug: p.slug }}
-            className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-elev"
-          >
-            <span className="text-xs font-medium uppercase tracking-wider text-teal">
-              {p.category ?? p.kind}
-            </span>
-            <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground">{p.title}</h3>
-            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-              {p.description}
-            </p>
-            <span className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-              {dateFmt(p.published_at ?? p.updated_at)}
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-            </span>
-          </Link>
-        ))}
-      </div>
+      {debugOn && (
+        <pre className="mt-8 overflow-x-auto rounded-xl border border-border bg-secondary/50 p-4 text-xs text-foreground">
+{JSON.stringify(
+  {
+    published_total: data.total,
+    shown: pages.length,
+    loader_ms: data.ms,
+    fetched_at: data.fetchedAt,
+    error: data.error,
+    slugs: pages.map((p) => p.slug),
+  },
+  null,
+  2,
+)}
+        </pre>
+      )}
+
+      {!pages.length ? (
+        <p className="mt-10 rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+          No published pages found yet. The daily content engine publishes new pages automatically;
+          an admin can also run it now from the SEO dashboard.
+        </p>
+      ) : (
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {pages.map((p) => (
+            <Link
+              key={p.slug}
+              to="/explore/$slug"
+              params={{ slug: p.slug }}
+              className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-elev"
+            >
+              <span className="text-xs font-medium uppercase tracking-wider text-teal">
+                {p.category ?? p.kind}
+              </span>
+              <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground">{p.title}</h3>
+              <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                {p.description}
+              </p>
+              <span className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                {dateFmt(p.published_at ?? p.updated_at)}
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
+
 
 
 function Hero() {
