@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { ShareRow } from "@/components/share-row";
 import { SiteFooter } from "@/components/site-footer";
+import { AdSlot } from "@/components/ad-slot";
 import { getSeoPage } from "@/lib/seo/pages.functions";
 import type { SeoPageRecord } from "@/lib/seo/public.server";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/taxonomy";
@@ -184,6 +185,8 @@ function ExplorePage() {
           </Link>
         </div>
       </article>
+
+      <AdSlot />
 
       <SiteFooter />
     </div>

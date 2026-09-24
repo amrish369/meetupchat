@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/site-header";
 import { PrivateCta } from "@/components/private-cta";
 import { SiteFooter } from "@/components/site-footer";
+import { AdSlot } from "@/components/ad-slot";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -92,6 +93,7 @@ function HomePage() {
       <HowItWorks />
       <FAQ />
       <Waitlist />
+      <AdSlot />
       <SiteFooter />
       <Toaster richColors position="top-center" />
     </div>

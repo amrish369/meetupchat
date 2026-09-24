@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AdSlot } from "@/components/ad-slot";
 import { listSeoPages } from "@/lib/seo/pages.functions";
 import type { SeoPageRecord } from "@/lib/seo/public.server";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/taxonomy";
@@ -81,6 +82,7 @@ function ExploreIndex() {
           </section>
         ))}
       </main>
+      <AdSlot />
       <SiteFooter />
     </div>
   );
