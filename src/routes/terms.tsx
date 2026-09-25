@@ -48,8 +48,19 @@ function TermsPage() {
       <h2>5. Cooperation with authorities</h2>
       <p>We keep relevant information for 180 days after account deletion or content removal, and share it with authorised government agencies when required by law, within 72 hours of a lawful request.</p>
 
-      <h2>6. Disclaimer</h2>
-      <p>Users are responsible for their own conversations. Meetup is provided "as is" without warranties to the extent allowed by law.</p>
+      <h2>6. Disclaimer and limitation of liability</h2>
+      <p>Meetup is only an intermediary under Section 79 of the Information Technology Act, 2000. All conversations, video calls, messages, images and behaviour on the platform belong solely to the users taking part in them.</p>
+      <ul>
+        <li>The platform, its owner, founder, employees and partners are <strong>not responsible or liable</strong> for anything a user says, shows, shares or does during a chat or call.</li>
+        <li>We are not liable for any loss, fraud, cheating, harassment, emotional distress, injury, data loss or dispute arising between users, whether direct or indirect.</li>
+        <li>You use Meetup entirely <strong>at your own risk</strong>. We do not verify the identity, age claims, intentions or statements of other users beyond the checks described in these Terms.</li>
+        <li>Meetup is provided "as is" and "as available", without warranties of any kind to the fullest extent permitted by law, including uninterrupted or error-free service.</li>
+        <li>To the maximum extent permitted by law, our total liability for any claim is limited to the amount you paid us in the 30 days before the claim, or ₹1,000, whichever is lower.</li>
+      </ul>
+
+      <h2>6A. Indemnity (hold harmless)</h2>
+      <p>You agree to indemnify, defend and hold harmless Meetup, its owner and its team from any claim, demand, legal notice, penalty, loss or expense (including legal fees) arising out of your use of the platform, your content, your conduct towards other users, or your breach of these Terms or of any law in force.</p>
+
 
       <h2>7. Grievance Officer</h2>
       <p>For complaints, contact our Grievance Officer — see the <Link to="/grievance">Grievance Redressal</Link> page ({GRIEVANCE.email}).</p>
