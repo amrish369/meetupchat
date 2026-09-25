@@ -31,6 +31,9 @@ export function SiteFooter() {
           <ul className="space-y-2 text-sm text-cream/70">
             <li><Link to="/about" className="hover:text-cream">About us</Link></li>
             <li><a href="mailto:hello@meetup.app" className="hover:text-cream">Contact</a></li>
+            <li><Link to="/terms" className="hover:text-cream">Terms of Service</Link></li>
+            <li><Link to="/privacy" className="hover:text-cream">Privacy Policy</Link></li>
+            <li><Link to="/grievance" className="hover:text-cream">Grievance Officer</Link></li>
           </ul>
         </div>
 
