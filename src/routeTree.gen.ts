@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VisitorsRouteImport } from './routes/visitors'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
@@ -23,6 +24,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MatchesRouteImport } from './routes/matches'
@@ -30,6 +32,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as GrievanceRouteImport } from './routes/grievance'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
@@ -53,6 +56,11 @@ import { Route as ApiPublicSeoCronRouteImport } from './routes/api/public/seo-cr
 const VisitorsRoute = VisitorsRouteImport.update({
   id: '/visitors',
   path: '/visitors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SupportRoute = SupportRouteImport.update({
@@ -120,6 +128,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -153,6 +166,11 @@ const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GrievanceRoute = GrievanceRouteImport.update({
+  id: '/grievance',
+  path: '/grievance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -261,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
+  '/grievance': typeof GrievanceRoute
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -268,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
@@ -281,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -303,6 +324,7 @@ export interface FileRoutesByTo {
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
+  '/grievance': typeof GrievanceRoute
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -310,6 +332,7 @@ export interface FileRoutesByTo {
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
@@ -323,6 +346,7 @@ export interface FileRoutesByTo {
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -346,6 +370,7 @@ export interface FileRoutesById {
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/friends': typeof FriendsRoute
+  '/grievance': typeof GrievanceRoute
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -353,6 +378,7 @@ export interface FileRoutesById {
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
@@ -366,6 +392,7 @@ export interface FileRoutesById {
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/visitors': typeof VisitorsRoute
   '/calls/$callId': typeof CallsCallIdRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -390,6 +417,7 @@ export interface FileRouteTypes {
     | '/coturn-setup'
     | '/feed.xml'
     | '/friends'
+    | '/grievance'
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
@@ -397,6 +425,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/premium'
     | '/pricing'
+    | '/privacy'
     | '/profile'
     | '/referrals'
     | '/rewards'
@@ -410,6 +439,7 @@ export interface FileRouteTypes {
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/visitors'
     | '/calls/$callId'
     | '/explore/$slug'
@@ -432,6 +462,7 @@ export interface FileRouteTypes {
     | '/coturn-setup'
     | '/feed.xml'
     | '/friends'
+    | '/grievance'
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
@@ -439,6 +470,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/premium'
     | '/pricing'
+    | '/privacy'
     | '/profile'
     | '/referrals'
     | '/rewards'
@@ -452,6 +484,7 @@ export interface FileRouteTypes {
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/visitors'
     | '/calls/$callId'
     | '/explore/$slug'
@@ -474,6 +507,7 @@ export interface FileRouteTypes {
     | '/coturn-setup'
     | '/feed.xml'
     | '/friends'
+    | '/grievance'
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
@@ -481,6 +515,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/premium'
     | '/pricing'
+    | '/privacy'
     | '/profile'
     | '/referrals'
     | '/rewards'
@@ -494,6 +529,7 @@ export interface FileRouteTypes {
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/visitors'
     | '/calls/$callId'
     | '/explore/$slug'
@@ -517,6 +553,7 @@ export interface RootRouteChildren {
   CoturnSetupRoute: typeof CoturnSetupRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   FriendsRoute: typeof FriendsRoute
+  GrievanceRoute: typeof GrievanceRoute
   HistoryRoute: typeof HistoryRoute
   IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
   LeaderboardRoute: typeof LeaderboardRoute
@@ -524,6 +561,7 @@ export interface RootRouteChildren {
   MatchesRoute: typeof MatchesRoute
   PremiumRoute: typeof PremiumRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
@@ -537,6 +575,7 @@ export interface RootRouteChildren {
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
+  TermsRoute: typeof TermsRoute
   VisitorsRoute: typeof VisitorsRoute
   CallsCallIdRoute: typeof CallsCallIdRoute
   ExploreSlugRoute: typeof ExploreSlugRoute
@@ -557,6 +596,13 @@ declare module '@tanstack/react-router' {
       path: '/visitors'
       fullPath: '/visitors'
       preLoaderRoute: typeof VisitorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/support': {
@@ -650,6 +696,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -697,6 +750,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grievance': {
+      id: '/grievance'
+      path: '/grievance'
+      fullPath: '/grievance'
+      preLoaderRoute: typeof GrievanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -845,6 +905,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoturnSetupRoute: CoturnSetupRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
   FriendsRoute: FriendsRoute,
+  GrievanceRoute: GrievanceRoute,
   HistoryRoute: HistoryRoute,
   IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
   LeaderboardRoute: LeaderboardRoute,
@@ -852,6 +913,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatchesRoute: MatchesRoute,
   PremiumRoute: PremiumRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
@@ -865,6 +927,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
+  TermsRoute: TermsRoute,
   VisitorsRoute: VisitorsRoute,
   CallsCallIdRoute: CallsCallIdRoute,
   ExploreSlugRoute: ExploreSlugRoute,
