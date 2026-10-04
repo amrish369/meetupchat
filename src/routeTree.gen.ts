@@ -29,6 +29,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -151,6 +152,11 @@ const MatchesRoute = MatchesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/indexnow-key.txt': typeof IndexnowKeyDottxtRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/premium': typeof PremiumRoute
@@ -421,6 +430,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
+    | '/llms.txt'
     | '/login'
     | '/matches'
     | '/premium'
@@ -466,6 +476,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
+    | '/llms.txt'
     | '/login'
     | '/matches'
     | '/premium'
@@ -511,6 +522,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/indexnow-key.txt'
     | '/leaderboard'
+    | '/llms.txt'
     | '/login'
     | '/matches'
     | '/premium'
@@ -557,6 +569,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   IndexnowKeyDottxtRoute: typeof IndexnowKeyDottxtRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   PremiumRoute: typeof PremiumRoute
@@ -729,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -909,6 +929,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   IndexnowKeyDottxtRoute: IndexnowKeyDottxtRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   PremiumRoute: PremiumRoute,

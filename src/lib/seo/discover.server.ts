@@ -47,6 +47,11 @@ function seedQueries(roomNames: string[]): string[] {
     queries.push(`online community meetup ${REGIONS[key].city}`);
   }
   queries.push("best free video chat community 2026");
+  queries.push("best omegle alternative 2026");
+  queries.push("random video chat with strangers worldwide");
+  queries.push("practice english speaking with strangers online");
+  queries.push("language exchange video chat free");
+  queries.push("make international friends online");
   queries.push("how to meet new people online safely");
   for (const name of roomNames.slice(0, 4)) {
     queries.push(`${name} online community chat`);

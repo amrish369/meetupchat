@@ -15,6 +15,7 @@ export const Route = createFileRoute("/robots.txt")({
           `Sitemap: ${SITE_URL}/sitemap.xml`,
           "",
           `# RSS feed: ${SITE_URL}/feed.xml`,
+          `# AI summary: ${SITE_URL}/llms.txt`,
           "",
         ].join("\n");
         return new Response(body, {

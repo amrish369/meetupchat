@@ -237,6 +237,9 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
       { slug: "safe-anonymous-video-chat-guide", entity: "Staying safe in anonymous video chat", matchers: ["safe", "safety", "strangers"] },
       { slug: "how-to-meet-new-people-online", entity: "How to meet new people online", matchers: ["meet new people", "make friends online"] },
       { slug: "online-community-vs-offline-meetup", entity: "Online communities compared with offline meetups", matchers: ["meetup", "community", "online event"] },
+      { slug: "omegle-alternative-random-video-chat", entity: "A safe Omegle alternative for random video chat", matchers: ["omegle alternative", "random video chat", "chat with strangers"] },
+      { slug: "practice-english-with-strangers-online", entity: "Practising spoken English and other languages by video chat", matchers: ["practice english", "language exchange"] },
+      { slug: "make-international-friends-online", entity: "Making friends from other countries online", matchers: ["international friends", "make friends worldwide", "meet new people"] },
     ];
     for (const g of guides) {
       targets.push({
@@ -246,7 +249,7 @@ export async function runSeoEngine(source: "cron" | "manual"): Promise<EngineRes
         evidence: {
           kind: "guide",
           entity: g.entity,
-          country: "India",
+          country: "Worldwide",
           facts: [
             `${SITE_NAME} is a free, anonymous video and text chat platform at ${SITE_URL}. No phone number, no email, no registration to start.`,
             `Built-in safety: 18+ age verification, report and block, live abuse/nudity moderation, screen-recording blocking, and account suspension after repeated violations.`,
