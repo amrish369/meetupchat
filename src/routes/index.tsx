@@ -31,16 +31,16 @@ import { Toaster } from "@/components/ui/sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Meetup — Safe anonymous video chat in India (OmeTV alternative)" },
+      { title: "Meetup — Free random video chat with strangers worldwide (OmeTV alternative)" },
       {
         name: "description",
         content:
-          "Random video chat with strangers across India. No login, no phone number, no tracking. Built-in safety features make it the best OmeTV alternative.",
+          "Random video chat with strangers from all over the world. No login, no phone number, no tracking. Built-in safety features make it the best OmeTV alternative.",
       },
-      { property: "og:title", content: "Meetup — Safe anonymous video chat in India" },
+      { property: "og:title", content: "Meetup — Free random video chat with strangers worldwide" },
       {
         property: "og:description",
-        content: "Free random video chat. 100% anonymous. India-focused. Safer than OmeTV.",
+        content: "Free random video chat. 100% anonymous. Meet people worldwide. Safer than OmeTV.",
       },
     ],
   }),
@@ -200,7 +200,8 @@ function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
               </span>
-              India's anonymous video chat — built privacy-first
+              Meet people from all over the world — privacy-first
+
             </div>
 
             <h1 className="mt-6 text-4xl font-bold leading-[1.05] text-cream sm:text-5xl lg:text-6xl text-balance">
@@ -208,7 +209,7 @@ function Hero() {
             </h1>
 
             <p className="mt-5 max-w-xl text-base text-cream/75 sm:text-lg">
-              Random one-on-one video chat for India. No phone number. No email. No login.
+              Random one-on-one video chat with people from every country. No phone number. No email. No login.
               Just press start and meet someone in seconds — with safety built in by default.
             </p>
 
@@ -307,8 +308,8 @@ function FeatureGrid() {
     },
     {
       icon: Zap,
-      title: "Built for India",
-      desc: "Optimised for low-bandwidth networks. Works smoothly on entry-level Android phones over 3G/4G.",
+      title: "Works everywhere",
+      desc: "Optimised for low-bandwidth networks. Smooth on entry-level Android phones over 3G/4G — in any country.",
     },
     {
       icon: Globe2,
@@ -408,9 +409,9 @@ function ComparisonTable() {
     { f: "No login required", us: true, ome: true, others: false },
     { f: "No phone number ever", us: true, ome: false, others: false },
     { f: "Peer-to-peer video (we never see it)", us: true, ome: false, others: false },
-    { f: "India-optimised low-bandwidth mode", us: true, ome: false, others: false },
+    { f: "Low-bandwidth mode built for any network", us: true, ome: false, others: false },
     { f: "Free unlimited matches", us: true, ome: true, others: false },
-    { f: "Hindi keyword moderation", us: true, ome: false, others: false },
+    { f: "Multi-language keyword moderation", us: true, ome: false, others: false },
     { f: "Karma-based safety system", us: true, ome: false, others: false },
     { f: "No third-party ad tracking", us: true, ome: false, others: false },
   ];
@@ -596,8 +597,8 @@ function Waitlist() {
               Be first to get Premium perks
             </h2>
             <p className="mt-3 text-cream/70">
-              Join the waitlist for early access to gender filters, country filters, and the
-              India-only mode. Plus referral rewards.
+              Join the waitlist for early access to gender filters, country filters, and
+              worldwide matching. Plus referral rewards.
             </p>
           </div>
           {done ? (

@@ -154,7 +154,7 @@ export async function feedXml(): Promise<string> {
     "  <channel>",
     "    <title>Meetup — new community guides</title>",
     `    <link>${SITE_URL}/explore</link>`,
-    "    <description>New guides and community pages from Meetup, India's free anonymous 18+ video and text chat platform.</description>",
+    "    <description>New guides and community pages from Meetup, the free anonymous worldwide 18+ video and text chat platform.</description>",
     "    <language>en-in</language>",
     `    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />`,
     ...items,
