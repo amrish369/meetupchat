@@ -4,6 +4,8 @@ import { Phone, PhoneOff, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { startIncomingRing, stopIncomingRing, unlockAudio } from "@/lib/call-sounds";
+import { showIncomingCallNotification, closeIncomingCallNotification, notifyPermission, requestCallNotifications, type NotifyPermission } from "@/lib/call-notify";
 
 interface IncomingCall {
   id: string; caller_id: string; callee_id: string;
@@ -70,18 +72,33 @@ export function IncomingCallModal() {
   // Vibrate + auto-dismiss an unanswered ring after 45s (call becomes "missed").
   useEffect(() => {
     if (!incoming) return;
-    try { navigator.vibrate?.([400, 200, 400, 200, 400]); } catch { /* noop */ }
+    startIncomingRing();
     const t = setTimeout(() => {
       void supabase.rpc("end_private_call", { p_call_id: incoming.id });
       setIncoming(null);
     }, 45_000);
-    return () => { clearTimeout(t); try { navigator.vibrate?.(0); } catch { /* noop */ } };
+    return () => { clearTimeout(t); stopIncomingRing(); closeIncomingCallNotification(); };
   }, [incoming?.id]);
+
+  // System notification (shows even when the tab is in the background).
+  useEffect(() => {
+    if (!incoming) return;
+    showIncomingCallNotification({ name: caller?.display_name || "Someone", mode: incoming.mode });
+  }, [incoming?.id, caller?.display_name]);
+
+  // Unlock audio on first user tap so the ringtone can play later on mobile.
+  useEffect(() => {
+    const h = () => unlockAudio();
+    window.addEventListener("pointerdown", h, { once: true });
+    window.addEventListener("keydown", h, { once: true });
+    return () => { window.removeEventListener("pointerdown", h); window.removeEventListener("keydown", h); };
+  }, []);
 
 
 
   const accept = async () => {
     if (!incoming) return;
+    stopIncomingRing(); closeIncomingCallNotification();
     setBusy(true);
     const { error } = await supabase.rpc("respond_private_call", { p_call_id: incoming.id, p_accept: true });
     setBusy(false);
@@ -93,6 +110,7 @@ export function IncomingCallModal() {
 
   const decline = async () => {
     if (!incoming) return;
+    stopIncomingRing(); closeIncomingCallNotification();
     setBusy(true);
     await supabase.rpc("respond_private_call", { p_call_id: incoming.id, p_accept: false });
     setIncoming(null);
@@ -145,5 +163,16 @@ export function IncomingCallModal() {
         </button>
       </div>
     </div>
+  );
+}
+
+export function EnableCallNotifications() {
+  const [perm, setPerm] = useState<NotifyPermission>("unsupported");
+  useEffect(() => { setPerm(notifyPermission()); }, []);
+  if (perm !== "default") return null;
+  return (
+    <Button size="sm" variant="outline" onClick={async () => { unlockAudio(); setPerm(await requestCallNotifications()); }}>
+      Enable call notifications
+    </Button>
   );
 }
