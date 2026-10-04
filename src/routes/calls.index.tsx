@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { EnableCallNotifications } from "@/components/incoming-call-modal";
 
 export const Route = createFileRoute("/calls/")({
   head: () => ({ meta: [{ title: "Private Calls — Meetup" }] }),
@@ -57,6 +58,7 @@ function CallsPage() {
       <div className="sticky top-0 z-10 flex items-center gap-3 bg-background/95 px-4 py-3 backdrop-blur border-b">
         <Link to="/" className="rounded-full p-1.5 hover:bg-muted"><ArrowLeft className="h-5 w-5" /></Link>
         <h1 className="text-lg font-bold">Private Calls</h1>
+        <div className="ml-auto"><EnableCallNotifications /></div>
       </div>
 
       <div className="px-4 py-3 text-xs text-muted-foreground">
