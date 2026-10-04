@@ -77,6 +77,13 @@ export const TOPIC_TERMS = [
   "cricket fans",
   "coding community",
   "founders community",
+  "random video chat",
+  "omegle alternative",
+  "chat with strangers",
+  "language exchange",
+  "practice english",
+  "international friends",
+  "make friends worldwide",
 ];
 
 /** Terms that instantly disqualify a keyword, whatever else it contains. */
