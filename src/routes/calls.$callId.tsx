@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { startOutgoingRing, stopOutgoingRing, playConnectTone, playEndTone } from "@/lib/call-sounds";
 import { PrivateCall, type CallStatus, type CallMode } from "@/lib/private-call";
 
 export const Route = createFileRoute("/calls/$callId")({
@@ -149,7 +150,16 @@ function CallScreen() {
     }
   }, [row?.status, user?.id]);
 
+  // Outgoing ringback while waiting; chime on connect.
+  useEffect(() => {
+    if (waiting) { startOutgoingRing(); return () => stopOutgoingRing(); }
+    stopOutgoingRing();
+  }, [waiting]);
+  useEffect(() => { if (status === "connected") playConnectTone(); }, [status]);
+
   const cleanup = async () => {
+    stopOutgoingRing();
+    if (engineRef.current) playEndTone();
     if (engineRef.current) { await engineRef.current.stop(); engineRef.current = null; }
   };
 
