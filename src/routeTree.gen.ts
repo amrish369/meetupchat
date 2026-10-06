@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdsDottxtRouteImport } from './routes/ads[.]txt'
+import { Route as AnonymousVideoChatRouteImport } from './routes/anonymous-video-chat'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
@@ -29,9 +30,11 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RandomVideoChatWorldwideRouteImport } from './routes/random-video-chat-worldwide'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SafeRandomVideoChatRouteImport } from './routes/safe-random-video-chat'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
 import { Route as ShopRouteImport } from './routes/shop'
@@ -77,6 +80,11 @@ const AdminRoute = AdminRouteImport.update({
 const AdsDottxtRoute = AdsDottxtRouteImport.update({
   id: '/ads.txt',
   path: '/ads.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnonymousVideoChatRoute = AnonymousVideoChatRouteImport.update({
+  id: '/anonymous-video-chat',
+  path: '/anonymous-video-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -154,6 +162,12 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RandomVideoChatWorldwideRoute =
+  RandomVideoChatWorldwideRouteImport.update({
+    id: '/random-video-chat-worldwide',
+    path: '/random-video-chat-worldwide',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
@@ -167,6 +181,11 @@ const RewardsRoute = RewardsRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafeRandomVideoChatRoute = SafeRandomVideoChatRouteImport.update({
+  id: '/safe-random-video-chat',
+  path: '/safe-random-video-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SafetyRoute = SafetyRouteImport.update({
@@ -281,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -296,9 +316,11 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -327,6 +349,7 @@ export interface FileRoutesByTo {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -342,9 +365,11 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -374,6 +399,7 @@ export interface FileRoutesById {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -389,9 +415,11 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -422,6 +450,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -437,9 +466,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -468,6 +499,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -483,9 +515,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -514,6 +548,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -529,9 +564,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -561,6 +598,7 @@ export interface RootRouteChildren {
   AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
   AdsDottxtRoute: typeof AdsDottxtRoute
+  AnonymousVideoChatRoute: typeof AnonymousVideoChatRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
@@ -576,9 +614,11 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  RandomVideoChatWorldwideRoute: typeof RandomVideoChatWorldwideRoute
   ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SafeRandomVideoChatRoute: typeof SafeRandomVideoChatRoute
   SafetyRoute: typeof SafetyRoute
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
@@ -637,6 +677,13 @@ declare module '@tanstack/react-router' {
       path: '/ads.txt'
       fullPath: '/ads.txt'
       preLoaderRoute: typeof AdsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anonymous-video-chat': {
+      id: '/anonymous-video-chat'
+      path: '/anonymous-video-chat'
+      fullPath: '/anonymous-video-chat'
+      preLoaderRoute: typeof AnonymousVideoChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -744,6 +791,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/random-video-chat-worldwide': {
+      id: '/random-video-chat-worldwide'
+      path: '/random-video-chat-worldwide'
+      fullPath: '/random-video-chat-worldwide'
+      preLoaderRoute: typeof RandomVideoChatWorldwideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/referrals': {
       id: '/referrals'
       path: '/referrals'
@@ -763,6 +817,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safe-random-video-chat': {
+      id: '/safe-random-video-chat'
+      path: '/safe-random-video-chat'
+      fullPath: '/safe-random-video-chat'
+      preLoaderRoute: typeof SafeRandomVideoChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/safety': {
@@ -921,6 +982,7 @@ const rootRouteChildren: RootRouteChildren = {
   AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
   AdsDottxtRoute: AdsDottxtRoute,
+  AnonymousVideoChatRoute: AnonymousVideoChatRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
@@ -936,9 +998,11 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  RandomVideoChatWorldwideRoute: RandomVideoChatWorldwideRoute,
   ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SafeRandomVideoChatRoute: SafeRandomVideoChatRoute,
   SafetyRoute: SafetyRoute,
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,
