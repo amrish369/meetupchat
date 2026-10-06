@@ -1,0 +1,3 @@
+- [ ] Add three distinct worldwide SEO landing pages for safe, global, and anonymous random video chat.
+- [ ] Link the pages from Explore, the AI-readable site summary, and the sitemap.
+- [ ] Verify metadata, routes, and the preview after the changes.
