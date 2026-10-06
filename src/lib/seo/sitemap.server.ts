@@ -20,6 +20,9 @@ export const STATIC_ENTRIES: Entry[] = [
   { path: "/pricing", changefreq: "monthly", priority: "0.6" },
   { path: "/premium", changefreq: "monthly", priority: "0.6" },
   { path: "/safety", changefreq: "monthly", priority: "0.7" },
+  { path: "/safe-random-video-chat", changefreq: "monthly", priority: "0.8" },
+  { path: "/random-video-chat-worldwide", changefreq: "monthly", priority: "0.8" },
+  { path: "/anonymous-video-chat", changefreq: "monthly", priority: "0.8" },
   { path: "/about", changefreq: "monthly", priority: "0.5" },
   { path: "/support", changefreq: "monthly", priority: "0.4" },
 ];

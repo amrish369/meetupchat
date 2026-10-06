@@ -1,0 +1,1 @@
+- Public SEO landing pages use separate file-based leaf routes with unique metadata, while a shared view keeps their presentation consistent; this preserves independent search identity without duplicating the layout.

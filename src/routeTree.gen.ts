@@ -9,209 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VisitorsRouteImport } from './routes/visitors'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
-import { Route as SitemapRoomsDotxmlRouteImport } from './routes/sitemap-rooms[.]xml'
-import { Route as SitemapRecentDotxmlRouteImport } from './routes/sitemap-recent[.]xml'
-import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
-import { Route as ShopRouteImport } from './routes/shop'
-import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
-import { Route as SafetyRouteImport } from './routes/safety'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as RewardsRouteImport } from './routes/rewards'
-import { Route as ReferralsRouteImport } from './routes/referrals'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PremiumRouteImport } from './routes/premium'
-import { Route as MatchesRouteImport } from './routes/matches'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
-import { Route as HistoryRouteImport } from './routes/history'
-import { Route as GrievanceRouteImport } from './routes/grievance'
-import { Route as FriendsRouteImport } from './routes/friends'
-import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
-import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as AdsDottxtRouteImport } from './routes/ads[.]txt'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AchievementsRouteImport } from './routes/achievements'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
-import { Route as MessagesIndexRouteImport } from './routes/messages.index'
-import { Route as ExploreIndexRouteImport } from './routes/explore.index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdsDottxtRouteImport } from './routes/ads[.]txt'
+import { Route as AnonymousVideoChatRouteImport } from './routes/anonymous-video-chat'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as CoturnSetupRouteImport } from './routes/coturn-setup'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
+import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as GrievanceRouteImport } from './routes/grievance'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as IndexnowKeyDottxtRouteImport } from './routes/indexnow-key[.]txt'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MatchesRouteImport } from './routes/matches'
+import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RandomVideoChatWorldwideRouteImport } from './routes/random-video-chat-worldwide'
+import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SafeRandomVideoChatRouteImport } from './routes/safe-random-video-chat'
+import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapRecentDotxmlRouteImport } from './routes/sitemap-recent[.]xml'
+import { Route as SitemapRoomsDotxmlRouteImport } from './routes/sitemap-rooms[.]xml'
+import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VisitorsRouteImport } from './routes/visitors'
 import { Route as CallsIndexRouteImport } from './routes/calls.index'
-import { Route as UUserIdRouteImport } from './routes/u.$userId'
-import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
-import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
-import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
 import { Route as CallsCallIdRouteImport } from './routes/calls.$callId'
+import { Route as ExploreIndexRouteImport } from './routes/explore.index'
+import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
+import { Route as MessagesPeerIdRouteImport } from './routes/messages.$peerId'
+import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
+import { Route as RoomsSlugRouteImport } from './routes/rooms.$slug'
+import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as ApiPublicSeoCronRouteImport } from './routes/api/public/seo-cron'
 
-const VisitorsRoute = VisitorsRouteImport.update({
-  id: '/visitors',
-  path: '/visitors',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
-  id: '/sitemap-static.xml',
-  path: '/sitemap-static.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapRoomsDotxmlRoute = SitemapRoomsDotxmlRouteImport.update({
-  id: '/sitemap-rooms.xml',
-  path: '/sitemap-rooms.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapRecentDotxmlRoute = SitemapRecentDotxmlRouteImport.update({
-  id: '/sitemap-recent.xml',
-  path: '/sitemap-recent.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
-  id: '/sitemap-pages.xml',
-  path: '/sitemap-pages.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SeoDashboardRoute = SeoDashboardRouteImport.update({
-  id: '/seo-dashboard',
-  path: '/seo-dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SafetyRoute = SafetyRouteImport.update({
-  id: '/safety',
-  path: '/safety',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RewardsRoute = RewardsRouteImport.update({
-  id: '/rewards',
-  path: '/rewards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReferralsRoute = ReferralsRouteImport.update({
-  id: '/referrals',
-  path: '/referrals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PremiumRoute = PremiumRouteImport.update({
-  id: '/premium',
-  path: '/premium',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatchesRoute = MatchesRouteImport.update({
-  id: '/matches',
-  path: '/matches',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
-  id: '/indexnow-key.txt',
-  path: '/indexnow-key.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoryRoute = HistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GrievanceRoute = GrievanceRouteImport.update({
-  id: '/grievance',
-  path: '/grievance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FriendsRoute = FriendsRouteImport.update({
-  id: '/friends',
-  path: '/friends',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
-  id: '/feed.xml',
-  path: '/feed.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoturnSetupRoute = CoturnSetupRouteImport.update({
-  id: '/coturn-setup',
-  path: '/coturn-setup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdsDottxtRoute = AdsDottxtRouteImport.update({
-  id: '/ads.txt',
-  path: '/ads.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AchievementsRoute = AchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -219,24 +67,180 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoomsIndexRoute = RoomsIndexRouteImport.update({
-  id: '/rooms/',
-  path: '/rooms/',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MessagesIndexRoute = MessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
+const AdsDottxtRoute = AdsDottxtRouteImport.update({
+  id: '/ads.txt',
+  path: '/ads.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExploreIndexRoute = ExploreIndexRouteImport.update({
-  id: '/explore/',
-  path: '/explore/',
+const AnonymousVideoChatRoute = AnonymousVideoChatRouteImport.update({
+  id: '/anonymous-video-chat',
+  path: '/anonymous-video-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoturnSetupRoute = CoturnSetupRouteImport.update({
+  id: '/coturn-setup',
+  path: '/coturn-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GrievanceRoute = GrievanceRouteImport.update({
+  id: '/grievance',
+  path: '/grievance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexnowKeyDottxtRoute = IndexnowKeyDottxtRouteImport.update({
+  id: '/indexnow-key.txt',
+  path: '/indexnow-key.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchesRoute = MatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RandomVideoChatWorldwideRoute =
+  RandomVideoChatWorldwideRouteImport.update({
+    id: '/random-video-chat-worldwide',
+    path: '/random-video-chat-worldwide',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafeRandomVideoChatRoute = SafeRandomVideoChatRouteImport.update({
+  id: '/safe-random-video-chat',
+  path: '/safe-random-video-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafetyRoute = SafetyRouteImport.update({
+  id: '/safety',
+  path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeoDashboardRoute = SeoDashboardRouteImport.update({
+  id: '/seo-dashboard',
+  path: '/seo-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRecentDotxmlRoute = SitemapRecentDotxmlRouteImport.update({
+  id: '/sitemap-recent.xml',
+  path: '/sitemap-recent.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoomsDotxmlRoute = SitemapRoomsDotxmlRouteImport.update({
+  id: '/sitemap-rooms.xml',
+  path: '/sitemap-rooms.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
+  id: '/sitemap-static.xml',
+  path: '/sitemap-static.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisitorsRoute = VisitorsRouteImport.update({
+  id: '/visitors',
+  path: '/visitors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CallsIndexRoute = CallsIndexRouteImport.update({
@@ -244,19 +248,14 @@ const CallsIndexRoute = CallsIndexRouteImport.update({
   path: '/calls/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UUserIdRoute = UUserIdRouteImport.update({
-  id: '/u/$userId',
-  path: '/u/$userId',
+const CallsCallIdRoute = CallsCallIdRouteImport.update({
+  id: '/calls/$callId',
+  path: '/calls/$callId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoomsSlugRoute = RoomsSlugRouteImport.update({
-  id: '/rooms/$slug',
-  path: '/rooms/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
-  id: '/messages/$peerId',
-  path: '/messages/$peerId',
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreSlugRoute = ExploreSlugRouteImport.update({
@@ -264,9 +263,29 @@ const ExploreSlugRoute = ExploreSlugRouteImport.update({
   path: '/explore/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CallsCallIdRoute = CallsCallIdRouteImport.update({
-  id: '/calls/$callId',
-  path: '/calls/$callId',
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesPeerIdRoute = MessagesPeerIdRouteImport.update({
+  id: '/messages/$peerId',
+  path: '/messages/$peerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsIndexRoute = RoomsIndexRouteImport.update({
+  id: '/rooms/',
+  path: '/rooms/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsSlugRoute = RoomsSlugRouteImport.update({
+  id: '/rooms/$slug',
+  path: '/rooms/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UUserIdRoute = UUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSeoCronRoute = ApiPublicSeoCronRouteImport.update({
@@ -281,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -296,9 +316,11 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -327,6 +349,7 @@ export interface FileRoutesByTo {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -342,9 +365,11 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -374,6 +399,7 @@ export interface FileRoutesById {
   '/achievements': typeof AchievementsRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
+  '/anonymous-video-chat': typeof AnonymousVideoChatRoute
   '/chat': typeof ChatRoute
   '/coturn-setup': typeof CoturnSetupRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -389,9 +415,11 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/random-video-chat-worldwide': typeof RandomVideoChatWorldwideRoute
   '/referrals': typeof ReferralsRoute
   '/rewards': typeof RewardsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/safe-random-video-chat': typeof SafeRandomVideoChatRoute
   '/safety': typeof SafetyRoute
   '/seo-dashboard': typeof SeoDashboardRoute
   '/shop': typeof ShopRoute
@@ -422,6 +450,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -437,9 +466,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -468,6 +499,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -483,9 +515,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -514,6 +548,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/admin'
     | '/ads.txt'
+    | '/anonymous-video-chat'
     | '/chat'
     | '/coturn-setup'
     | '/feed.xml'
@@ -529,9 +564,11 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/profile'
+    | '/random-video-chat-worldwide'
     | '/referrals'
     | '/rewards'
     | '/robots.txt'
+    | '/safe-random-video-chat'
     | '/safety'
     | '/seo-dashboard'
     | '/shop'
@@ -561,6 +598,7 @@ export interface RootRouteChildren {
   AchievementsRoute: typeof AchievementsRoute
   AdminRoute: typeof AdminRoute
   AdsDottxtRoute: typeof AdsDottxtRoute
+  AnonymousVideoChatRoute: typeof AnonymousVideoChatRoute
   ChatRoute: typeof ChatRoute
   CoturnSetupRoute: typeof CoturnSetupRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
@@ -576,9 +614,11 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  RandomVideoChatWorldwideRoute: typeof RandomVideoChatWorldwideRoute
   ReferralsRoute: typeof ReferralsRoute
   RewardsRoute: typeof RewardsRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SafeRandomVideoChatRoute: typeof SafeRandomVideoChatRoute
   SafetyRoute: typeof SafetyRoute
   SeoDashboardRoute: typeof SeoDashboardRoute
   ShopRoute: typeof ShopRoute
@@ -604,228 +644,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/visitors': {
-      id: '/visitors'
-      path: '/visitors'
-      fullPath: '/visitors'
-      preLoaderRoute: typeof VisitorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-static.xml': {
-      id: '/sitemap-static.xml'
-      path: '/sitemap-static.xml'
-      fullPath: '/sitemap-static.xml'
-      preLoaderRoute: typeof SitemapStaticDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-rooms.xml': {
-      id: '/sitemap-rooms.xml'
-      path: '/sitemap-rooms.xml'
-      fullPath: '/sitemap-rooms.xml'
-      preLoaderRoute: typeof SitemapRoomsDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-recent.xml': {
-      id: '/sitemap-recent.xml'
-      path: '/sitemap-recent.xml'
-      fullPath: '/sitemap-recent.xml'
-      preLoaderRoute: typeof SitemapRecentDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-pages.xml': {
-      id: '/sitemap-pages.xml'
-      path: '/sitemap-pages.xml'
-      fullPath: '/sitemap-pages.xml'
-      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seo-dashboard': {
-      id: '/seo-dashboard'
-      path: '/seo-dashboard'
-      fullPath: '/seo-dashboard'
-      preLoaderRoute: typeof SeoDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/safety': {
-      id: '/safety'
-      path: '/safety'
-      fullPath: '/safety'
-      preLoaderRoute: typeof SafetyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rewards': {
-      id: '/rewards'
-      path: '/rewards'
-      fullPath: '/rewards'
-      preLoaderRoute: typeof RewardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/referrals': {
-      id: '/referrals'
-      path: '/referrals'
-      fullPath: '/referrals'
-      preLoaderRoute: typeof ReferralsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/premium': {
-      id: '/premium'
-      path: '/premium'
-      fullPath: '/premium'
-      preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/matches': {
-      id: '/matches'
-      path: '/matches'
-      fullPath: '/matches'
-      preLoaderRoute: typeof MatchesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaderboard': {
-      id: '/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/indexnow-key.txt': {
-      id: '/indexnow-key.txt'
-      path: '/indexnow-key.txt'
-      fullPath: '/indexnow-key.txt'
-      preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/grievance': {
-      id: '/grievance'
-      path: '/grievance'
-      fullPath: '/grievance'
-      preLoaderRoute: typeof GrievanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/friends': {
-      id: '/friends'
-      path: '/friends'
-      fullPath: '/friends'
-      preLoaderRoute: typeof FriendsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed.xml': {
-      id: '/feed.xml'
-      path: '/feed.xml'
-      fullPath: '/feed.xml'
-      preLoaderRoute: typeof FeedDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/coturn-setup': {
-      id: '/coturn-setup'
-      path: '/coturn-setup'
-      fullPath: '/coturn-setup'
-      preLoaderRoute: typeof CoturnSetupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ads.txt': {
-      id: '/ads.txt'
-      path: '/ads.txt'
-      fullPath: '/ads.txt'
-      preLoaderRoute: typeof AdsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/achievements': {
-      id: '/achievements'
-      path: '/achievements'
-      fullPath: '/achievements'
-      preLoaderRoute: typeof AchievementsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -835,32 +658,249 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rooms/': {
-      id: '/rooms/'
-      path: '/rooms'
-      fullPath: '/rooms/'
-      preLoaderRoute: typeof RoomsIndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/messages/': {
-      id: '/messages/'
-      path: '/messages'
-      fullPath: '/messages/'
-      preLoaderRoute: typeof MessagesIndexRouteImport
+    '/ads.txt': {
+      id: '/ads.txt'
+      path: '/ads.txt'
+      fullPath: '/ads.txt'
+      preLoaderRoute: typeof AdsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/explore/': {
-      id: '/explore/'
-      path: '/explore'
-      fullPath: '/explore/'
-      preLoaderRoute: typeof ExploreIndexRouteImport
+    '/anonymous-video-chat': {
+      id: '/anonymous-video-chat'
+      path: '/anonymous-video-chat'
+      fullPath: '/anonymous-video-chat'
+      preLoaderRoute: typeof AnonymousVideoChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coturn-setup': {
+      id: '/coturn-setup'
+      path: '/coturn-setup'
+      fullPath: '/coturn-setup'
+      preLoaderRoute: typeof CoturnSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grievance': {
+      id: '/grievance'
+      path: '/grievance'
+      fullPath: '/grievance'
+      preLoaderRoute: typeof GrievanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indexnow-key.txt': {
+      id: '/indexnow-key.txt'
+      path: '/indexnow-key.txt'
+      fullPath: '/indexnow-key.txt'
+      preLoaderRoute: typeof IndexnowKeyDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matches': {
+      id: '/matches'
+      path: '/matches'
+      fullPath: '/matches'
+      preLoaderRoute: typeof MatchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/random-video-chat-worldwide': {
+      id: '/random-video-chat-worldwide'
+      path: '/random-video-chat-worldwide'
+      fullPath: '/random-video-chat-worldwide'
+      preLoaderRoute: typeof RandomVideoChatWorldwideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safe-random-video-chat': {
+      id: '/safe-random-video-chat'
+      path: '/safe-random-video-chat'
+      fullPath: '/safe-random-video-chat'
+      preLoaderRoute: typeof SafeRandomVideoChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safety': {
+      id: '/safety'
+      path: '/safety'
+      fullPath: '/safety'
+      preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seo-dashboard': {
+      id: '/seo-dashboard'
+      path: '/seo-dashboard'
+      fullPath: '/seo-dashboard'
+      preLoaderRoute: typeof SeoDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-recent.xml': {
+      id: '/sitemap-recent.xml'
+      path: '/sitemap-recent.xml'
+      fullPath: '/sitemap-recent.xml'
+      preLoaderRoute: typeof SitemapRecentDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-rooms.xml': {
+      id: '/sitemap-rooms.xml'
+      path: '/sitemap-rooms.xml'
+      fullPath: '/sitemap-rooms.xml'
+      preLoaderRoute: typeof SitemapRoomsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-static.xml': {
+      id: '/sitemap-static.xml'
+      path: '/sitemap-static.xml'
+      fullPath: '/sitemap-static.xml'
+      preLoaderRoute: typeof SitemapStaticDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visitors': {
+      id: '/visitors'
+      path: '/visitors'
+      fullPath: '/visitors'
+      preLoaderRoute: typeof VisitorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calls/': {
@@ -870,25 +910,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CallsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/u/$userId': {
-      id: '/u/$userId'
-      path: '/u/$userId'
-      fullPath: '/u/$userId'
-      preLoaderRoute: typeof UUserIdRouteImport
+    '/calls/$callId': {
+      id: '/calls/$callId'
+      path: '/calls/$callId'
+      fullPath: '/calls/$callId'
+      preLoaderRoute: typeof CallsCallIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rooms/$slug': {
-      id: '/rooms/$slug'
-      path: '/rooms/$slug'
-      fullPath: '/rooms/$slug'
-      preLoaderRoute: typeof RoomsSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/$peerId': {
-      id: '/messages/$peerId'
-      path: '/messages/$peerId'
-      fullPath: '/messages/$peerId'
-      preLoaderRoute: typeof MessagesPeerIdRouteImport
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore/$slug': {
@@ -898,11 +931,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calls/$callId': {
-      id: '/calls/$callId'
-      path: '/calls/$callId'
-      fullPath: '/calls/$callId'
-      preLoaderRoute: typeof CallsCallIdRouteImport
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages/$peerId': {
+      id: '/messages/$peerId'
+      path: '/messages/$peerId'
+      fullPath: '/messages/$peerId'
+      preLoaderRoute: typeof MessagesPeerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms/': {
+      id: '/rooms/'
+      path: '/rooms'
+      fullPath: '/rooms/'
+      preLoaderRoute: typeof RoomsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms/$slug': {
+      id: '/rooms/$slug'
+      path: '/rooms/$slug'
+      fullPath: '/rooms/$slug'
+      preLoaderRoute: typeof RoomsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$userId': {
+      id: '/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof UUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/seo-cron': {
@@ -921,6 +982,7 @@ const rootRouteChildren: RootRouteChildren = {
   AchievementsRoute: AchievementsRoute,
   AdminRoute: AdminRoute,
   AdsDottxtRoute: AdsDottxtRoute,
+  AnonymousVideoChatRoute: AnonymousVideoChatRoute,
   ChatRoute: ChatRoute,
   CoturnSetupRoute: CoturnSetupRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
@@ -936,9 +998,11 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  RandomVideoChatWorldwideRoute: RandomVideoChatWorldwideRoute,
   ReferralsRoute: ReferralsRoute,
   RewardsRoute: RewardsRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SafeRandomVideoChatRoute: SafeRandomVideoChatRoute,
   SafetyRoute: SafetyRoute,
   SeoDashboardRoute: SeoDashboardRoute,
   ShopRoute: ShopRoute,

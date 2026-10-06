@@ -21,6 +21,9 @@ export const Route = createFileRoute("/llms.txt")({
 ## Main pages
 - [Home](${SITE_URL}/): start a random video chat
 - [Explore guides](${SITE_URL}/explore): articles on meeting people online safely
+- [Safe random video chat](${SITE_URL}/safe-random-video-chat): safety tools, boundaries, and adult-only guidance
+- [Worldwide random video chat](${SITE_URL}/random-video-chat-worldwide): global matching, languages, and availability
+- [Anonymous video chat](${SITE_URL}/anonymous-video-chat): starting without a phone number or email and protecting privacy
 - [Safety](${SITE_URL}/safety): community rules
 - [About](${SITE_URL}/about)
 - [Terms](${SITE_URL}/terms)
