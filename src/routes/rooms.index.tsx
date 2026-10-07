@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Hash, Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/rooms/")({
   head: () => ({
@@ -19,17 +20,24 @@ interface Room {
 }
 
 function RoomsPage() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/login" });
+  }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
     void supabase.from("rooms").select("*").order("is_official", { ascending: false }).order("name").then(({ data }) => {
       setRooms((data as Room[]) ?? []);
       setLoading(false);
     });
-  }, []);
+  }, [user?.id]);
 
-  if (loading) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;
+  if (authLoading || !user || loading) return <div className="min-h-screen grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-background">
