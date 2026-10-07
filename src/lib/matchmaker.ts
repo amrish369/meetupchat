@@ -35,6 +35,7 @@ import { OPEN_RELAY_ICE_SERVERS } from "@/lib/ice-servers";
 
 let turnCache: { value: TurnCredentialsResponse; fetchedAt: number } | null = null;
 const REFRESH_BUFFER_SEC = 5 * 60;
+const RELAY_FALLBACK_MS = 5_000;
 
 async function fetchIceServers(sessionId: string): Promise<RTCIceServer[]> {
   const now = Math.floor(Date.now() / 1000);
@@ -117,10 +118,12 @@ export class Matchmaker {
 
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private matchTimer: ReturnType<typeof setTimeout> | null = null;
+  private relayFallbackTimer: ReturnType<typeof setTimeout> | null = null;
   private onlineRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private queuedMatchPollTimer: ReturnType<typeof setInterval> | null = null;
 
   private retryingIce = false;
+  private relayRetryInProgress = false;
   private forceRelay = false;
   private pairRetried = false;
 
@@ -189,6 +192,8 @@ export class Matchmaker {
     this.roomId = null;
     this.pairRetried = false;
     this.offerSent = false;
+    this.relayRetryInProgress = false;
+    this.clearRelayFallbackTimer();
 
     // Subscribe to matches table BEFORE calling request_match to avoid race
     await this.subscribeMatches();
@@ -383,6 +388,22 @@ export class Matchmaker {
       .on("broadcast", { event: "bye" }, () => {
         void this.handlePeerLeft();
       })
+      .on("broadcast", { event: "relay-request" }, () => {
+        if (this.isCaller) void this.handleIceFailure();
+      })
+      .on("broadcast", { event: "relay-retry" }, () => {
+        if (this.relayRetryInProgress) return;
+        this.relayRetryInProgress = true;
+        this.pairRetried = true;
+        this.forceRelay = true;
+        this.resetPeerForRelay();
+        this.signal?.send({ type: "broadcast", event: "relay-ready", payload: {} });
+      })
+      .on("broadcast", { event: "relay-ready" }, () => {
+        if (!this.isCaller || !this.relayRetryInProgress || this.offerSent) return;
+        this.offerSent = true;
+        void this.startCallerOffer();
+      })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
           await ch.track({ at: Date.now() });
@@ -402,7 +423,44 @@ export class Matchmaker {
         at: Date.now(),
       });
       void this.handlePeerLeft();
-    }, 15_000);
+    }, 35_000);
+  }
+
+  private scheduleRelayFallback() {
+    this.clearRelayFallbackTimer();
+    if (this.pairRetried) return;
+    this.relayFallbackTimer = setTimeout(() => {
+      this.relayFallbackTimer = null;
+      if (!this.active || this.pc?.connectionState === "connected") return;
+      if (this.isCaller) {
+        void this.handleIceFailure();
+      } else {
+        this.cb.onStatus("connecting", "No connection after 5 seconds — requesting TURN relay…");
+        this.signal?.send({ type: "broadcast", event: "relay-request", payload: {} });
+      }
+    }, RELAY_FALLBACK_MS);
+  }
+
+  private clearRelayFallbackTimer() {
+    if (this.relayFallbackTimer) {
+      clearTimeout(this.relayFallbackTimer);
+      this.relayFallbackTimer = null;
+    }
+  }
+
+  private resetPeerForRelay() {
+    this.clearRelayFallbackTimer();
+    if (this.dc) {
+      try { this.dc.close(); } catch { /* */ }
+      this.dc = null;
+    }
+    if (this.pc) {
+      try { this.pc.close(); } catch { /* */ }
+      this.pc = null;
+    }
+    this.pendingCandidates = [];
+    this.remoteStream = null;
+    this.cb.onRemoteStream(null);
   }
 
   private clearMatchTimer() {
@@ -419,6 +477,7 @@ export class Matchmaker {
     const offer = await this.pc!.createOffer();
     await this.pc!.setLocalDescription(offer);
     this.signal?.send({ type: "broadcast", event: "offer", payload: { sdp: offer } });
+    this.scheduleRelayFallback();
   }
 
   private async ensurePc() {
@@ -459,6 +518,7 @@ export class Matchmaker {
         this.clearMatchTimer();
         this.cb.onStatus("connected");
         this.pairRetried = false;
+        this.relayRetryInProgress = false;
         this.retryingIce = false;
       }
       if (s === "failed") void this.handleIceFailure();
@@ -479,6 +539,15 @@ export class Matchmaker {
 
   private async handleIceFailure() {
     if (this.retryingIce) return;
+    if (!this.isCaller) {
+      if (this.pairRetried && this.relayRetryInProgress) {
+        await this.handlePeerLeft();
+      } else {
+        this.signal?.send({ type: "broadcast", event: "relay-request", payload: {} });
+      }
+      return;
+    }
+    if (this.relayRetryInProgress) return;
     this.retryingIce = true;
     if (this.pairRetried) {
       this.cb.onMessage({
@@ -492,27 +561,19 @@ export class Matchmaker {
       return;
     }
     this.pairRetried = true;
+    this.relayRetryInProgress = true;
     this.forceRelay = true;
     turnCache = null;
 
-    this.cb.onStatus("connecting", "Reconnecting via relay…");
+    this.cb.onStatus("connecting", "No connection after 5 seconds — switching to TURN relay…");
     this.cb.onMessage({
       id: crypto.randomUUID(),
       from: "system",
-      text: "Network is strict — switching to relay (TURN)…",
+      text: "Connection is taking longer — switching to relay (TURN)…",
       at: Date.now(),
     });
-
-    if (this.dc) { try { this.dc.close(); } catch { /* */ } this.dc = null; }
-    if (this.pc) { try { this.pc.close(); } catch { /* */ } this.pc = null; }
-    this.pendingCandidates = [];
-    this.remoteStream = null;
-    this.cb.onRemoteStream(null);
-
-    if (this.isCaller) {
-      this.offerSent = true;
-      await this.startCallerOffer();
-    }
+    this.resetPeerForRelay();
+    this.signal?.send({ type: "broadcast", event: "relay-retry", payload: {} });
     this.retryingIce = false;
   }
 
@@ -639,6 +700,7 @@ export class Matchmaker {
 
   private async tearDownPeer() {
     this.clearMatchTimer();
+    this.clearRelayFallbackTimer();
     this.stopQueuedMatchPolling();
     const endedRoomId = this.roomId;
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
