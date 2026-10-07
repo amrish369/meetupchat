@@ -8,6 +8,13 @@
       "when": 1791390017232,
       "tag": "0000_tighten_selected_catalog_and_avatar_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791390173707,
+      "tag": "0001_restrict_room_reads_to_signed_in_authors",
+      "breakpoints": true
     }
   ]
 }
