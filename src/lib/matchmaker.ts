@@ -94,6 +94,40 @@ function createConnectionId(sessionId: string) {
   return `${sessionId}-${suffix}`;
 }
 
+function withOpusFec(description: RTCSessionDescriptionInit): RTCSessionDescriptionInit {
+  if (!description.sdp) return description;
+  const lines = description.sdp.split(/\r?\n/);
+  const opusPayloads = new Set<string>();
+  for (const line of lines) {
+    const match = /^a=rtpmap:(\d+)\s+opus\/48000(?:\/\d+)?/i.exec(line);
+    if (match?.[1]) opusPayloads.add(match[1]);
+  }
+  if (opusPayloads.size === 0) return description;
+
+  const configured = new Set<string>();
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = /^a=fmtp:(\d+)\s*(.*)$/i.exec(lines[index] ?? "");
+    const payload = match?.[1];
+    if (!payload || !opusPayloads.has(payload)) continue;
+    const params = match[2] ?? "";
+    if (/\buseinbandfec\s*=/i.test(params)) {
+      lines[index] = `a=fmtp:${payload} ${params.replace(/\buseinbandfec\s*=\s*[^;\s]+/i, "useinbandfec=1")}`;
+    } else {
+      lines[index] = `a=fmtp:${payload}${params ? ` ${params};` : " "}useinbandfec=1`;
+    }
+    configured.add(payload);
+  }
+
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const match = /^a=rtpmap:(\d+)\s+opus\/48000(?:\/\d+)?/i.exec(lines[index] ?? "");
+    const payload = match?.[1];
+    if (payload && !configured.has(payload)) {
+      lines.splice(index + 1, 0, `a=fmtp:${payload} useinbandfec=1`);
+    }
+  }
+  return { ...description, sdp: lines.join("\r\n") };
+}
+
 export class Matchmaker {
   private sessionId: string;
   private connectionId: string;
@@ -116,6 +150,7 @@ export class Matchmaker {
   private offerSent = false;
   private currentOffer: RTCSessionDescriptionInit | null = null;
   private currentAnswer: RTCSessionDescriptionInit | null = null;
+  private handlingOffer = false;
   private offerRetryCount = 0;
   private pendingCandidates: RTCIceCandidateInit[] = [];
 
@@ -383,19 +418,27 @@ export class Matchmaker {
           });
           return;
         }
-        await this.ensurePc();
-        if (!this.pc) return;
-        await this.pc.setRemoteDescription(payload.sdp);
-        await this.flushCandidates();
-        const answer = await this.pc!.createAnswer();
-        await this.pc.setLocalDescription(withOpusFec(answer));
-        this.currentAnswer = this.pc.localDescription?.toJSON() ?? answer;
-        void this.signal?.send({
-          type: "broadcast",
-          event: "answer",
-          payload: { sdp: this.currentAnswer },
-        });
-        this.scheduleRelayFallback();
+        if (this.handlingOffer) return;
+        this.handlingOffer = true;
+        try {
+          await this.ensurePc();
+          if (!this.pc) return;
+          await this.pc.setRemoteDescription(payload.sdp);
+          await this.flushCandidates();
+          const answer = await this.pc.createAnswer();
+          await this.pc.setLocalDescription(withOpusFec(answer));
+          this.currentAnswer = this.pc.localDescription?.toJSON() ?? answer;
+          void this.signal?.send({
+            type: "broadcast",
+            event: "answer",
+            payload: { sdp: this.currentAnswer },
+          });
+          this.scheduleRelayFallback();
+        } catch (error) {
+          console.warn("[matchmaker] could not answer the current offer", error);
+        } finally {
+          this.handlingOffer = false;
+        }
       })
       .on("broadcast", { event: "answer" }, async ({ payload }) => {
         if (!this.isCaller || !this.pc) return;
@@ -511,6 +554,7 @@ export class Matchmaker {
     this.offerSent = false;
     this.currentOffer = null;
     this.currentAnswer = null;
+    this.handlingOffer = false;
     this.offerRetryCount = 0;
     if (this.dc) {
       try { this.dc.close(); } catch { /* */ }
@@ -564,8 +608,9 @@ export class Matchmaker {
     this.remoteStream = new MediaStream();
     this.cb.onRemoteStream(this.remoteStream);
 
-    this.localStream?.getTracks().forEach((track) => {
-      const sender = pc.addTrack(track, this.localStream as MediaStream);
+    const localStream = this.localStream;
+    localStream?.getTracks().forEach((track) => {
+      const sender = pc.addTrack(track, localStream);
       if (track.kind === "video") {
         const params = sender.getParameters();
         params.degradationPreference = "maintain-framerate";
@@ -812,6 +857,7 @@ export class Matchmaker {
     this.offerSent = false;
     this.currentOffer = null;
     this.currentAnswer = null;
+    this.handlingOffer = false;
     this.offerRetryCount = 0;
     this.pendingCandidates = [];
     this.pairRetried = false;
