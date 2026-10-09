@@ -114,11 +114,15 @@ export class Matchmaker {
   private isCaller = false;
   private active = false;
   private offerSent = false;
+  private currentOffer: RTCSessionDescriptionInit | null = null;
+  private currentAnswer: RTCSessionDescriptionInit | null = null;
+  private offerRetryCount = 0;
   private pendingCandidates: RTCIceCandidateInit[] = [];
 
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private matchTimer: ReturnType<typeof setTimeout> | null = null;
   private relayFallbackTimer: ReturnType<typeof setTimeout> | null = null;
+  private offerRetryTimer: ReturnType<typeof setTimeout> | null = null;
   private onlineRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private queuedMatchPollTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -145,8 +149,17 @@ export class Matchmaker {
 
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
-        audio: { echoCancellation: true, noiseSuppression: true },
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 24, max: 30 },
+          facingMode: "user",
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
       this.cb.onLocalStream(this.localStream);
     } catch {
@@ -192,6 +205,10 @@ export class Matchmaker {
     this.roomId = null;
     this.pairRetried = false;
     this.offerSent = false;
+    this.currentOffer = null;
+    this.currentAnswer = null;
+    this.offerRetryCount = 0;
+    this.clearOfferRetryTimer();
     this.relayRetryInProgress = false;
     this.clearRelayFallbackTimer();
 
@@ -346,6 +363,9 @@ export class Matchmaker {
       this.signal = null;
     }
     this.offerSent = false;
+    this.currentOffer = null;
+    this.currentAnswer = null;
+    this.offerRetryCount = 0;
     const ch = supabase.channel(`room:${roomId}`, {
       config: {
         broadcast: { self: false, ack: false },
@@ -353,34 +373,40 @@ export class Matchmaker {
       },
     });
 
-    ch.on("presence", { event: "sync" }, () => {
-      if (!this.isCaller || this.offerSent || !this.signal) return;
-      const state = this.signal.presenceState();
-      // Wait for the callee to be present before firing the offer
-      if (this.peerId && Object.keys(state).includes(this.peerId)) {
-        this.offerSent = true;
-        void this.startCallerOffer();
-      }
-    })
-      .on("broadcast", { event: "offer" }, async ({ payload }) => {
+    ch.on("broadcast", { event: "offer" }, async ({ payload }) => {
         if (this.isCaller) return;
+        if (this.currentAnswer) {
+          void this.signal?.send({
+            type: "broadcast",
+            event: "answer",
+            payload: { sdp: this.currentAnswer },
+          });
+          return;
+        }
         await this.ensurePc();
-        await this.pc!.setRemoteDescription(payload.sdp);
+        if (!this.pc) return;
+        await this.pc.setRemoteDescription(payload.sdp);
         await this.flushCandidates();
         const answer = await this.pc!.createAnswer();
-        await this.pc!.setLocalDescription(answer);
-        this.signal?.send({ type: "broadcast", event: "answer", payload: { sdp: answer } });
+        await this.pc.setLocalDescription(withOpusFec(answer));
+        this.currentAnswer = this.pc.localDescription?.toJSON() ?? answer;
+        void this.signal?.send({
+          type: "broadcast",
+          event: "answer",
+          payload: { sdp: this.currentAnswer },
+        });
         this.scheduleRelayFallback();
       })
       .on("broadcast", { event: "answer" }, async ({ payload }) => {
         if (!this.isCaller || !this.pc) return;
+        this.clearOfferRetryTimer();
+        this.currentOffer = null;
         await this.pc.setRemoteDescription(payload.sdp);
         await this.flushCandidates();
       })
       .on("broadcast", { event: "ice" }, async ({ payload }) => {
-        if (!this.pc) return;
         const candidate = payload.candidate as RTCIceCandidateInit;
-        if (!this.pc.remoteDescription) {
+        if (!this.pc?.remoteDescription) {
           this.pendingCandidates.push(candidate);
           return;
         }
@@ -408,6 +434,13 @@ export class Matchmaker {
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
           await ch.track({ at: Date.now() });
+          // Don't wait on cross-region presence synchronization. Repeatedly
+          // send the same offer until an answer arrives so a late subscriber
+          // still receives it over the ephemeral signaling channel.
+          if (this.isCaller && !this.offerSent) {
+            this.offerSent = true;
+            void this.startCallerOffer();
+          }
         }
       });
     this.signal = ch;
@@ -449,9 +482,36 @@ export class Matchmaker {
     }
   }
 
+  private clearOfferRetryTimer() {
+    if (this.offerRetryTimer) {
+      clearTimeout(this.offerRetryTimer);
+      this.offerRetryTimer = null;
+    }
+  }
+
+  private scheduleOfferRetry() {
+    this.clearOfferRetryTimer();
+    if (!this.active || !this.isCaller || !this.currentOffer || this.offerRetryCount >= 12) return;
+    this.offerRetryTimer = setTimeout(() => {
+      this.offerRetryTimer = null;
+      if (!this.active || !this.isCaller || !this.currentOffer || this.pc?.remoteDescription) return;
+      this.offerRetryCount += 1;
+      void this.signal?.send({
+        type: "broadcast",
+        event: "offer",
+        payload: { sdp: this.currentOffer },
+      });
+      this.scheduleOfferRetry();
+    }, 1_500);
+  }
+
   private resetPeerForRelay() {
     this.clearRelayFallbackTimer();
+    this.clearOfferRetryTimer();
     this.offerSent = false;
+    this.currentOffer = null;
+    this.currentAnswer = null;
+    this.offerRetryCount = 0;
     if (this.dc) {
       try { this.dc.close(); } catch { /* */ }
       this.dc = null;
@@ -474,11 +534,22 @@ export class Matchmaker {
 
   private async startCallerOffer() {
     await this.ensurePc();
-    this.dc = this.pc!.createDataChannel("chat");
-    this.wireDataChannel(this.dc);
-    const offer = await this.pc!.createOffer();
-    await this.pc!.setLocalDescription(offer);
-    this.signal?.send({ type: "broadcast", event: "offer", payload: { sdp: offer } });
+    if (!this.pc || !this.signal) return;
+    if (!this.dc) {
+      this.dc = this.pc.createDataChannel("chat");
+      this.wireDataChannel(this.dc);
+    }
+    if (!this.currentOffer) {
+      const offer = await this.pc.createOffer();
+      await this.pc.setLocalDescription(withOpusFec(offer));
+      this.currentOffer = this.pc.localDescription?.toJSON() ?? offer;
+    }
+    void this.signal.send({
+      type: "broadcast",
+      event: "offer",
+      payload: { sdp: this.currentOffer },
+    });
+    this.scheduleOfferRetry();
     this.scheduleRelayFallback();
   }
 
@@ -493,7 +564,21 @@ export class Matchmaker {
     this.remoteStream = new MediaStream();
     this.cb.onRemoteStream(this.remoteStream);
 
-    this.localStream?.getTracks().forEach((t) => pc.addTrack(t, this.localStream!));
+    this.localStream?.getTracks().forEach((track) => {
+      const sender = pc.addTrack(track, this.localStream as MediaStream);
+      if (track.kind === "video") {
+        const params = sender.getParameters();
+        params.degradationPreference = "maintain-framerate";
+        const encoding = params.encodings?.[0];
+        if (encoding) {
+          encoding.maxFramerate = 24;
+          encoding.maxBitrate = 900_000;
+        }
+        void sender.setParameters(params).catch(() => {
+          // Browsers that don't support these optional adaptive knobs keep defaults.
+        });
+      }
+    });
 
     pc.ontrack = (e) => {
       e.streams[0].getTracks().forEach((t) => this.remoteStream!.addTrack(t));
@@ -703,6 +788,7 @@ export class Matchmaker {
   private async tearDownPeer() {
     this.clearMatchTimer();
     this.clearRelayFallbackTimer();
+    this.clearOfferRetryTimer();
     this.stopQueuedMatchPolling();
     const endedRoomId = this.roomId;
     try { this.signal?.send({ type: "broadcast", event: "bye", payload: {} }); } catch { /* */ }
@@ -724,6 +810,9 @@ export class Matchmaker {
     this.peerId = null;
     this.roomId = null;
     this.offerSent = false;
+    this.currentOffer = null;
+    this.currentAnswer = null;
+    this.offerRetryCount = 0;
     this.pendingCandidates = [];
     this.pairRetried = false;
     this.retryingIce = false;
