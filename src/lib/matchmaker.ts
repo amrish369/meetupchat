@@ -370,6 +370,7 @@ export class Matchmaker {
         const answer = await this.pc!.createAnswer();
         await this.pc!.setLocalDescription(answer);
         this.signal?.send({ type: "broadcast", event: "answer", payload: { sdp: answer } });
+        this.scheduleRelayFallback();
       })
       .on("broadcast", { event: "answer" }, async ({ payload }) => {
         if (!this.isCaller || !this.pc) return;
@@ -450,6 +451,7 @@ export class Matchmaker {
 
   private resetPeerForRelay() {
     this.clearRelayFallbackTimer();
+    this.offerSent = false;
     if (this.dc) {
       try { this.dc.close(); } catch { /* */ }
       this.dc = null;
