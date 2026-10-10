@@ -1,2 +1,2 @@
 - Public SEO landing pages use separate file-based leaf routes with unique metadata, while a shared view keeps their presentation consistent; this preserves independent search identity without duplicating the layout.
-- Random-match WebRTC relay retries are coordinated over the existing private signaling broadcast channel so both peers restart ICE together; this prevents one-sided retries from leaving calls disconnected.
+- Random-match WebRTC must use the existing private signaling channel for bounded offer retries, cached answer retransmission, and coordinated ICE relay restarts; this reduces missed cross-region signaling without splitting peer state.
