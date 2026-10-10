@@ -2,3 +2,5 @@
 - [x] Link the pages from Explore, the AI-readable site summary, and the sitemap.
 - [x] Verify metadata, routes, and the preview after the changes.
 - [x] Improve random-match international call recovery with a 5-second TURN relay retry and a 35-second overall connection window.
+- [x] Improve call resilience with Opus FEC, automatic microphone gain, bounded SDP offer retries, cached answer resend, and adaptive video settings.
+- [ ] Verify clear audio/video over real international networks; local browser clients gathered no ICE candidates in the sandbox, so this needs two real devices on distinct networks.
