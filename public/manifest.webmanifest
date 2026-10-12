@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "Meetup — Live Video Chat",
+  "short_name": "Meetup",
+  "description": "Meet and chat with people around the world.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0C2340",
+  "background_color": "#0C2340",
+  "icons": [
+    {
+      "src": "/icons/meetup-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/meetup-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/meetup-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

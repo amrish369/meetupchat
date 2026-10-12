@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { AuthProvider } from "@/lib/auth";
 import { IncomingCallModal } from "@/components/incoming-call-modal";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { InstallAppPrompt } from "@/components/install-app-prompt";
 
 import appCss from "../styles.css?url";
 
@@ -32,6 +33,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#0C2340" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Meetup" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { title: "Meetup — Free random video chat with strangers worldwide" },
       {
         name: "description",
@@ -56,6 +62,9 @@ export const Route = createRootRoute({
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e10ad92c-7bfe-457b-a716-10bdb5c76eef/id-preview-f0946eda--8aefbe33-0e82-4b79-b045-00a70c1ae815.lovable.app-1776938161959.png" },
     ],
     links: [
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/icons/meetup-192.png", sizes: "192x192", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/icons/meetup-192.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" },
@@ -93,6 +102,7 @@ function RootComponent() {
       <Outlet />
       <IncomingCallModal />
       <MobileTabBar />
+      <InstallAppPrompt />
     </AuthProvider>
   );
 }
