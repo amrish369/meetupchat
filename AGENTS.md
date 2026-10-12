@@ -1,2 +1,3 @@
 - Public SEO landing pages use separate file-based leaf routes with unique metadata, while a shared view keeps their presentation consistent; this preserves independent search identity without duplicating the layout.
 - Random-match WebRTC must use the existing private signaling channel for bounded offer retries, cached answer retransmission, and coordinated ICE relay restarts; this reduces missed cross-region signaling without splitting peer state.
+- Installable mobile-app support uses manifest metadata and a browser-aware install prompt without an app-shell service worker, because offline behavior was not requested and preview caching must remain safe.

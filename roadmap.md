@@ -3,4 +3,5 @@
 - [x] Verify metadata, routes, and the preview after the changes.
 - [x] Improve random-match international call recovery with a 5-second TURN relay retry and a 35-second overall connection window.
 - [x] Improve call resilience with Opus FEC, automatic microphone gain, bounded SDP offer retries, cached answer resend, and adaptive video settings.
+- [x] Make Meetup installable from supported mobile browsers with standalone launch, app icons, and platform-specific install guidance.
 - [ ] Verify clear audio/video over real international networks; local browser clients gathered no ICE candidates in the sandbox, so this needs two real devices on distinct networks.
