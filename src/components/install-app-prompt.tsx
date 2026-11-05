@@ -71,7 +71,7 @@ export function InstallAppPrompt() {
 
   return (
     <>
-      <aside className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center gap-3 rounded-lg border border-border bg-background p-3 shadow-lg md:hidden">
+      <aside className="fixed inset-x-3 top-[calc(4.5rem+env(safe-area-inset-top))] z-50 mx-auto flex max-w-md items-center gap-3 rounded-lg border border-border bg-background p-3 shadow-lg md:hidden">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
           <Download className="h-5 w-5" aria-hidden="true" />
         </span>
