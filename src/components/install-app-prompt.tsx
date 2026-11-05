@@ -57,7 +57,7 @@ export function InstallAppPrompt() {
   }, []);
 
   if (!showPrompt || pathname.startsWith("/chat") || pathname.startsWith("/calls/")) return null;
-  if (pathname === "/" && !hasScrolledPastHomeIntro) return null;
+  if ((pathname === "/" || pathname === "/index") && !hasScrolledPastHomeIntro) return null;
 
   const dismiss = () => {
     window.localStorage.setItem("meetup-install-dismissed", "yes");
