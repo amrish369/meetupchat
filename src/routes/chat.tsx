@@ -192,8 +192,11 @@ function ChatRoom() {
         }
       },
       onRemoteStream: (s) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = s;
+        const el = remoteVideoRef.current;
+        if (el) {
+          if (el.srcObject !== s) el.srcObject = s;
+          // Mobile browsers sometimes need an explicit play() once tracks arrive.
+          void el.play().catch(() => {});
         }
       },
       onMessage: (msg) => setMessages((prev) => [...prev, msg]),

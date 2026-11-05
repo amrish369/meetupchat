@@ -626,8 +626,12 @@ export class Matchmaker {
     });
 
     pc.ontrack = (e) => {
-      e.streams[0].getTracks().forEach((t) => this.remoteStream!.addTrack(t));
-      this.cb.onRemoteStream(this.remoteStream);
+      const rs = this.remoteStream!;
+      const tracks = e.streams[0]?.getTracks() ?? [e.track];
+      tracks.forEach((t) => {
+        if (!rs.getTracks().some((x) => x.id === t.id)) rs.addTrack(t);
+      });
+      this.cb.onRemoteStream(rs);
     };
 
     pc.onicecandidate = (e) => {

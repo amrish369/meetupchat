@@ -58,6 +58,34 @@ export const getTurnCredentials = createServerFn({ method: "POST" })
     // work worldwide even without a self-hosted Coturn instance.
     const baseServers: RTCIceServer[] = OPEN_RELAY_ICE_SERVERS;
 
+    // Preferred: Cloudflare Realtime TURN (global anycast relay, free tier).
+    const cfKeyId = process.env.CLOUDFLARE_TURN_KEY_ID;
+    const cfToken = process.env.CLOUDFLARE_TURN_API_TOKEN;
+    if (cfKeyId && cfToken) {
+      try {
+        const res = await fetch(
+          `https://rtc.live.cloudflare.com/v1/turn/keys/${cfKeyId}/credentials/generate-ice-servers`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${cfToken}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ ttl }),
+          },
+        );
+        if (res.ok) {
+          const json = (await res.json()) as { iceServers: RTCIceServer | RTCIceServer[] };
+          const cf = Array.isArray(json.iceServers) ? json.iceServers : [json.iceServers];
+          return {
+            iceServers: [...cf, ...baseServers],
+            expiresAt: Math.floor(Date.now() / 1000) + ttl,
+            ttl,
+          };
+        }
+        console.warn("[turn] Cloudflare TURN returned", res.status);
+      } catch (err) {
+        console.warn("[turn] Cloudflare TURN fetch failed", err);
+      }
+    }
+
     if (!secret || !urlsRaw) {
       return {
         iceServers: baseServers,

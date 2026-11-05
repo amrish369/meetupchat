@@ -1,39 +1,13 @@
 /**
- * Shared ICE server configuration.
+ * Shared public STUN servers. These help two devices discover a direct path.
  *
- * Uses the free public "Open Relay" TURN project (Metered) so calls can
- * connect worldwide — including mobile data / symmetric NAT / strict
- * firewalls where plain STUN + P2P fails. TCP/443 variants are included
- * because many corporate and mobile networks only allow HTTPS ports.
- *
- * These credentials are intentionally public (the project publishes them);
- * they are not secrets. If you later add your own TURN server, set
- * TURN_SHARED_SECRET + TURN_URLS and the server function will mint
- * short-lived credentials instead.
+ * NOTE: the old free "Open Relay" TURN host (openrelay.metered.ca) no longer
+ * works — its DNS now points to a reserved non-routable address — so it was
+ * removed. Real relay (TURN) is supplied by the server function using
+ * Cloudflare TURN or self-hosted Coturn credentials.
  */
 export const OPEN_RELAY_ICE_SERVERS: RTCIceServer[] = [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
   { urls: "stun:stun.cloudflare.com:3478" },
-  { urls: "stun:openrelay.metered.ca:80" },
-  {
-    urls: "turn:openrelay.metered.ca:80",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
-  {
-    urls: "turn:openrelay.metered.ca:80?transport=tcp",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
-  {
-    urls: "turn:openrelay.metered.ca:443",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
-  {
-    urls: "turns:openrelay.metered.ca:443?transport=tcp",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
+  { urls: "stun:global.stun.twilio.com:3478" },
 ];
