@@ -21,6 +21,7 @@ export function InstallAppPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const [hasScrolledPastHomeIntro, setHasScrolledPastHomeIntro] = useState(false);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
@@ -32,6 +33,9 @@ export function InstallAppPrompt() {
 
     setIsIos(ios);
     setShowPrompt(!standalone && !dismissed && /Android|iPad|iPhone|iPod/i.test(userAgent));
+    const updateScrollPosition = () => setHasScrolledPastHomeIntro(window.scrollY > window.innerHeight * 0.8);
+    updateScrollPosition();
+    window.addEventListener("scroll", updateScrollPosition, { passive: true });
 
     const handleInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -48,10 +52,12 @@ export function InstallAppPrompt() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
       window.removeEventListener("appinstalled", handleInstalled);
+      window.removeEventListener("scroll", updateScrollPosition);
     };
   }, []);
 
   if (!showPrompt || pathname.startsWith("/chat") || pathname.startsWith("/calls/")) return null;
+  if (pathname === "/" && !hasScrolledPastHomeIntro) return null;
 
   const dismiss = () => {
     window.localStorage.setItem("meetup-install-dismissed", "yes");
