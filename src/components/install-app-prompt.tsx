@@ -21,7 +21,6 @@ export function InstallAppPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
-  const [hasScrolledPastHomeIntro, setHasScrolledPastHomeIntro] = useState(false);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
@@ -33,9 +32,6 @@ export function InstallAppPrompt() {
 
     setIsIos(ios);
     setShowPrompt(!standalone && !dismissed && /Android|iPad|iPhone|iPod/i.test(userAgent));
-    const updateScrollPosition = () => setHasScrolledPastHomeIntro(window.scrollY > window.innerHeight * 0.8);
-    updateScrollPosition();
-    window.addEventListener("scroll", updateScrollPosition, { passive: true });
 
     const handleInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -52,12 +48,10 @@ export function InstallAppPrompt() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
       window.removeEventListener("appinstalled", handleInstalled);
-      window.removeEventListener("scroll", updateScrollPosition);
     };
   }, []);
 
   if (!showPrompt || pathname.startsWith("/chat") || pathname.startsWith("/calls/")) return null;
-  if ((pathname === "/" || pathname === "/index") && !hasScrolledPastHomeIntro) return null;
 
   const dismiss = () => {
     window.localStorage.setItem("meetup-install-dismissed", "yes");
@@ -77,7 +71,7 @@ export function InstallAppPrompt() {
 
   return (
     <>
-      <aside className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center gap-3 rounded-lg border border-border bg-background p-3 shadow-lg md:hidden">
+      <aside className="fixed inset-x-3 top-[calc(4.5rem+env(safe-area-inset-top))] z-50 mx-auto flex max-w-md items-center gap-3 rounded-lg border border-border bg-background p-3 shadow-lg md:hidden">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
           <Download className="h-5 w-5" aria-hidden="true" />
         </span>
